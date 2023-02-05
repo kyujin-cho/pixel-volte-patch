@@ -1,0 +1,88 @@
+# Pixel 6 & 7 LG U+ VoLTE 활성화
+
+## 개요
+
+이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 LG U+ 회선에서의 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
+
+## 적용 방법
+
+### 준비물
+
+- Google Tensor Chipset이 적용된 Pixel 단말기
+  - Google Pixel 6
+  - Google Pixel 6a
+  - Google Pixel 6 Pro
+  - Google Pixel 7
+  - Google Pixel 7 Pro
+- [Android Platform Tools](https://developer.android.com/studio/command-line/adb) 이 설치된 Windows, macOS 혹은 Linux 컴퓨터
+- 데이터 통신이 가능한 USB-A to USB-C 혹은 USB-C to USB-C 케이블
+
+### Shizuku 설치
+
+[Shizuku](https://shizuku.rikka.app/) 는 ADB 혹은 루트 권한으로 동작하는 서비스를 통하여 일반적인 경로로는 접근할 수 없는 시스템 API를 호출할 수 있도록 하는 서비스입니다. 이 방법을 사용하기 위해서는 시스템 API의 호출이 필요합니다.
+
+1. VoLTE 패치를 적용할 Pixel 단말기의 Google Play Store 를 실행한 후 [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) 어플리케이션을 설치합니다.
+2. 설치한 Shizuku 어플리케이션을 실행합니다.
+3. Pixel 단말기와 컴퓨터 간 ADB 통신이 가능한 상태로 준비 후 Pixel 단말기와 컴퓨터를 연결합니다. ADB 통신이 가능한 상태로 준비하는 방법에 대해서는 [Shizuku 문서 (영문)](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer) 을 참고하세요.
+4. 다음 명령어를 입력하여 Shizuku 서비스를 실행합니다.
+   `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`
+5. Shizuku 어플리케이션의 화면에 다음과 같은 문구가 표시되는 것을 확인합니다.
+   `Shizuku is running`
+   `Version <임의의 버전 번호>, adb`
+6. 이제 케이블을 연결한 채로 다음 단계로 이동합니다.
+
+### 패치 어플리케이션 설치
+
+1. [다음 링크]() 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
+2. 다운로드 받은 APK 파일을 설치합니다.
+3. 설치한 어플리케이션을 실행합니다.
+4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 권한 허용" 을 선택합니다.
+5. "ENABLE VOLTE" 버튼을 눌러 VoLTE를 활성화합니다.
+6. 어플리케이션의 중앙에 다음과 같은 문구가 표시되는 것을 확인합니다.
+   `VoLTE Enabled: Yes`
+7. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
+
+## 자주 묻는 질문
+
+### U+ 이외의 다른 통신사를 사용하는 경우에도 VoLTE 패치가 가능한가요?
+
+아니오. 지원 대상은 LG U+ 및 U+ 통신망을 사용하는 MVNO (알뜰폰) 으로 한정됩니다.
+
+### VoLTE가 적용되었는지 확인 가능한 방법이 있나요?
+
+Pixel 단말기에 내장 제공되는 통신 정보 확인용 내부 어플리케이션을 이용하여 VoLTE 적용 여부를 확인할 수 있습니다.
+
+1. Pixel 단말기의 기본 전화 어플리케이션을 실행합니다.
+2. 키패드에서 `*#*#4636#*#*` 키를 차례대로 입력합니다.
+3. "Phone information" 항목을 터치합니다.
+4. 우측 상단의 삼점 메뉴를 터치 후 "IMS Service Status" 항목을 터치합니다.
+5. 다음과 같은 문구가 표시된다면 VoLTE가 활성화 된 것입니다.
+   `IMS Registration: Registered`
+
+### 해당 패치는 재부팅 시 마다 다시 실행하여야 하나요?
+
+아니오.
+
+### 해당 패치는 시스템 업데이트 시 마다 다시 실행하여야 하나요?
+
+확실하지 않습니다.
+
+### 해당 패치의 작동 원리가 어떻게 되나요?
+
+Android에서 VoLTE (IMS) 가 활성화 되기 위해서는 `ImsManager.isVolteEnabledByPlatform(Context)` 메서드가 true를 반환해야 합니다. 해당 메서드의 구현을 살펴보면 다음과 같습니다 (ref: [googlesource.com](https://android.googlesource.com/platform/frameworks/opt/net/ims/+/002b204/src/java/com/android/ims/ImsManager.java)).
+
+1. `persist.dbg.volte_avail_ovr` System Property가 true인지 확인 (기존의 setprop을 이용한 VoLTE 패치 방식)
+   - 그럴 경우 true 반환
+   - 아닐 경우 계속
+2. 기기 자체에서 VoLTE 기능을 지원하는지 확인
+   - 아닐 경우 false 반환
+   - 그럴 경우 계속
+3. 통신사에서 VoLTE 기능을 지원하는지 확인
+   - 아닐 경우 false 반환
+   - 그럴 경우 계속
+4. 통신사에서 IMS 활성화를 위해 GBA capable SIM을 요구하는지 확인
+   - 아닐 경우 true 반환
+   - 그럴 경우 계속
+5. EF IST에 GBA bit이 활성화 되어 있는지 확인 - 그럴 경우 true 반환 - 아닐 경우 false 반환
+
+대한민국에서 Tensor Chip을 탑재한 Pixel로 LG U+를 사용하려는 경우, 기기에서는 VoLTE를 지원하지만 통신사에서 자체 설정을 프로비전하지 않아 3번 "통신사에서 VoLTE 기능을 지원하는지 확인" 이 false로 처리되어 기기에서 IMS가 비활성화됩니다. 이 어플리케이션은 위에서 언급한 Shizuku와 `CarrierConfigLoader`의 설정 강제 활성화 API를 조합하여 해당 설정을 강제로 true로 변경합니다.
