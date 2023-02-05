@@ -53,6 +53,13 @@
 
 ## 자주 묻는 질문
 
+### 추가적인 질문, 건의 사항, 버그 제보 등이 있습니다.
+
+이 패치에 대해 문의할 사항이 있으시면 다음 기능을 활용해 주세요. 목적을 구분하지 않은 게시글 작성의 경우 삭제될 수 있습니다.
+
+- 버그 제보, 기능 추가 요청: [Issues](https://github.com/kyujin-cho/pixel-volte-patch)
+- 그 외의 모든 것: [Discussions](https://github.com/kyujin-cho/pixel-volte-patch/discussions)
+
 ### U+ 이외의 다른 통신사를 사용하는 경우에도 VoLTE 패치가 가능한가요?
 
 아니오. 지원 대상은 LG U+ 및 U+ 통신망을 사용하는 MVNO (알뜰폰) 으로 한정됩니다.
