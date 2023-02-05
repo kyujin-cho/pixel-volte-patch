@@ -22,15 +22,19 @@
 [Shizuku](https://shizuku.rikka.app/) 는 ADB 혹은 루트 권한으로 동작하는 서비스를 통하여 일반적인 경로로는 접근할 수 없는 시스템 API를 호출할 수 있도록 하는 서비스입니다. 이 방법을 사용하기 위해서는 시스템 API의 호출이 필요합니다.
 
 1. VoLTE 패치를 적용할 Pixel 단말기의 Google Play Store 를 실행한 후 [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) 어플리케이션을 설치합니다.
+   ![image-1](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png)
 2. 설치한 Shizuku 어플리케이션을 실행합니다.
+   ![image-2](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png)
 3. Pixel 단말기와 컴퓨터 간 ADB 통신이 가능한 상태로 준비 후 Pixel 단말기와 컴퓨터를 연결합니다. ADB 통신이 가능한 상태로 준비하는 방법에 대해서는 [Shizuku 문서 (영문)](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer) 을 참고하세요.
 4. 다음 명령어를 입력하여 Shizuku 서비스를 실행합니다.
    `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`
+   ![image-3](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png)
 5. Shizuku 어플리케이션의 화면에 다음과 같은 문구가 표시되는 것을 확인합니다.
    ```
    Shizuku is running
    Version <임의의 버전 번호>, adb
    ```
+   ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
 6. 이제 케이블을 연결한 채로 다음 단계로 이동합니다.
 
 ### 패치 어플리케이션 설치
@@ -38,10 +42,13 @@
 1. [다음 링크]() 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
 2. 다운로드 받은 APK 파일을 설치합니다.
 3. 설치한 어플리케이션을 실행합니다.
-4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 권한 허용" 을 선택합니다.
+4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
+   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035418.png)
 5. "ENABLE VOLTE" 버튼을 눌러 VoLTE를 활성화합니다.
+   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035421.png)
 6. 어플리케이션의 중앙에 다음과 같은 문구가 표시되는 것을 확인합니다.
    `VoLTE Enabled: Yes`
+   ![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035425.png)
 7. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 
 ## 자주 묻는 질문
@@ -55,11 +62,16 @@
 Pixel 단말기에 내장 제공되는 통신 정보 확인용 내부 어플리케이션을 이용하여 VoLTE 적용 여부를 확인할 수 있습니다.
 
 1. Pixel 단말기의 기본 전화 어플리케이션을 실행합니다.
+   ![image-8](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035705.png)
 2. 키패드에서 `*#*#4636#*#*` 키를 차례대로 입력합니다.
+   ![image-9](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035701.png)
 3. "Phone information" 항목을 터치합니다.
+   ![image-10](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035650.png)
 4. 우측 상단의 삼점 메뉴를 터치 후 "IMS Service Status" 항목을 터치합니다.
+   ![image-11](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-030524.png)
 5. 다음과 같은 문구가 표시된다면 VoLTE가 활성화 된 것입니다.
    `IMS Registration: Registered`
+   ![image-12](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035645.png)
 
 ### 해당 패치는 재부팅 시 마다 다시 실행하여야 하나요?
 
@@ -85,6 +97,8 @@ Android에서 VoLTE (IMS) 가 활성화 되기 위해서는 `ImsManager.isVolteE
 4. 통신사에서 IMS 활성화를 위해 GBA capable SIM을 요구하는지 확인
    - 아닐 경우 true 반환
    - 그럴 경우 계속
-5. EF IST에 GBA bit이 활성화 되어 있는지 확인 - 그럴 경우 true 반환 - 아닐 경우 false 반환
+5. EF IST에 GBA bit이 활성화 되어 있는지 확인
+   - 그럴 경우 true 반환
+   - 아닐 경우 false 반환
 
 대한민국에서 Tensor Chip을 탑재한 Pixel로 LG U+를 사용하려는 경우, 기기에서는 VoLTE를 지원하지만 통신사에서 자체 설정을 프로비전하지 않아 3번 "통신사에서 VoLTE 기능을 지원하는지 확인" 이 false로 처리되어 기기에서 IMS가 비활성화됩니다. 이 어플리케이션은 위에서 언급한 Shizuku와 `CarrierConfigLoader`의 설정 강제 활성화 API를 조합하여 해당 설정을 강제로 true로 변경합니다.
