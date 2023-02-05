@@ -108,4 +108,4 @@ Android에서 VoLTE (IMS) 가 활성화 되기 위해서는 `ImsManager.isVolteE
    - 그럴 경우 true 반환
    - 아닐 경우 false 반환
 
-대한민국에서 Tensor Chip을 탑재한 Pixel로 LG U+를 사용하려는 경우, 기기에서는 VoLTE를 지원하지만 통신사에서 자체 설정을 프로비전하지 않아 3번 "통신사에서 VoLTE 기능을 지원하는지 확인" 이 false로 처리되어 기기에서 IMS가 비활성화됩니다. 이 어플리케이션은 위에서 언급한 Shizuku와 `CarrierConfigLoader`의 설정 강제 활성화 API를 조합하여 해당 설정을 강제로 true로 변경합니다.
+대한민국에서 Tensor Chip을 탑재한 Pixel로 LG U+를 사용하려는 경우, 기기에서는 VoLTE를 지원하지만 통신사에서 자체 설정을 프로비전하지 않아 3번 "통신사에서 VoLTE 기능을 지원하는지 확인" 이 false로 처리되어 기기에서 IMS가 비활성화됩니다. LG U+의 경우에는 Pixel에 내장된 VoLTE 기능을 사용할 수 있지만 통신사의 추가적인 설정이 없어 VoLTE가 비활성화 되는 것이므로, 이 어플리케이션은 위에서 언급한 Shizuku와 `CarrierConfigLoader`의 설정 강제 활성화 API를 조합하여 해당 설정을 강제로 true로 변경하여 시스템에서 VoLTE 활성화를 시도할 수 있도록 처리합니다.
