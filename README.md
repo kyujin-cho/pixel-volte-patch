@@ -27,7 +27,8 @@
 4. 다음 명령어를 입력하여 Shizuku 서비스를 실행합니다.
    `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`
 5. Shizuku 어플리케이션의 화면에 다음과 같은 문구가 표시되는 것을 확인합니다.
-   ```Shizuku is running
+   ```
+   Shizuku is running
    Version <임의의 버전 번호>, adb
    ```
 6. 이제 케이블을 연결한 채로 다음 단계로 이동합니다.
