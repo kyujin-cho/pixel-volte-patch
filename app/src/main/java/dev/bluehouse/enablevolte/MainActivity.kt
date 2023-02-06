@@ -1,14 +1,18 @@
 package dev.bluehouse.enablevolte
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
+import android.telephony.SubscriptionManager
 import android.telephony.SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
+import android.telephony.SubscriptionManager.MAX_SUBSCRIPTION_ID_VALUE
 import android.telephony.TelephonyFrameworkInitializer
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -20,7 +24,16 @@ import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.ShizukuProvider
 import rikka.sui.Sui
 
-data class ShizukuData(var enabled: Boolean, var VoLTEEnabled: Boolean)
+data class ShizukuData(
+    var shizukuEnabled: Boolean,
+    var shizukuGranted: Boolean,
+    var deviceIMSEnabled: Boolean,
+    var carrierIMSEnabled: Boolean,
+    var isIMSRunning: Boolean,
+    var subscriptionId: Int,
+    var errorString: String
+)
+
 interface MainActivityProtocol {
     fun onEnableVoLTEClick()
     fun onLoadVoLTEStatusClick()
@@ -30,10 +43,16 @@ interface MainActivityProtocol {
 
 class MainActivity : AppCompatActivity(), MainActivityProtocol {
     private final val TAG = "MainActivity"
-    var shizukuData = ShizukuData(false, false)
+    private final val VOLTE_AVAILABLE_CONFIG_KEY = "carrier_volte_available_bool"
+    var shizukuData = ShizukuData(
+        false, false,
+        false, false,
+        false,
+        -1, ""
+    )
     var binding: ActivityMainBinding? = null
 
-    private fun overrideCarrierConfig() {
+    private fun updateCarrierConfig(enableIMS: Boolean) {
         val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
@@ -42,37 +61,55 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
                     .get()
             )
         )
-        val overrideBundle = PersistableBundle()
-        overrideBundle.putBoolean("carrier_volte_available_bool", true)
-        iCclInstance.overrideConfig(DEFAULT_SUBSCRIPTION_ID, overrideBundle, true)
+        var overrideBundle: PersistableBundle? = null
+        if (enableIMS) {
+            overrideBundle = PersistableBundle()
+            overrideBundle.putBoolean(VOLTE_AVAILABLE_CONFIG_KEY, true)
+        }
+        iCclInstance.overrideConfig(shizukuData.subscriptionId, overrideBundle, true)
     }
 
-    private fun deleteCarrierConfig() {
-        val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
-            ShizukuBinderWrapper(
-                TelephonyFrameworkInitializer
-                    .getTelephonyServiceManager()
-                    .carrierConfigServiceRegisterer
-                    .get()
+    private val isIMSConfigEnabled: Boolean
+        get() {
+            shizukuData.subscriptionId = this.subscriptionId
+            if (shizukuData.subscriptionId < 0) {
+                return false
+            }
+
+            val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
+                ShizukuBinderWrapper(
+                    TelephonyFrameworkInitializer
+                        .getTelephonyServiceManager()
+                        .carrierConfigServiceRegisterer
+                        .get()
+                )
             )
-        )
-        iCclInstance.overrideConfig(DEFAULT_SUBSCRIPTION_ID, null, true)
-    }
+            val config = iCclInstance.getConfigForSubId(shizukuData.subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+            return config.getBoolean(VOLTE_AVAILABLE_CONFIG_KEY)
+        }
 
-    private fun getCarrierConfigForDefaultSubscription() {
-        val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
-            ShizukuBinderWrapper(
-                TelephonyFrameworkInitializer
-                    .getTelephonyServiceManager()
-                    .carrierConfigServiceRegisterer
-                    .get()
-            )
-        )
-        val config = iCclInstance.getConfigForSubId(DEFAULT_SUBSCRIPTION_ID, iCclInstance.defaultCarrierServicePackageName)
-        shizukuData.VoLTEEnabled = config.getBoolean("carrier_volte_available_bool")
-        binding?.invalidateAll()
-    }
+    private val subscriptionId: Int
+        get() {
+            val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                ?: return -1
+            if (telephonyManager.subscriptionId == DEFAULT_SUBSCRIPTION_ID) return -1
+            val phoneId = SubscriptionManager.getPhoneId(telephonyManager.subscriptionId)
+            if (phoneId == DEFAULT_SUBSCRIPTION_ID) return -1
+            return telephonyManager.subscriptionId
+        }
 
+    private val deviceSupportsIMS: Boolean
+        get () {
+            val res = Resources.getSystem()
+            val volteConfigId = res.getIdentifier("config_device_volte_available", "bool", "android")
+            return res.getBoolean(volteConfigId)
+        }
+
+    private val isIMSRegistered: Boolean get () {
+        val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            ?: return false
+        return telephonyManager.isImsRegistered(this.shizukuData.subscriptionId)
+    }
     private fun checkShizukuPermission(code: Int): Boolean {
         if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
             return true
@@ -84,13 +121,18 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
         }
     }
 
-    private fun getDeviceVoLTEEnabled(): Boolean {
-        val res = Resources.getSystem()
-        val volteConfigId = res.getIdentifier("config_device_volte_available", "bool", "android")
-        return res.getBoolean(volteConfigId)
+    private fun loadShizukuPredicates() {
+        this.shizukuData.shizukuGranted = true
+        this.shizukuData.subscriptionId = this.subscriptionId
+
+        this.shizukuData.deviceIMSEnabled = this.deviceSupportsIMS
     }
 
+    private fun loadIMSStatuses() {
+        this.shizukuData.carrierIMSEnabled = this.isIMSConfigEnabled
+        this.shizukuData.isIMSRunning = this.isIMSRegistered
 
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -101,30 +143,59 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
         this.binding = binding
 
         HiddenApiBypass.addHiddenApiExemptions("L")
+        HiddenApiBypass.addHiddenApiExemptions("I")
 
-        if (this.checkShizukuPermission(0)) {
-            this.shizukuData.enabled = true
-            getCarrierConfigForDefaultSubscription()
-        } else {
-            Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
-                if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                    this.shizukuData.enabled = true
-                    getCarrierConfigForDefaultSubscription()
+        try {
+            if (this.checkShizukuPermission(0)) {
+                this.loadShizukuPredicates()
+                if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+                    this.loadIMSStatuses()
+                }
+            } else {
+                Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
+                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                        this.loadShizukuPredicates()
+                        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+                            this.loadIMSStatuses()
+                        }
+                        this.binding?.invalidateAll()
+                    }
                 }
             }
+            this.shizukuData.shizukuEnabled = true
+        } catch (e: java.lang.IllegalStateException) {
+            this.shizukuData.shizukuEnabled = false
+        }
+        this.binding?.invalidateAll()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+            this.loadIMSStatuses()
         }
     }
 
     override fun onEnableVoLTEClick() {
-        overrideCarrierConfig()
-        getCarrierConfigForDefaultSubscription()
-        Toast.makeText(this, "Enabled VoLTE", Toast.LENGTH_SHORT).show()
+        try {
+            this.updateCarrierConfig(true)
+            this.shizukuData.carrierIMSEnabled = isIMSConfigEnabled
+            this.shizukuData.errorString = ""
+        } catch (e: Exception) {
+            shizukuData.errorString = e.stackTraceToString()
+        }
+        binding?.invalidateAll()
     }
 
     override fun onClearSettingClick() {
-        deleteCarrierConfig()
-        getCarrierConfigForDefaultSubscription()
-        Toast.makeText(this, "Cleared Setting", Toast.LENGTH_SHORT).show()
+        try {
+            this.updateCarrierConfig(false)
+            this.shizukuData.carrierIMSEnabled = isIMSConfigEnabled
+            shizukuData.errorString = ""
+        } catch (e: Exception) {
+            shizukuData.errorString = e.stackTraceToString()
+        }
+        binding?.invalidateAll()
     }
 
     override fun onLoadVoLTEStatusClick() {
