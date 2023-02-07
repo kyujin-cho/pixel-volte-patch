@@ -45,12 +45,10 @@ This document describes enabling VoLTE support on select Google Pixel devices by
 
 ## FAQ
 
-### 추가적인 질문, 건의 사항, 버그 제보 등이 있습니다.
+### I am looking for somewhere to post feedback.
 
-이 패치에 대해 문의할 사항이 있으시면 다음 기능을 활용해 주세요. 목적을 구분하지 않은 게시글 작성의 경우 삭제될 수 있습니다.
-
-- 버그 제보, 기능 추가 요청: [Issues](https://github.com/kyujin-cho/pixel-volte-patch)
-- 그 외의 모든 것: [Discussions](https://github.com/kyujin-cho/pixel-volte-patch/discussions)
+- Bug report and feature request: [Issues](https://github.com/kyujin-cho/pixel-volte-patch)
+- Anything else (including general questions): [Discussions](https://github.com/kyujin-cho/pixel-volte-patch/discussions)
 
 ### Does it also work on any carriers other than LG U+?
 
