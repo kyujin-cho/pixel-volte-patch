@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.hardware.radio.sim.Carrier
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -43,7 +44,6 @@ interface MainActivityProtocol {
 
 class MainActivity : AppCompatActivity(), MainActivityProtocol {
     private final val TAG = "MainActivity"
-    private final val VOLTE_AVAILABLE_CONFIG_KEY = "carrier_volte_available_bool"
     var shizukuData = ShizukuData(
         false, false,
         false, false,
@@ -64,7 +64,9 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
         var overrideBundle: PersistableBundle? = null
         if (enableIMS) {
             overrideBundle = PersistableBundle()
-            overrideBundle.putBoolean(VOLTE_AVAILABLE_CONFIG_KEY, true)
+            overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, true)
+            overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
+            overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
         }
         iCclInstance.overrideConfig(shizukuData.subscriptionId, overrideBundle, true)
     }
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
                 )
             )
             val config = iCclInstance.getConfigForSubId(shizukuData.subscriptionId, iCclInstance.defaultCarrierServicePackageName)
-            return config.getBoolean(VOLTE_AVAILABLE_CONFIG_KEY)
+            return config.getBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
         }
 
     private val subscriptionId: Int
