@@ -1,35 +1,29 @@
 package dev.bluehouse.enablevolte
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.hardware.radio.sim.Carrier
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.telephony.SubscriptionManager.DEFAULT_SUBSCRIPTION_ID
-import android.telephony.SubscriptionManager.MAX_SUBSCRIPTION_ID_VALUE
 import android.telephony.TelephonyFrameworkInitializer
 import android.telephony.TelephonyManager
-import android.util.Log
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.android.internal.telephony.ICarrierConfigLoader
 import dev.bluehouse.enablevolte.databinding.ActivityMainBinding
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.ShizukuProvider
-import rikka.sui.Sui
 
 data class ShizukuData(
     var shizukuEnabled: Boolean,
     var shizukuGranted: Boolean,
-    var deviceIMSEnabled: Boolean,
-    var carrierIMSEnabled: Boolean,
+    var deviceVolteEnabled: Boolean,
+    var carrierVolteEnabled: Boolean,
+    var carrierVowifiEnabled: Boolean,
     var isIMSRunning: Boolean,
     var subscriptionId: Int,
     var errorString: String
@@ -37,6 +31,7 @@ data class ShizukuData(
 
 interface MainActivityProtocol {
     fun onEnableVoLTEClick()
+    fun onEnableVoWiFiClick()
     fun onLoadVoLTEStatusClick()
     fun onClearSettingClick()
 }
@@ -46,13 +41,13 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
     private final val TAG = "MainActivity"
     var shizukuData = ShizukuData(
         false, false,
-        false, false,
+        false, false, false,
         false,
         -1, ""
     )
     var binding: ActivityMainBinding? = null
 
-    private fun updateCarrierConfig(enableIMS: Boolean) {
+    private fun updateVolteConfig(enableVolte: Boolean) {
         val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
@@ -62,16 +57,31 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
             )
         )
         var overrideBundle: PersistableBundle? = null
-        if (enableIMS) {
+        if (enableVolte) {
             overrideBundle = PersistableBundle()
             overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, true)
-            overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
+        }
+        iCclInstance.overrideConfig(shizukuData.subscriptionId, overrideBundle, true)
+    }
+
+    private fun updateVowifiConfig(enableVoWiFi: Boolean) {
+        val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
+            ShizukuBinderWrapper(
+                TelephonyFrameworkInitializer
+                    .getTelephonyServiceManager()
+                    .carrierConfigServiceRegisterer
+                    .get()
+            )
+        )
+        var overrideBundle: PersistableBundle? = null
+        if (enableVoWiFi) {
+            overrideBundle = PersistableBundle()
             overrideBundle.putBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
         }
         iCclInstance.overrideConfig(shizukuData.subscriptionId, overrideBundle, true)
     }
 
-    private val isIMSConfigEnabled: Boolean
+    private val isVolteConfigEnabled: Boolean
         get() {
             shizukuData.subscriptionId = this.subscriptionId
             if (shizukuData.subscriptionId < 0) {
@@ -90,6 +100,25 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
             return config.getBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
         }
 
+    private val isVowifiConfigEnabled: Boolean
+        get() {
+            shizukuData.subscriptionId = this.subscriptionId
+            if (shizukuData.subscriptionId < 0) {
+                return false
+            }
+
+            val iCclInstance = ICarrierConfigLoader.Stub.asInterface(
+                ShizukuBinderWrapper(
+                    TelephonyFrameworkInitializer
+                        .getTelephonyServiceManager()
+                        .carrierConfigServiceRegisterer
+                        .get()
+                )
+            )
+            val config = iCclInstance.getConfigForSubId(shizukuData.subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+            return config.getBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL)
+        }
+
     private val subscriptionId: Int
         get() {
             val telephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
@@ -100,7 +129,7 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
             return telephonyManager.subscriptionId
         }
 
-    private val deviceSupportsIMS: Boolean
+    private val deviceSupportsVolte: Boolean
         get () {
             val res = Resources.getSystem()
             val volteConfigId = res.getIdentifier("config_device_volte_available", "bool", "android")
@@ -127,11 +156,12 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
         this.shizukuData.shizukuGranted = true
         this.shizukuData.subscriptionId = this.subscriptionId
 
-        this.shizukuData.deviceIMSEnabled = this.deviceSupportsIMS
+        this.shizukuData.deviceVolteEnabled = this.deviceSupportsVolte
     }
 
     private fun loadIMSStatuses() {
-        this.shizukuData.carrierIMSEnabled = this.isIMSConfigEnabled
+        this.shizukuData.carrierVolteEnabled = this.isVolteConfigEnabled
+        this.shizukuData.carrierVowifiEnabled = this.isVowifiConfigEnabled
         this.shizukuData.isIMSRunning = this.isIMSRegistered
 
     }
@@ -150,14 +180,14 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
         try {
             if (this.checkShizukuPermission(0)) {
                 this.loadShizukuPredicates()
-                if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+                if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceVolteEnabled) {
                     this.loadIMSStatuses()
                 }
             } else {
                 Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
                         this.loadShizukuPredicates()
-                        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+                        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceVolteEnabled) {
                             this.loadIMSStatuses()
                         }
                         this.binding?.invalidateAll()
@@ -173,15 +203,26 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
 
     override fun onResume() {
         super.onResume()
-        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceIMSEnabled) {
+        if (this.shizukuData.subscriptionId >= 0 && this.shizukuData.deviceVolteEnabled) {
             this.loadIMSStatuses()
         }
     }
 
     override fun onEnableVoLTEClick() {
         try {
-            this.updateCarrierConfig(true)
-            this.shizukuData.carrierIMSEnabled = isIMSConfigEnabled
+            this.updateVolteConfig(true)
+            this.shizukuData.carrierVolteEnabled = isVolteConfigEnabled
+            this.shizukuData.errorString = ""
+        } catch (e: Exception) {
+            shizukuData.errorString = e.stackTraceToString()
+        }
+        binding?.invalidateAll()
+    }
+
+    override fun onEnableVoWiFiClick() {
+        try {
+            this.updateVowifiConfig(true)
+            this.shizukuData.carrierVowifiEnabled = isVowifiConfigEnabled
             this.shizukuData.errorString = ""
         } catch (e: Exception) {
             shizukuData.errorString = e.stackTraceToString()
@@ -191,8 +232,10 @@ class MainActivity : AppCompatActivity(), MainActivityProtocol {
 
     override fun onClearSettingClick() {
         try {
-            this.updateCarrierConfig(false)
-            this.shizukuData.carrierIMSEnabled = isIMSConfigEnabled
+            this.updateVolteConfig(false)
+            this.updateVowifiConfig(false)
+            this.shizukuData.carrierVolteEnabled = isVolteConfigEnabled
+            this.shizukuData.carrierVowifiEnabled = isVowifiConfigEnabled
             shizukuData.errorString = ""
         } catch (e: Exception) {
             shizukuData.errorString = e.stackTraceToString()
