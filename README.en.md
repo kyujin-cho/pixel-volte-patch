@@ -52,7 +52,7 @@ This document describes enabling VoLTE support on select Google Pixel devices by
 
 ### Does it also work on any carriers other than LG U+?
 
-AYOR.
+AYOR. Tested and checked working only with LG U+.
 
 ### How do I know if VoLTE is enabled or not?
 
