@@ -3,13 +3,17 @@ package dev.bluehouse.enablevolte
 import android.content.Context
 import android.content.res.Resources
 import android.os.PersistableBundle
-import android.service.carrier.ICarrierService
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyFrameworkInitializer
 import android.telephony.TelephonyManager
+import android.telephony.ims.ImsManager
+import android.telephony.ims.aidl.IImsRcsController
 import android.util.Log
 import com.android.internal.telephony.ICarrierConfigLoader
+import com.android.internal.telephony.IPhoneSubInfo
+import com.android.internal.telephony.ISub
+import com.android.internal.telephony.ITelephony
 import rikka.shizuku.ShizukuBinderWrapper
 
 private val TAG = "CarrierModder"
@@ -96,11 +100,10 @@ class CarrierModder(val context: Context) {
         return config.getBoolean(key)
     }
 
-    val isVoLTEConfigEnabled: Boolean
+    val isVolteConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
 
-
-    val isVoWiFiConfigEnabled: Boolean
+    val isVowifiConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL)
 
     val userAgentConfig: String
@@ -124,10 +127,16 @@ class CarrierModder(val context: Context) {
             return res.getBoolean(volteConfigId)
         }
 
-    val isIMSRegistered: Boolean get () {
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-            ?: return false
-        return telephonyManager.isImsRegistered(this.subscriptionId)
-    }
-
+    val isIMSRegistered: Boolean
+        get () {
+            val telephony = ITelephony.Stub.asInterface(
+                ShizukuBinderWrapper(
+                    TelephonyFrameworkInitializer
+                        .getTelephonyServiceManager()
+                        .telephonyServiceRegisterer
+                        .get()
+                )
+            )
+            return telephony.isImsRegistered(this.subscriptionId)
+        }
 }

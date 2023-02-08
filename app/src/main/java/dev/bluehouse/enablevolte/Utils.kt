@@ -1,27 +1,15 @@
 package dev.bluehouse.enablevolte
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+import android.content.pm.PackageManager
+import rikka.shizuku.Shizuku
 
-@Composable
-fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
-    val eventHandler = rememberUpdatedState(onEvent)
-    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-
-    DisposableEffect(lifecycleOwner.value) {
-        val lifecycle = lifecycleOwner.value.lifecycle
-        val observer = LifecycleEventObserver { owner, event ->
-            eventHandler.value(owner, event)
-        }
-
-        lifecycle.addObserver(observer)
-        onDispose {
-            lifecycle.removeObserver(observer)
-        }
+fun checkShizukuPermission(code: Int): Boolean {
+    if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+        return true
+    } else if (Shizuku.shouldShowRequestPermissionRationale()) {
+        return false
+    } else {
+        Shizuku.requestPermission(code)
+        return false
     }
 }
