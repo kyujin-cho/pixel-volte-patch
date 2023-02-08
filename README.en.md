@@ -37,10 +37,9 @@ This document describes enabling VoLTE support on select Google Pixel devices by
 2. Install downloaded APK file.
 3. Start installed application.
 4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
-   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193323.png)
-5. Press "ENABLE VOLTE" button to enable VoLTE (and VoWiFi perhaps). If everything is done right, you should now see toggle right next to `VoLTE Enabled by Config` text is now flipped.
-   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193407.png)
-   ![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193413.png)
+   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
+5. Toggle "Enable VoLTE" to enable VoLTE.
+   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
 6. Restart your Pixel phone a couple of times until you can see VoLTE is working.
 
 ## FAQ
@@ -56,8 +55,8 @@ AYOR. Tested and checked working only with LG U+.
 
 ### How do I know if VoLTE is enabled or not?
 
-Flipped `System Utilizing VoLTE` toggle should be considered as success.
-![image-13](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-194608.png)
+`Registered` IMS Status at Home page means VoLTE is activated.
+![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png)
 
 For more information, you can make use of Pixel's internal application. To open it:
 

@@ -45,12 +45,10 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 2. 다운로드 받은 APK 파일을 설치합니다.
 3. 설치한 어플리케이션을 실행합니다.
 4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
-   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193323.png)
-5. "ENABLE VOLTE" 버튼을 눌러 VoLTE를 활성화합니다.
-   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193407.png)
-6. `VoLTE Enabled by Config` 스위치가 활성화 된 것을 확인합니다.
-   ![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-193413.png)
-7. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
+   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
+5. VoLTE를 활성화 할 SIM의 페이지로 이동합니다. "Enable VoLTE" 토글을 활성화합니다.
+   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
+6. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 
 ## 자주 묻는 질문
 
@@ -67,8 +65,8 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### VoLTE가 적용되었는지 확인 가능한 방법이 있나요?
 
-어플리케이션의 `System Utilizing VoLTE` 스위치가 활성화되어 있다면 VoLTE가 성공적으로 활성화 된 것입니다.
-![image-13](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-194608.png)
+어플리케이션의 Home 페이지에서 `IMS Status` 항목이 `Registered` 이면 VoLTE가 성공적으로 활성화 된 것입니다.
+![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png)
 
 더욱 상세한 정보가 필요할 경우, Pixel 단말기에 내장 제공되는 통신 정보 확인용 내부 어플리케이션을 이용할 수 있습니다.
 
