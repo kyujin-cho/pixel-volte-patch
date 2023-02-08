@@ -1,6 +1,7 @@
 package dev.bluehouse.enablevolte.pages
 
 import android.content.pm.PackageManager
+import android.telephony.SubscriptionInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -21,25 +22,23 @@ import java.lang.IllegalStateException
 const val TAG = "HomeActivity:Home"
 @Composable
 fun Home(navController: NavController) {
-    val modder = CarrierModder(LocalContext.current)
+    val carrierModer = CarrierModer(LocalContext.current)
 
     var shizukuEnabled by rememberSaveable { mutableStateOf(false) }
     var shizukuGranted by rememberSaveable { mutableStateOf(false) }
-    var subscriptionId by rememberSaveable { mutableStateOf(-1) }
+    var subscriptions by rememberSaveable { mutableStateOf(listOf<SubscriptionInfo>()) }
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
-    var carrierIMSEnabled by rememberSaveable { mutableStateOf(false) }
-    var isIMSRegistered by rememberSaveable { mutableStateOf(false) }
+    var isIMSRegistered by rememberSaveable { mutableStateOf(listOf<Boolean>()) }
 
 
     fun loadFlags() {
         shizukuGranted = true
-        subscriptionId = modder.subscriptionId
-        deviceIMSEnabled = modder.deviceSupportsIMS
+        subscriptions = carrierModer.subscriptions
+        deviceIMSEnabled = carrierModer.deviceSupportsIMS
 
-        if (subscriptionId >= 0 && deviceIMSEnabled) {
-            carrierIMSEnabled = modder.isVolteConfigEnabled
-            isIMSRegistered = modder.isIMSRegistered
+        if (subscriptions.isNotEmpty() && deviceIMSEnabled) {
+            isIMSRegistered = subscriptions.map { SubscriptionModer(it.subscriptionId).isIMSRegistered }
         }
     }
 
@@ -47,12 +46,10 @@ fun Home(navController: NavController) {
         if (event == Lifecycle.Event.ON_CREATE) {
             shizukuEnabled = try {
                 if (checkShizukuPermission(0)) {
-                    Log.d(TAG, "Shizuku granted")
                     loadFlags()
                 } else {
-                    Shizuku.addRequestPermissionResultListener { requestCode, grantResult ->
+                    Shizuku.addRequestPermissionResultListener { _, grantResult ->
                         if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                            Log.d(TAG, "Shizuku granted")
                             loadFlags()
                         }
                     }
@@ -69,10 +66,12 @@ fun Home(navController: NavController) {
         HeaderText(text = "Permissions & Capabilities")
         BooleanPropertyView(label = "Shizuku Service Running", toggled = shizukuEnabled)
         BooleanPropertyView(label = "Shizuku Permission Granted", toggled = shizukuGranted)
-        BooleanPropertyView(label = "SIM Detected", toggled = subscriptionId >= 0)
+        BooleanPropertyView(label = "SIM Detected", toggled = subscriptions.isNotEmpty())
         BooleanPropertyView(label = "VoLTE Supported by Device", toggled = deviceIMSEnabled)
 
-        HeaderText(text = "IMS Status")
-        BooleanPropertyView(label = "IMS Registered", toggled = isIMSRegistered)
+        for (idx in subscriptions.indices) {
+            HeaderText(text = "IMS Status for ${subscriptions[idx].uniqueName}")
+            BooleanPropertyView(label = "IMS Status", toggled = isIMSRegistered[idx], trueLabel = "Registered", falseLabel = "Unregistered")
+        }
     }
 }

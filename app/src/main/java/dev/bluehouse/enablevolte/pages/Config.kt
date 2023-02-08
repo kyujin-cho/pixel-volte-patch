@@ -18,25 +18,31 @@ import java.lang.IllegalStateException
 
 
 @Composable
-fun Config(navController: NavController) {
-    val modder = CarrierModder(LocalContext.current)
+fun Config(navController: NavController, subId: Int) {
+    val moder = SubscriptionModer(subId)
+    val carrierModer = CarrierModer(LocalContext.current)
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent by rememberSaveable { mutableStateOf("") }
 
+    fun loadFlags() {
+        voLTEEnabled = moder.isVolteConfigEnabled
+        voWiFiEnabled = moder.isVowifiConfigEnabled
+        configuredUserAgent = moder.userAgentConfig
+    }
+
     OnLifecycleEvent { _, event ->
         if (event == Lifecycle.Event.ON_CREATE) {
             configurable = try {
                 if (checkShizukuPermission(0)) {
-                    val c = modder.deviceSupportsIMS && modder.subscriptionId >= 0
-                    if (c) {
-                        voLTEEnabled = modder.isVolteConfigEnabled
-                        voWiFiEnabled = modder.isVowifiConfigEnabled
-                        configuredUserAgent = modder.userAgentConfig
+                    if (carrierModer.deviceSupportsIMS && subId >= 0) {
+                        loadFlags()
+                        true
+                    } else {
+                        false
                     }
-                    c
                 } else {
                     false
                 }
@@ -50,27 +56,35 @@ fun Config(navController: NavController) {
         HeaderText(text = "Toggles")
         BooleanPropertyView(label = "Enable VoLTE", toggled = voLTEEnabled) {
             voLTEEnabled = if (voLTEEnabled) {
-                modder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, false)
                 false
             } else {
-                modder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
                 true
             }
         }
         BooleanPropertyView(label = "Enable VoWiFi", toggled = voWiFiEnabled) {
             voWiFiEnabled = if (voWiFiEnabled) {
-                modder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
                 false
             } else {
-                modder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
                 true
             }
         }
 
         HeaderText(text = "String Values")
         StringPropertyView(label = "User Agent", value = configuredUserAgent) {
-            modder.updateCarrierConfig(modder.KEY_IMS_USER_AGENT, it)
+            moder.updateCarrierConfig(moder.KEY_IMS_USER_AGENT, it)
             configuredUserAgent = it
+        }
+
+        HeaderText(text = "Miscellaneous")
+        ClickablePropertyView(label = "Reset all settings", value = "Reverts to carrier default") {
+            moder.clearCarrierConfig()
+            loadFlags()
         }
     }
 }

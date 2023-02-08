@@ -1,7 +1,9 @@
 package dev.bluehouse.enablevolte
 
-import android.annotation.StringRes
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.telephony.SubscriptionInfo
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -10,11 +12,17 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.Navigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -23,8 +31,11 @@ import dev.bluehouse.enablevolte.pages.Config
 import dev.bluehouse.enablevolte.pages.Home
 import dev.bluehouse.enablevolte.ui.theme.EnableVoLTETheme
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import rikka.shizuku.Shizuku
+import java.lang.IllegalStateException
 
-private val TAG = "HomeActivity"
+private const val TAG = "HomeActivity"
+data class Screen(val route: String, val title: String, val icon: ImageVector)
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +61,51 @@ class HomeActivity : ComponentActivity() {
 @Composable
 fun PixelIMSApp() {
     val navController = rememberNavController()
+    val carrierModer = CarrierModer(LocalContext.current)
 
+    var subscriptions by rememberSaveable { mutableStateOf(listOf<SubscriptionInfo>()) }
+    var navBuilder by remember {
+        mutableStateOf<NavGraphBuilder.() -> Unit>({
+            composable("home") {
+                Home(navController)
+            }
+        })
+    }
+
+    fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) {
+        return {
+            composable("home") {
+                Home(navController)
+            }
+            for (subscription in subscriptions) {
+                composable("config${subscription.subscriptionId}") {
+                    Config(navController, subscription.subscriptionId)
+                }
+            }
+        }
+    }
+
+    OnLifecycleEvent { _, event ->
+        if (event == Lifecycle.Event.ON_CREATE) {
+            try {
+                if (checkShizukuPermission(0)) {
+                    Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
+                    subscriptions = carrierModer.subscriptions
+                    navBuilder = generateNavBuilder()
+                } else {
+                    Shizuku.addRequestPermissionResultListener { _, grantResult ->
+                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                            Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
+                            subscriptions = carrierModer.subscriptions
+                            navBuilder = generateNavBuilder()
+                        }
+                    }
+                }
+            } catch (_: IllegalStateException) {
+
+            }
+        }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,10 +119,21 @@ fun PixelIMSApp() {
             NavigationBar {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
+                val items = arrayListOf(
+                    Screen("home", stringResource(R.string.home), Icons.Filled.Home)
+                )
+                for (subscription in subscriptions) {
+                    items.add(
+                        Screen("config${subscription.subscriptionId}", subscription.uniqueName, Icons.Filled.Settings)
+                    )
+                }
+
                 items.forEach { screen ->
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = null) },
-                        label = { Text(stringResource(screen.resourceId)) },
+                        label = {
+                            Text(screen.title)
+                        },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -89,23 +155,6 @@ fun PixelIMSApp() {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(innerPadding)) {
-            composable(Screen.Home.route) {
-                Home(navController)
-            }
-            composable(Screen.Config.route) {
-                Config(navController)
-            }
-        }
+        NavHost(navController, startDestination = "home", Modifier.padding(innerPadding), builder = navBuilder)
     }
 }
-
-sealed class Screen(val route: String, @StringRes val resourceId: Int, val icon: ImageVector) {
-    object Home : Screen("home", R.string.home, Icons.Filled.Home)
-    object Config : Screen("config", R.string.config, Icons.Filled.Settings)
-}
-
-val items = listOf(
-    Screen.Home,
-    Screen.Config,
-)
