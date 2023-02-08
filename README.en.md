@@ -33,7 +33,7 @@ This document describes enabling VoLTE support on select Google Pixel devices by
 
 ### Install Patch Application
 
-1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.1.2/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
+1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.0/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
 2. Install downloaded APK file.
 3. Start installed application.
 4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
