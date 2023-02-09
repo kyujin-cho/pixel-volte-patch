@@ -37,21 +37,39 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
 @Composable
 fun HeaderText(text: String) {
     Row(modifier = Modifier.padding(top = Dp(20f), bottom = Dp(12f))) {
-        Text(text = text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Composable
-fun BooleanPropertyView(label: String, toggled: Boolean, enabled: Boolean = true, trueLabel: String = "Yes", falseLabel: String = "No", onClick: ((Boolean) -> Unit)? = null) {
+fun BooleanPropertyView(
+    label: String,
+    toggled: Boolean,
+    enabled: Boolean = true,
+    trueLabel: String = "Yes",
+    falseLabel: String = "No",
+    onClick: ((Boolean) -> Unit)? = null
+) {
     if (onClick != null) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))
+        ) {
             Text(text = label, modifier = Modifier.weight(1F), fontSize = 18.sp)
             Switch(checked = toggled, enabled = enabled, onCheckedChange = onClick)
         }
     } else {
         Column(modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
             Text(text = label, fontSize = 18.sp, modifier = Modifier.padding(bottom = Dp(4f)))
-            Text(text = if (toggled) { trueLabel } else { falseLabel }, fontSize = 14.sp, color = MaterialTheme.colorScheme.outline)
+            Text(
+                text = if (toggled) { trueLabel } else { falseLabel },
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.outline
+            )
         }
     }
 }

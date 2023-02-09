@@ -2,7 +2,6 @@ package dev.bluehouse.enablevolte.pages
 
 import android.content.pm.PackageManager
 import android.telephony.SubscriptionInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -15,11 +14,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import dev.bluehouse.enablevolte.*
-import rikka.shizuku.Shizuku
+import dev.bluehouse.enablevolte.BooleanPropertyView
+import dev.bluehouse.enablevolte.CarrierModer
+import dev.bluehouse.enablevolte.HeaderText
+import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.checkShizukuPermission
+import dev.bluehouse.enablevolte.uniqueName
 import java.lang.IllegalStateException
+import rikka.shizuku.Shizuku
 
 const val TAG = "HomeActivity:Home"
+
 @Composable
 fun Home(navController: NavController) {
     val carrierModer = CarrierModer(LocalContext.current)
@@ -30,7 +36,6 @@ fun Home(navController: NavController) {
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
     var isIMSRegistered by rememberSaveable { mutableStateOf(listOf<Boolean>()) }
-
 
     fun loadFlags() {
         shizukuGranted = true
@@ -61,7 +66,6 @@ fun Home(navController: NavController) {
         }
     }
 
-
     Column(modifier = Modifier.padding(Dp(16f))) {
         HeaderText(text = "Permissions & Capabilities")
         BooleanPropertyView(label = "Shizuku Service Running", toggled = shizukuEnabled)
@@ -71,7 +75,12 @@ fun Home(navController: NavController) {
 
         for (idx in subscriptions.indices) {
             HeaderText(text = "IMS Status for ${subscriptions[idx].uniqueName}")
-            BooleanPropertyView(label = "IMS Status", toggled = isIMSRegistered[idx], trueLabel = "Registered", falseLabel = "Unregistered")
+            BooleanPropertyView(
+                label = "IMS Status",
+                toggled = isIMSRegistered[idx],
+                trueLabel = "Registered",
+                falseLabel = "Unregistered"
+            )
         }
     }
 }

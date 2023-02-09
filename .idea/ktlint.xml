@@ -2,5 +2,10 @@
 <project version="4">
   <component name="KtlintProjectConfiguration">
     <androidMode>true</androidMode>
+    <disabledRules>
+      <list>
+        <option value="no-wildcard-imports" />
+      </list>
+    </disabledRules>
   </component>
 </project>

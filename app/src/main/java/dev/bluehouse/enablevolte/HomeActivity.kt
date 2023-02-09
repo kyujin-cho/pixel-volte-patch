@@ -19,10 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.Navigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,9 +28,9 @@ import androidx.navigation.compose.rememberNavController
 import dev.bluehouse.enablevolte.pages.Config
 import dev.bluehouse.enablevolte.pages.Home
 import dev.bluehouse.enablevolte.ui.theme.EnableVoLTETheme
+import java.lang.IllegalStateException
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
-import java.lang.IllegalStateException
 
 private const val TAG = "HomeActivity"
 data class Screen(val route: String, val title: String, val icon: ImageVector)
@@ -102,7 +100,6 @@ fun PixelIMSApp() {
                     }
                 }
             } catch (_: IllegalStateException) {
-
             }
         }
     }
