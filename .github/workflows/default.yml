@@ -1,4 +1,4 @@
-name: Default
+name: default
 
 on:
     push:
@@ -13,7 +13,7 @@ on:
             - "**.kts"
 
 jobs:
-    "Check Lint":
+    lint:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
