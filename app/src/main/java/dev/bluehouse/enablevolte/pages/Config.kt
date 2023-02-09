@@ -26,12 +26,16 @@ fun Config(navController: NavController, subId: Int) {
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
+    var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
+    var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
         vtEnabled = moder.isVtConfigEnabled
+        show4GForLteEnabled = moder.isShow4GForLteEnabled
+        hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
         configuredUserAgent = moder.userAgentConfig
     }
 
@@ -83,6 +87,24 @@ fun Config(navController: NavController, subId: Int) {
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
                 moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Show 4G for LTE Data Icon", toggled = show4GForLteEnabled) {
+            show4GForLteEnabled = if (show4GForLteEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = "Hide Enhanced Data Icon", toggled = hideEnhancedDataIconEnabled) {
+            hideEnhancedDataIconEnabled = if (hideEnhancedDataIconEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, true)
                 true
             }
         }
