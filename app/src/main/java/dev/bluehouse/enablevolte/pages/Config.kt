@@ -25,11 +25,13 @@ fun Config(navController: NavController, subId: Int) {
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
+    var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
+        vtEnabled = moder.isVtConfigEnabled
         configuredUserAgent = moder.userAgentConfig
     }
 
@@ -70,6 +72,16 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Enable Video Calling (VT)", toggled = vtEnabled) {
+            vtEnabled = if (vtEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
