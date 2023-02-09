@@ -1,19 +1,19 @@
-name: Check Lint
+name: Default
 
 on:
     push:
         paths:
-            - .github/workflows/ktlint.yml
+            - .github/workflows/default.yml
             - "src/**/*.kt"
             - "**.kts"
     pull_request:
         paths:
-            - .github/workflows/ktlint.yml
+            - .github/workflows/default.yml
             - "src/**/*.kt"
             - "**.kts"
 
 jobs:
-    ktlint:
+    "Check Lint":
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
