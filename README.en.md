@@ -77,7 +77,7 @@ No.
 
 ### Do I have to do this after updating my Pixel?
 
-Not sure.
+Yes.
 
 ### How does it work?
 

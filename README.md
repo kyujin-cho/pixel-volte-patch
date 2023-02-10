@@ -88,7 +88,7 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### 해당 패치는 시스템 업데이트 시 마다 다시 실행하여야 하나요?
 
-확실하지 않습니다.
+네.
 
 ### 해당 패치의 작동 원리가 어떻게 되나요?
 
