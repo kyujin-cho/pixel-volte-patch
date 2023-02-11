@@ -34,6 +34,7 @@ fun Config(navController: NavController, subId: Int) {
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
+    var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
@@ -42,6 +43,7 @@ fun Config(navController: NavController, subId: Int) {
         vtEnabled = moder.isVtConfigEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
+        is4GPlusEnabled = moder.is4GPlusEnabled
         configuredUserAgent = moder.userAgentConfig
     }
 
@@ -111,6 +113,19 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = "Enable Enhanced 4G LTE/LTE+ (Untested)", toggled = is4GPlusEnabled) {
+            is4GPlusEnabled = if (is4GPlusEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, true)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, false)
                 true
             }
         }
