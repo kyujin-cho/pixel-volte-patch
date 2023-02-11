@@ -104,6 +104,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun updateCarrierConfig(key: String, value: String) {
+        Log.d(TAG, "Setting $key to $value")
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
         val overrideBundle = PersistableBundle()
         overrideBundle.putString(key, value)
@@ -111,6 +112,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun updateCarrierConfig(key: String, value: IntArray) {
+        Log.d(TAG, "Setting $key to $value")
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
         val overrideBundle = PersistableBundle()
         overrideBundle.putIntArray(key, value)
