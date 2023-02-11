@@ -176,6 +176,11 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     val isHideEnhancedDataIconEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL)
 
+    val is4GPlusEnabled: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL) &&
+            this.getBooleanValue(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL) &&
+            !this.getBooleanValue(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL)
+
     val isNRConfigEnabled: Boolean
         @RequiresApi(Build.VERSION_CODES.S)
         get() = this.getIntArrayValue(CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY)
