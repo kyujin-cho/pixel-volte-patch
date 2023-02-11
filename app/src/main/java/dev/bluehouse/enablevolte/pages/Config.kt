@@ -13,9 +13,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import dev.bluehouse.enablevolte.*
+import dev.bluehouse.enablevolte.BooleanPropertyView
+import dev.bluehouse.enablevolte.CarrierModer
+import dev.bluehouse.enablevolte.ClickablePropertyView
+import dev.bluehouse.enablevolte.HeaderText
+import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.StringPropertyView
+import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.checkShizukuPermission
 import java.lang.IllegalStateException
-
 
 @Composable
 fun Config(navController: NavController, subId: Int) {

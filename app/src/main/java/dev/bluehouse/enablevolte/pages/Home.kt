@@ -1,6 +1,8 @@
 package dev.bluehouse.enablevolte.pages
 
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.telephony.SubscriptionInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -13,16 +15,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import dev.bluehouse.enablevolte.*
+import dev.bluehouse.enablevolte.BooleanPropertyView
+import dev.bluehouse.enablevolte.BuildConfig
+import dev.bluehouse.enablevolte.CarrierModer
+import dev.bluehouse.enablevolte.ClickablePropertyView
+import dev.bluehouse.enablevolte.HeaderText
+import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.StringPropertyView
+import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.checkShizukuPermission
+import dev.bluehouse.enablevolte.getLatestAppVersion
+import dev.bluehouse.enablevolte.uniqueName
+import net.swiftzer.semver.SemVer
 import rikka.shizuku.Shizuku
-import java.lang.IllegalStateException
 
 const val TAG = "HomeActivity:Home"
+
 @Composable
 fun Home(navController: NavController) {
     val carrierModer = CarrierModer(LocalContext.current)
+    val context = LocalContext.current
 
     var shizukuEnabled by rememberSaveable { mutableStateOf(false) }
     var shizukuGranted by rememberSaveable { mutableStateOf(false) }
@@ -30,7 +45,7 @@ fun Home(navController: NavController) {
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
     var isIMSRegistered by rememberSaveable { mutableStateOf(listOf<Boolean>()) }
-
+    var newerVersion by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
         shizukuGranted = true
@@ -58,11 +73,29 @@ fun Home(navController: NavController) {
             } catch (e: IllegalStateException) {
                 false
             }
+            getLatestAppVersion {
+                Log.d(TAG, "Fetched version $it")
+                val latest = SemVer.parse(it)
+                val current = SemVer.parse(BuildConfig.VERSION_NAME)
+                if (latest > current) {
+                    newerVersion = it
+                }
+            }
         }
     }
 
-
     Column(modifier = Modifier.padding(Dp(16f))) {
+        HeaderText(text = "Version")
+        if (newerVersion.isNotEmpty()) {
+            ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = "Newer version $newerVersion available!") {
+                val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/$newerVersion"
+                val i = Intent(Intent.ACTION_VIEW)
+                i.data = Uri.parse(url)
+                startActivity(context, i, null)
+            }
+        } else {
+            StringPropertyView(label = BuildConfig.VERSION_NAME, value = "Running latest version")
+        }
         HeaderText(text = "Permissions & Capabilities")
         BooleanPropertyView(label = "Shizuku Service Running", toggled = shizukuEnabled)
         BooleanPropertyView(label = "Shizuku Permission Granted", toggled = shizukuGranted)

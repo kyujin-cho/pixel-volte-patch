@@ -22,12 +22,10 @@ object InterfaceCache {
     val cache = HashMap<String, IInterface>()
 }
 
-
-
 open class Moder {
     val KEY_IMS_USER_AGENT = "ims.ims_user_agent_string"
 
-    protected inline fun <reified T: IInterface>loadCachedInterface(interfaceLoader: () -> T): T {
+    protected inline fun <reified T : IInterface>loadCachedInterface(interfaceLoader: () -> T): T {
         InterfaceCache.cache[T::class.java.name]?.let {
             return it as T
         } ?: run {
@@ -38,47 +36,47 @@ open class Moder {
     }
 
     protected val carrierConfigLoader: ICarrierConfigLoader
-        get () = ICarrierConfigLoader.Stub.asInterface(
+        get() = ICarrierConfigLoader.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
                     .getTelephonyServiceManager()
                     .carrierConfigServiceRegisterer
-                    .get()
-            )
+                    .get(),
+            ),
         )
 
     protected val telephony: ITelephony
-        get () = ITelephony.Stub.asInterface(
+        get() = ITelephony.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
                     .getTelephonyServiceManager()
                     .telephonyServiceRegisterer
-                    .get()
-            )
+                    .get(),
+            ),
         )
 
     protected val phoneSubInfo: IPhoneSubInfo
-        get () = IPhoneSubInfo.Stub.asInterface(
+        get() = IPhoneSubInfo.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
                     .getTelephonyServiceManager()
                     .phoneSubServiceRegisterer
-                    .get()
-            )
+                    .get(),
+            ),
         )
 
     protected val sub: ISub
-        get () = ISub.Stub.asInterface(
+        get() = ISub.Stub.asInterface(
             ShizukuBinderWrapper(
                 TelephonyFrameworkInitializer
                     .getTelephonyServiceManager()
                     .subscriptionServiceRegisterer
-                    .get()
-            )
+                    .get(),
+            ),
         )
 }
 
-class CarrierModer(private val context: Context): Moder() {
+class CarrierModer(private val context: Context) : Moder() {
     val subscriptions: List<SubscriptionInfo>
         get() = this.loadCachedInterface { sub }.getActiveSubscriptionInfoList(null, null)
 
@@ -89,14 +87,14 @@ class CarrierModer(private val context: Context): Moder() {
         }
 
     val deviceSupportsIMS: Boolean
-        get () {
+        get() {
             val res = Resources.getSystem()
             val volteConfigId = res.getIdentifier("config_device_volte_available", "bool", "android")
             return res.getBoolean(volteConfigId)
         }
 }
 
-class SubscriptionModer(val subscriptionId: Int): Moder() {
+class SubscriptionModer(val subscriptionId: Int) : Moder() {
     fun updateCarrierConfig(key: String, value: Boolean) {
         Log.d(TAG, "Setting $key to $value")
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
@@ -187,7 +185,7 @@ class SubscriptionModer(val subscriptionId: Int): Moder() {
         get() = this.getStringValue(KEY_IMS_USER_AGENT)
 
     val isIMSRegistered: Boolean
-        get () {
+        get() {
             val telephony = this.loadCachedInterface { telephony }
             return telephony.isImsRegistered(this.subscriptionId)
         }
