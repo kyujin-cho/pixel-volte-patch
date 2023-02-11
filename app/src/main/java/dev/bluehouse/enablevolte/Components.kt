@@ -4,9 +4,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -76,7 +88,7 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
                         onClick = {
                             onUpdate(typedText)
                             openTextEditDialog = false
-                        }
+                        },
                     ) {
                         Text("Confirm")
                     }
@@ -85,7 +97,7 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
                     TextButton(
                         onClick = {
                             openTextEditDialog = false
-                        }
+                        },
                     ) {
                         Text("Dismiss")
                     }
@@ -93,7 +105,7 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
                 title = { Text(text = "Update Value", style = MaterialTheme.typography.titleLarge) },
                 text = {
                     TextField(value = typedText, onValueChange = { typedText = it })
-                }
+                },
             )
         }
     }

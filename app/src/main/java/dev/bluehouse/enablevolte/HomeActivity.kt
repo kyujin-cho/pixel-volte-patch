@@ -6,23 +6,35 @@ import android.telephony.SubscriptionInfo
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.Navigator
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -48,7 +60,7 @@ class HomeActivity : ComponentActivity() {
             EnableVoLTETheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surfaceVariant
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                 ) {
                     PixelIMSApp()
                 }
@@ -102,7 +114,6 @@ fun PixelIMSApp() {
                     }
                 }
             } catch (_: IllegalStateException) {
-
             }
         }
     }
@@ -112,7 +123,7 @@ fun PixelIMSApp() {
                 title = {
                     Text(stringResource(id = R.string.app_name), color = MaterialTheme.colorScheme.onPrimary)
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         },
         bottomBar = {
@@ -120,11 +131,11 @@ fun PixelIMSApp() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val items = arrayListOf(
-                    Screen("home", stringResource(R.string.home), Icons.Filled.Home)
+                    Screen("home", stringResource(R.string.home), Icons.Filled.Home),
                 )
                 for (subscription in subscriptions) {
                     items.add(
-                        Screen("config${subscription.subscriptionId}", subscription.uniqueName, Icons.Filled.Settings)
+                        Screen("config${subscription.subscriptionId}", subscription.uniqueName, Icons.Filled.Settings),
                     )
                 }
 
@@ -149,11 +160,11 @@ fun PixelIMSApp() {
                                 // Restore state when reselecting a previously selected item
                                 restoreState = true
                             }
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
         NavHost(navController, startDestination = "home", Modifier.padding(innerPadding), builder = navBuilder)
     }
