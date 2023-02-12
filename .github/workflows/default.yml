@@ -54,4 +54,5 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
+        with:
           files: dev.bluehouse.enablevolte.apk
