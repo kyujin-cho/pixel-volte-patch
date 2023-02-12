@@ -26,17 +26,17 @@ fun getLatestAppVersion(handler: (String) -> Unit) {
         .httpGet()
         .header("X-GitHub-Api-Version", "2022-11-28")
         .responseJson { _, _, result ->
-        when (result) {
-            is Result.Failure -> {
-                handler("0.0.0")
-            }
-            is Result.Success -> {
-                try {
-                    handler(result.get().array().getJSONObject(0).getString("tag_name"))
-                } catch (e: java.lang.Exception) {
+            when (result) {
+                is Result.Failure -> {
                     handler("0.0.0")
+                }
+                is Result.Success -> {
+                    try {
+                        handler(result.get().array().getJSONObject(0).getString("tag_name"))
+                    } catch (e: java.lang.Exception) {
+                        handler("0.0.0")
+                    }
                 }
             }
         }
-    }
 }
