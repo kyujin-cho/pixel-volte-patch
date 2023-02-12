@@ -22,7 +22,7 @@ jobs:
         continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
   release:
     needs: [lint]
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,14 +39,16 @@ jobs:
           curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-31/android.jar > $HOME/.android/sdk/platforms/android-31/android.jar
           curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-32/android.jar > $HOME/.android/sdk/platforms/android-32/android.jar
           curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-33/android.jar > $HOME/.android/sdk/platforms/android-33/android.jar
+      - name: set PATH
+        run: export PATH="$PATH:$HOME/.android/sdk/build-tools/32.0.0"
       - name: Build Release SDK
         run: ./gradlew assembleRelease
-      - name: align APK with zipalign
-        run: zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-unsigned-aligned.apk
       - name: Save keystore as file
         run: base64 -d "${KEYSTORE_B64}" > keystore.jks
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      - name: align APK with zipalign
+        run: zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-unsigned-aligned.apk
       - name: Sign APK
         run: apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-release-unsigned-aligned.apk
         env:
