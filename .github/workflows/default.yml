@@ -23,6 +23,7 @@ jobs:
   release:
     needs: [lint]
     # if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,15 +34,14 @@ jobs:
           java-version: "17"
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
+      - name: Install required platform
+        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
       - name: Replace android.jar
         run: |
-          curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-30/android.jar > $HOME/.android/sdk/platforms/android-30/android.jar
-          curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-31/android.jar > $HOME/.android/sdk/platforms/android-31/android.jar
-          curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-32/android.jar > $HOME/.android/sdk/platforms/android-32/android.jar
           curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-33/android.jar > $HOME/.android/sdk/platforms/android-33/android.jar
       - name: set PATH
-        run: export PATH="$PATH:$HOME/.android/sdk/build-tools/32.0.0"
-      - name: Build Release SDK
+        run: export PATH="$PATH:$HOME/.android/sdk/build-tools/33.0.2"
+      - name: Build release APK
         run: ./gradlew assembleRelease
       - name: Save keystore as file
         run: base64 -d "${KEYSTORE_B64}" > keystore.jks
