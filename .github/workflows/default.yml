@@ -52,7 +52,7 @@ jobs:
       - name: align APK with zipalign
         run: $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-unsigned-aligned.apk
       - name: Sign APK
-        run: $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-release-unsigned-aligned.apk
+        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-release-unsigned-aligned.apk
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
