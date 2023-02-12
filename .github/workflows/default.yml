@@ -40,9 +40,9 @@ jobs:
         run: |
           curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
       - run: |
-        ls $ANDROID_SDK_ROOT
-        ls $ANDROID_SDK_ROOT/build-tools
-        ls $ANDROID_SDK_ROOT/build-tools/33.0.2
+          ls $ANDROID_SDK_ROOT
+          ls $ANDROID_SDK_ROOT/build-tools
+          ls $ANDROID_SDK_ROOT/build-tools/33.0.2
       - name: Build release APK
         run: ./gradlew assembleRelease
       - name: Save keystore as file
