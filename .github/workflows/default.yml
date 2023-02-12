@@ -38,7 +38,7 @@ jobs:
         run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
       - name: Replace android.jar
         run: |
-          curl -L https://github.com/Reginer/aosp-android-jar/blob/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
       - name: set PATH
         run: export PATH="$PATH:/usr/local/lib/android/sdk/build-tools/33.0.2"
       - name: Build release APK
