@@ -60,6 +60,6 @@ jobs:
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          name: "v${{ github.ref }}"
+          name: "v${{ github.ref_name }}"
           generate_release_notes: true
           files: dev.bluehouse.enablevolte.apk
