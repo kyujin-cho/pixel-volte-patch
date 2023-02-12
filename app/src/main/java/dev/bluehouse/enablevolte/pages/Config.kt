@@ -3,6 +3,8 @@ package dev.bluehouse.enablevolte.pages
 import android.telephony.CarrierConfigManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +29,7 @@ import java.lang.IllegalStateException
 fun Config(navController: NavController, subId: Int) {
     val moder = SubscriptionModer(subId)
     val carrierModer = CarrierModer(LocalContext.current)
+    val scrollState = rememberScrollState()
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
@@ -66,7 +69,7 @@ fun Config(navController: NavController, subId: Int) {
         }
     }
 
-    Column(modifier = Modifier.padding(Dp(16f))) {
+    Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
         HeaderText(text = "Toggles")
         BooleanPropertyView(label = "Enable VoLTE", toggled = voLTEEnabled) {
             voLTEEnabled = if (voLTEEnabled) {

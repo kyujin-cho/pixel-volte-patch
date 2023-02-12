@@ -7,6 +7,8 @@ import android.telephony.SubscriptionInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +40,7 @@ const val TAG = "HomeActivity:Home"
 fun Home(navController: NavController) {
     val carrierModer = CarrierModer(LocalContext.current)
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     var shizukuEnabled by rememberSaveable { mutableStateOf(false) }
     var shizukuGranted by rememberSaveable { mutableStateOf(false) }
@@ -84,7 +87,7 @@ fun Home(navController: NavController) {
         }
     }
 
-    Column(modifier = Modifier.padding(Dp(16f))) {
+    Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
         HeaderText(text = "Version")
         if (newerVersion.isNotEmpty()) {
             ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = "Newer version $newerVersion available!") {
