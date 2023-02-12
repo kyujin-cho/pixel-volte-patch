@@ -44,7 +44,7 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease
       - name: Save keystore as file
-        run: base64 -d "${KEYSTORE_B64}" > keystore.jks
+        run: echo "${KEYSTORE_B64}" | base64 -d > keystore.jks
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
       - name: align APK with zipalign
