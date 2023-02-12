@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -54,7 +55,14 @@ fun HeaderText(text: String) {
 }
 
 @Composable
-fun BooleanPropertyView(label: String, toggled: Boolean, enabled: Boolean = true, trueLabel: String = "Yes", falseLabel: String = "No", onClick: ((Boolean) -> Unit)? = null) {
+fun BooleanPropertyView(
+    label: String,
+    toggled: Boolean,
+    enabled: Boolean = true,
+    trueLabel: String = stringResource(R.string.yes),
+    falseLabel: String = stringResource(R.string.no),
+    onClick: ((Boolean) -> Unit)? = null,
+) {
     if (onClick != null) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
             Text(text = label, modifier = Modifier.weight(1F), fontSize = 18.sp)
@@ -90,7 +98,7 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
                             openTextEditDialog = false
                         },
                     ) {
-                        Text("Confirm")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
@@ -99,10 +107,10 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
                             openTextEditDialog = false
                         },
                     ) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.dismiss))
                     }
                 },
-                title = { Text(text = "Update Value", style = MaterialTheme.typography.titleLarge) },
+                title = { Text(text = stringResource(R.string.update_value), style = MaterialTheme.typography.titleLarge) },
                 text = {
                     TextField(value = typedText, onValueChange = { typedText = it })
                 },
