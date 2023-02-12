@@ -1,0 +1,65 @@
+name: default
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.2/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+      - name: run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml
+        continue-on-error: true
+      - uses: yutailang0119/action-ktlint@v3
+        with:
+          report-path: build/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
+        continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
+  release:
+    needs: [lint]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up OpenJDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+      - name: Install required platform
+        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+      - name: Replace android.jar
+        run: |
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
+      - run: |
+          ls $ANDROID_SDK_ROOT
+          ls $ANDROID_SDK_ROOT/build-tools
+          ls $ANDROID_SDK_ROOT/build-tools/33.0.2
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+      - name: Save keystore as file
+        run: echo "${KEYSTORE_B64}" | base64 -d > keystore.jks
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      - name: align APK with zipalign
+        run: $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-unsigned-aligned.apk
+      - name: Sign APK
+        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-release-unsigned-aligned.apk
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "v${{ github.ref }}"
+          generate_release_notes: true
+          files: dev.bluehouse.enablevolte.apk
