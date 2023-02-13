@@ -165,6 +165,9 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
 
     val isVolteConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
+        
+    val isVonrConfigEnabled: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_VONR_ENABLED_BOOL)
 
     val isVowifiConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL)
