@@ -81,6 +81,16 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
+        BooleanPropertyView(label = "Enable VoNR", toggled = voNREnabled) {
+            voNREnabled = if (voNREnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
         BooleanPropertyView(label = "Enable VoWiFi", toggled = voWiFiEnabled) {
             voWiFiEnabled = if (voWiFiEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
