@@ -33,6 +33,7 @@ fun Config(navController: NavController, subId: Int) {
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
+    var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
@@ -42,6 +43,7 @@ fun Config(navController: NavController, subId: Int) {
 
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
+        voNREnabled = moder.isVonrConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
         vtEnabled = moder.isVtConfigEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
