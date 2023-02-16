@@ -111,6 +111,14 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         iCclInstance.overrideConfig(this.subscriptionId, overrideBundle, true)
     }
 
+    fun updateCarrierConfig(key: String, value: Int) {
+        Log.d(TAG, "Setting $key to $value")
+        val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
+        val overrideBundle = PersistableBundle()
+        overrideBundle.putInt(key, value)
+        iCclInstance.overrideConfig(this.subscriptionId, overrideBundle, true)
+    }
+
     fun updateCarrierConfig(key: String, value: IntArray) {
         Log.d(TAG, "Setting $key to $value")
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
@@ -152,6 +160,17 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         return config.getBoolean(key)
     }
 
+    private fun getIntValue(key: String): Int {
+        val subscriptionId = this.subscriptionId
+        if (subscriptionId < 0) {
+            return -1
+        }
+        val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
+
+        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        return config.getInt(key)
+    }
+
     private fun getIntArrayValue(key: String): IntArray {
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
@@ -168,6 +187,18 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
 
     val isVowifiConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL)
+
+    val showVoWifiMode: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL)
+
+    val showVoWifiRoamingMode: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL)
+
+    val showVoWifiInNetworkName: Int
+        get() = this.getIntValue(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT)
+
+    val supportWfcWifiOnly: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL)
 
     val isVtConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL)

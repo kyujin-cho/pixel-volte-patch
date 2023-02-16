@@ -36,6 +36,10 @@ fun Config(navController: NavController, subId: Int) {
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
+    var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
+    var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
+    var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
+    var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
@@ -45,6 +49,10 @@ fun Config(navController: NavController, subId: Int) {
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
+        showVoWifiMode = moder.showVoWifiMode
+        showVoWifiRoamingMode = moder.showVoWifiRoamingMode
+        showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
+        supportWfcWifiOnly = moder.supportWfcWifiOnly
         vtEnabled = moder.isVtConfigEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
@@ -89,6 +97,46 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Show VoWiFi preference in Settings", toggled = showVoWifiMode) {
+            showVoWifiMode = if (showVoWifiMode) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Show VoWiFi Roaming preference in Settings", toggled = showVoWifiRoamingMode) {
+            showVoWifiRoamingMode = if (showVoWifiRoamingMode) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Add \"Wi-Fi Calling\" to Network Name", toggled = showVoWifiInNetworkName) {
+            showVoWifiInNetworkName = if (showVoWifiInNetworkName) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 0)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 1)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Allow VoWiFi in Aeroplane Mode", toggled = supportWfcWifiOnly) {
+            supportWfcWifiOnly = if (supportWfcWifiOnly) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
