@@ -174,7 +174,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
 
     val isCrosssimConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL) &&
-            this.getBooleanValue(KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL)
+            this.getBooleanValue(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL)
 
     val isVtConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL)
