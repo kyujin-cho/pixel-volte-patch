@@ -35,6 +35,7 @@ fun Config(navController: NavController, subId: Int) {
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
+    var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
@@ -45,6 +46,7 @@ fun Config(navController: NavController, subId: Int) {
         voLTEEnabled = moder.isVolteConfigEnabled
         voNREnabled = moder.isVonrConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
+        crosssimEnabled = moder.isCrosssimConfigEnabled
         vtEnabled = moder.isVtConfigEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
@@ -99,6 +101,16 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Enable Cross SIM IMS", toggled = crosssimEnabled) {
+            crosssimEnabled = if (crosssimEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
