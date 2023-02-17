@@ -33,7 +33,9 @@ fun Config(navController: NavController, subId: Int) {
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
+    var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
+    var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
@@ -42,7 +44,9 @@ fun Config(navController: NavController, subId: Int) {
 
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
+        voNREnabled = moder.isVonrConfigEnabled
         voWiFiEnabled = moder.isVowifiConfigEnabled
+        crosssimEnabled = moder.isCrosssimConfigEnabled
         vtEnabled = moder.isVtConfigEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
@@ -81,12 +85,34 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
+        BooleanPropertyView(label = "Enable VoNR", toggled = voNREnabled) {
+            voNREnabled = if (voNREnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
         BooleanPropertyView(label = "Enable VoWiFi", toggled = voWiFiEnabled) {
             voWiFiEnabled = if (voWiFiEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = "Enable Voice over Cross SIM", toggled = crosssimEnabled) {
+            crosssimEnabled = if (crosssimEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
