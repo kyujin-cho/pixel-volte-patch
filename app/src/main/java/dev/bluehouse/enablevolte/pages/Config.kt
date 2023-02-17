@@ -108,9 +108,11 @@ fun Config(navController: NavController, subId: Int) {
         BooleanPropertyView(label = "Enable Cross SIM IMS", toggled = crosssimEnabled) {
             crosssimEnabled = if (crosssimEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
