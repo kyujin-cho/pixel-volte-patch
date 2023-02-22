@@ -1,10 +1,22 @@
-# Pixel 6 & 7 LG U+ VoLTE 활성화
+# Pixel 6 & 7 VoLTE 활성화
 
 English version available [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/README.en.md).
 
 ## 개요
 
-이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 LG U+ 회선에서의 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
+이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
+
+## 지원 통신사
+
+### 1차 지원
+
+즉시 테스트가 가능하여 가/부 여부를 바로 확인할 수 있는 통신사입니다.
+
+- LG U+ (대한민국)
+
+### 2차 지원
+
+테스트가 불가능하지만 커뮤니티에 의해 가능함이 확인된 통신사입니다. 목록은 [링크](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/compatibility-chart.md) 를 참고하세요.
 
 ## 적용 방법
 
