@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
@@ -20,6 +21,7 @@ import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.checkShizukuPermission
@@ -70,8 +72,8 @@ fun Config(navController: NavController, subId: Int) {
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
-        HeaderText(text = "Toggles")
-        BooleanPropertyView(label = "Enable VoLTE", toggled = voLTEEnabled) {
+        HeaderText(text = stringResource(R.string.toggles))
+        BooleanPropertyView(label = stringResource(R.string.enable_volte), toggled = voLTEEnabled) {
             voLTEEnabled = if (voLTEEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, false)
                 false
@@ -81,7 +83,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Enable VoWiFi", toggled = voWiFiEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.enable_vowifi), toggled = voWiFiEnabled) {
             voWiFiEnabled = if (voWiFiEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
                 false
@@ -91,7 +93,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Enable Video Calling (VT)", toggled = vtEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.enable_video_calling_vt), toggled = vtEnabled) {
             vtEnabled = if (vtEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, false)
                 false
@@ -101,7 +103,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Show 4G for LTE Data Icon", toggled = show4GForLteEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.show_4g_for_lte_data_icon), toggled = show4GForLteEnabled) {
             show4GForLteEnabled = if (show4GForLteEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL, false)
                 false
@@ -110,7 +112,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Hide Enhanced Data Icon", toggled = hideEnhancedDataIconEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.hide_enhanced_data_icon), toggled = hideEnhancedDataIconEnabled) {
             hideEnhancedDataIconEnabled = if (hideEnhancedDataIconEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, false)
                 false
@@ -119,7 +121,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Enable Enhanced 4G LTE/LTE+ (Untested)", toggled = is4GPlusEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.enable_enhanced_4g_lte_lte_untested), toggled = is4GPlusEnabled) {
             is4GPlusEnabled = if (is4GPlusEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, false)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, false)
@@ -133,14 +135,17 @@ fun Config(navController: NavController, subId: Int) {
             }
         }
 
-        HeaderText(text = "String Values")
-        StringPropertyView(label = "User Agent", value = configuredUserAgent) {
+        HeaderText(text = stringResource(R.string.string_values))
+        StringPropertyView(label = stringResource(R.string.user_agent), value = configuredUserAgent) {
             moder.updateCarrierConfig(moder.KEY_IMS_USER_AGENT, it)
             configuredUserAgent = it
         }
 
-        HeaderText(text = "Miscellaneous")
-        ClickablePropertyView(label = "Reset all settings", value = "Reverts to carrier default") {
+        HeaderText(text = stringResource(R.string.miscellaneous))
+        ClickablePropertyView(
+            label = stringResource(R.string.reset_all_settings),
+            value = stringResource(R.string.reverts_to_carrier_default),
+        ) {
             moder.clearCarrierConfig()
             loadFlags()
         }

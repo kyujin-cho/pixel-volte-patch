@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Lifecycle
@@ -26,6 +27,7 @@ import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.checkShizukuPermission
@@ -88,26 +90,31 @@ fun Home(navController: NavController) {
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
-        HeaderText(text = "Version")
+        HeaderText(text = stringResource(R.string.version))
         if (newerVersion.isNotEmpty()) {
-            ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = "Newer version $newerVersion available!") {
+            ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = stringResource(R.string.newer_version_available, "$newerVersion")) {
                 val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/$newerVersion"
                 val i = Intent(Intent.ACTION_VIEW)
                 i.data = Uri.parse(url)
                 startActivity(context, i, null)
             }
         } else {
-            StringPropertyView(label = BuildConfig.VERSION_NAME, value = "Running latest version")
+            StringPropertyView(label = BuildConfig.VERSION_NAME, value = stringResource(R.string.running_latest_version))
         }
-        HeaderText(text = "Permissions & Capabilities")
-        BooleanPropertyView(label = "Shizuku Service Running", toggled = shizukuEnabled)
-        BooleanPropertyView(label = "Shizuku Permission Granted", toggled = shizukuGranted)
-        BooleanPropertyView(label = "SIM Detected", toggled = subscriptions.isNotEmpty())
-        BooleanPropertyView(label = "VoLTE Supported by Device", toggled = deviceIMSEnabled)
+        HeaderText(text = stringResource(R.string.permissions_capabilities))
+        BooleanPropertyView(label = stringResource(R.string.shizuku_service_running), toggled = shizukuEnabled)
+        BooleanPropertyView(label = stringResource(R.string.shizuku_permission_granted), toggled = shizukuGranted)
+        BooleanPropertyView(label = stringResource(R.string.sim_detected), toggled = subscriptions.isNotEmpty())
+        BooleanPropertyView(label = stringResource(R.string.volte_supported_by_device), toggled = deviceIMSEnabled)
 
         for (idx in subscriptions.indices) {
-            HeaderText(text = "IMS Status for ${subscriptions[idx].uniqueName}")
-            BooleanPropertyView(label = "IMS Status", toggled = isIMSRegistered[idx], trueLabel = "Registered", falseLabel = "Unregistered")
+            HeaderText(text = stringResource(R.string.ims_status_for, "${subscriptions[idx].uniqueName}"))
+            BooleanPropertyView(
+                label = stringResource(R.string.ims_status),
+                toggled = isIMSRegistered[idx],
+                trueLabel = stringResource(R.string.registered),
+                falseLabel = stringResource(R.string.unregistered),
+            )
         }
     }
 }
