@@ -101,7 +101,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Show VoWiFi preference in Settings", toggled = showVoWifiMode) {
+        BooleanPropertyView(label = stringResource(R.string.show_vowifi_preference_in_settings), toggled = showVoWifiMode) {
             showVoWifiMode = if (showVoWifiMode) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, false)
                 false
@@ -111,7 +111,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Show VoWiFi Roaming preference in Settings", toggled = showVoWifiRoamingMode) {
+        BooleanPropertyView(label = stringResource(R.string.show_vowifi_roaming_preference_in_settings), toggled = showVoWifiRoamingMode) {
             showVoWifiRoamingMode = if (showVoWifiRoamingMode) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL, false)
                 false
@@ -121,7 +121,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Add \"Wi-Fi Calling\" to Network Name", toggled = showVoWifiInNetworkName) {
+        BooleanPropertyView(label = stringResource(R.string.add_wifi_calling_to_network_name), toggled = showVoWifiInNetworkName) {
             showVoWifiInNetworkName = if (showVoWifiInNetworkName) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 0)
                 false
@@ -131,7 +131,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = "Allow VoWiFi in Aeroplane Mode", toggled = supportWfcWifiOnly) {
+        BooleanPropertyView(label = stringResource(R.string.allow_vowifi_in_aeroplane_mode), toggled = supportWfcWifiOnly) {
             supportWfcWifiOnly = if (supportWfcWifiOnly) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL, false)
                 false
