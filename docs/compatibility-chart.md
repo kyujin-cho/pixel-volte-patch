@@ -20,4 +20,5 @@
 | 유럽   | 폴란드 (260)     | Plus (01)          | O               | O                          | [링크 참조](https://github.com/kyujin-cho/pixel-volte-patch/issues/17)                                               |
 | 유럽   | 폴란드 (260)     | Play (06)          | O               | O                          | APN을 ims로 설정 필요, [링크 참조](https://github.com/kyujin-cho/pixel-volte-patch/issues/17)                        |
 | 유럽   | 루마니아 (226)   | Vodafone (01)      | O               | O                          | [링크 참조](https://github.com/kyujin-cho/pixel-volte-patch/discussions/6)                                           |
-| 유럽   | 루마니아 (226)   | Orange RO (10)     | O               | O                          | [링크 참조](https://github.com/kyujin-cho/pixel-volte-patch/discussions/6)                                           |
+| 유럽   | 루마니아 (226)   | Orange RO (10)     | O               | O                          | [링크 참조](https://github.com/kyujin-cho/pixel-volte-patch/discussions/6)
+| 오세아니아          | 뉴질랜드  (530)       | Spark NZ (05) | O                   | O                                       | [Reference](https://github.com/kyujin-cho/pixel-volte-patch/discussions/1#discussioncomment-4940003)                                                 |
