@@ -88,9 +88,11 @@ fun Config(navController: NavController, subId: Int) {
         BooleanPropertyView(label = "Enable VoNR", toggled = voNREnabled) {
             voNREnabled = if (voNREnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, false)
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
