@@ -44,7 +44,7 @@ fun Config(navController: NavController, subId: Int) {
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
-    var configuredUserAgent by rememberSaveable { mutableStateOf("") }
+    var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
         voLTEEnabled = moder.isVolteConfigEnabled
@@ -57,7 +57,11 @@ fun Config(navController: NavController, subId: Int) {
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
         is4GPlusEnabled = moder.is4GPlusEnabled
-        configuredUserAgent = moder.userAgentConfig
+        configuredUserAgent = try {
+            moder.userAgentConfig
+        } catch (e: java.lang.NullPointerException) {
+            null
+        }
     }
 
     OnLifecycleEvent { _, event ->
