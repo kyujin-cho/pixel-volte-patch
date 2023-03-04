@@ -57,12 +57,19 @@ fun HeaderText(text: String) {
 @Composable
 fun BooleanPropertyView(
     label: String,
-    toggled: Boolean,
+    toggled: Boolean?,
     enabled: Boolean = true,
     trueLabel: String = stringResource(R.string.yes),
     falseLabel: String = stringResource(R.string.no),
     onClick: ((Boolean) -> Unit)? = null,
 ) {
+    if (toggled == null) {
+        Column(modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
+            Text(text = label, fontSize = 18.sp, modifier = Modifier.padding(bottom = Dp(4f)))
+            Text(text = stringResource(R.string.unknown), fontSize = 14.sp, color = MaterialTheme.colorScheme.outline)
+        }
+        return
+    }
     if (onClick != null) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
             Text(text = label, modifier = Modifier.weight(1F), fontSize = 18.sp)
@@ -78,7 +85,7 @@ fun BooleanPropertyView(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit)? = null) {
+fun StringPropertyView(label: String, value: String?, onUpdate: ((String) -> Unit)? = null) {
     var typedText by rememberSaveable { mutableStateOf("") }
     var openTextEditDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -118,14 +125,23 @@ fun StringPropertyView(label: String, value: String, onUpdate: ((String) -> Unit
         }
     }
     ClickablePropertyView(label = label, value = value) {
-        typedText = value
-        openTextEditDialog = true
+        if (value != null) {
+            typedText = value
+            openTextEditDialog = true
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClickablePropertyView(label: String, value: String, onClick: (() -> Unit)? = null) {
+fun ClickablePropertyView(label: String, value: String?, onClick: (() -> Unit)? = null) {
+    if (value == null) {
+        Column(modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
+            Text(text = label, modifier = Modifier.padding(bottom = Dp(4f)))
+            Text(text = stringResource(R.string.unknown), color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+        }
+        return
+    }
     if (onClick != null) {
         Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(top = Dp(12f), bottom = Dp(12f))) {
