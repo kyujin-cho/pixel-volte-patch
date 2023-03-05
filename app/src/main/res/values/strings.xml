@@ -7,6 +7,7 @@
     <string name="confirm">Confirm</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="unknown">Unknown</string>
     <string name="running_latest_version">Running latest version</string>
     <string name="shizuku_service_running">Shizuku Service Running</string>
     <string name="shizuku_permission_granted">Shizuku Permission Granted</string>
