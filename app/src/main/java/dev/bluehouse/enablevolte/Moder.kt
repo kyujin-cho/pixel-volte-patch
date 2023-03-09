@@ -191,9 +191,6 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     val showVoWifiMode: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL)
 
-    val showVoWifiRoamingMode: Boolean
-        get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL)
-
     val showVoWifiInNetworkName: Int
         get() = this.getIntValue(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT)
 
