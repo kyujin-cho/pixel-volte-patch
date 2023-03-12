@@ -45,7 +45,7 @@ Carriers which aren't possible for testing by developer but reported as supporte
 
 ### Install Patch Application
 
-1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.2/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
+1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.3/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
 2. Install downloaded APK file.
 3. Start installed application.
 4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
