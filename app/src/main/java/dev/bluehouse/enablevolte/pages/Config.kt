@@ -22,7 +22,6 @@ import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.OnLifecycleEvent
 import dev.bluehouse.enablevolte.R
-import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.checkShizukuPermission
