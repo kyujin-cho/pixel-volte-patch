@@ -16,7 +16,7 @@
     <string name="show_vowifi_preference_in_settings">Show VoWiFi preference in Settings</string>
     <string name="show_vowifi_roaming_preference_in_settings">Show VoWiFi Roaming preference in Settings</string>
     <string name="add_wifi_calling_to_network_name">Add "Wi-Fi Calling" to Network Name</string>
-    <string name="show_wifi_only_for_vowifi">Show "WiFi only" mode for VoWiFi</string>
+    <string name="show_wifi_only_for_vowifi">Show \"WiFi only\" mode for VoWiFi</string>
     <string name="enable_video_calling_vt">Enable Video Calling (VT)</string>
     <string name="sim_detected">SIM Detected</string>
     <string name="volte_supported_by_device">VoLTE Supported by Device</string>
@@ -26,7 +26,8 @@
     <string name="registered">Registered</string>
     <string name="unregistered">Unregistered</string>
     <string name="newer_version_available">Newer version %1$s available!</string>
-    <string name="toggles">Toggles</string>
+    <string name="feature_toggles">Enable/Disable Feature</string>
+    <string name="cosmetic_toggles">Cosmetic Toggles</string>
     <string name="show_4g_for_lte_data_icon">Show 4G for LTE Data Icon</string>
     <string name="hide_enhanced_data_icon">Hide Enhanced Data Icon</string>
     <string name="enable_enhanced_4g_lte_lte_untested">Enable Enhanced 4G LTE/LTE+ (Untested)</string>
@@ -37,4 +38,6 @@
     <string name="user_agent">User Agent</string>
     <string name="version">Version</string>
     <string name="update_value">Update Value</string>
+    <string name="lgu">LG U+</string>
+    <string name="default_">Default</string>
 </resources>

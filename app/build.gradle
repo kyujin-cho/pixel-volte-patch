@@ -50,7 +50,7 @@ android {
 dependencies {
     def lifecycle_version = "2.6.0-alpha05"
     def nav_version = "2.5.3"
-    def material3_version = "1.0.1"
+    def material3_version = "1.1.0-alpha08"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.0'

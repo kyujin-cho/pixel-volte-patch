@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ua_default">#MANUFACTURE#_#MODEL#_Android #AV#_#BUILD#</string>
+    <string name="ua_lgu">TTA-VoLTE/3.0 GB17L/T1B1.220819.007 Device-Type/Android_Phone OMD</string>
+</resources>

@@ -24,6 +24,7 @@ import dev.bluehouse.enablevolte.OnLifecycleEvent
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import java.lang.IllegalStateException
 
@@ -84,7 +85,7 @@ fun Config(navController: NavController, subId: Int) {
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
-        HeaderText(text = stringResource(R.string.toggles))
+        HeaderText(text = stringResource(R.string.feature_toggles))
         BooleanPropertyView(label = stringResource(R.string.enable_volte), toggled = voLTEEnabled) {
             voLTEEnabled = if (voLTEEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, false)
@@ -109,6 +110,37 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
+        BooleanPropertyView(label = stringResource(R.string.enable_video_calling_vt), toggled = vtEnabled) {
+            vtEnabled = if (vtEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_enhanced_4g_lte_lte_untested), toggled = is4GPlusEnabled) {
+            is4GPlusEnabled = if (is4GPlusEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, false)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, true)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, true)
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, false)
+                true
+            }
+        }
+
+        HeaderText(text = stringResource(R.string.string_values))
+        UserAgentPropertyView(label = stringResource(R.string.user_agent), value = configuredUserAgent) {
+            moder.updateCarrierConfig(moder.KEY_IMS_USER_AGENT, it)
+            configuredUserAgent = it
+        }
+
+        HeaderText(text = stringResource(R.string.cosmetic_toggles))
         BooleanPropertyView(label = stringResource(R.string.show_vowifi_preference_in_settings), toggled = showVoWifiMode) {
             showVoWifiMode = if (showVoWifiMode) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, false)
@@ -149,16 +181,6 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.enable_video_calling_vt), toggled = vtEnabled) {
-            vtEnabled = if (vtEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, true)
-                moder.restartIMSRegistration()
-                true
-            }
-        }
         BooleanPropertyView(label = stringResource(R.string.show_4g_for_lte_data_icon), toggled = show4GForLteEnabled) {
             show4GForLteEnabled = if (show4GForLteEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL, false)
@@ -176,25 +198,6 @@ fun Config(navController: NavController, subId: Int) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, true)
                 true
             }
-        }
-        BooleanPropertyView(label = stringResource(R.string.enable_enhanced_4g_lte_lte_untested), toggled = is4GPlusEnabled) {
-            is4GPlusEnabled = if (is4GPlusEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, false)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, false)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, true)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, true)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, true)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, false)
-                true
-            }
-        }
-
-        HeaderText(text = stringResource(R.string.string_values))
-        StringPropertyView(label = stringResource(R.string.user_agent), value = configuredUserAgent) {
-            moder.updateCarrierConfig(moder.KEY_IMS_USER_AGENT, it)
-            configuredUserAgent = it
         }
 
         HeaderText(text = stringResource(R.string.miscellaneous))
