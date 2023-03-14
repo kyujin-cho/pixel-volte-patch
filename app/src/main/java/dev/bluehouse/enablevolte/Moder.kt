@@ -203,6 +203,9 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     val isVtConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL)
 
+    val ssOverUtEnabled: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL)
+
     val isShow4GForLteEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL)
 
