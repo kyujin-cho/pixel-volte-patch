@@ -1,6 +1,7 @@
 package dev.bluehouse.enablevolte.pages
 
 import android.telephony.CarrierConfigManager
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -20,18 +21,23 @@ import dev.bluehouse.enablevolte.BooleanPropertyView
 import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
+import dev.bluehouse.enablevolte.KeyValueEditView
 import dev.bluehouse.enablevolte.OnLifecycleEvent
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.UserAgentPropertyView
+import dev.bluehouse.enablevolte.ValueType
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import java.lang.IllegalStateException
+import java.util.*
 
 @Composable
 fun Config(navController: NavController, subId: Int) {
     val moder = SubscriptionModer(subId)
     val carrierModer = CarrierModer(LocalContext.current)
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val cannotFindKeyText = stringResource(R.string.cannot_find_key)
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
@@ -216,6 +222,38 @@ fun Config(navController: NavController, subId: Int) {
         ) {
             moder.clearCarrierConfig()
             loadFlags()
+        }
+        KeyValueEditView(label = stringResource(id = R.string.manually_set_config)) { key, valueType, value ->
+            val foundKey = CarrierConfigManager::class.java.declaredFields.find { it.name == key.uppercase() || (it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase()) }
+            if (foundKey == null) {
+                Toast.makeText(context, cannotFindKeyText, Toast.LENGTH_SHORT).show()
+                false
+            } else {
+                val actualKey = foundKey.get(foundKey) as String
+                try {
+                    when (valueType) {
+                        ValueType.Bool -> moder.updateCarrierConfig(actualKey, value == "true")
+                        ValueType.String -> moder.updateCarrierConfig(actualKey, value)
+                        ValueType.Int -> moder.updateCarrierConfig(actualKey, value.toInt())
+                        ValueType.Long -> moder.updateCarrierConfig(actualKey, value.toLong())
+                        ValueType.BoolArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim() == "true" }).toBooleanArray())
+                        ValueType.StringArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim() }).toTypedArray())
+                        ValueType.IntArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim().toInt() }).toIntArray())
+                        ValueType.LongArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim().toLong() }).toLongArray())
+                        else -> {}
+                    }
+                    true
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error while updating: ${e.message}", Toast.LENGTH_SHORT).show()
+                    false
+                }
+            }
+        }
+        ClickablePropertyView(
+            label = stringResource(R.string.dump_config),
+            value = "",
+        ) {
+            navController.navigate("dumpConfig$subId")
         }
     }
 }

@@ -1,17 +1,26 @@
 package dev.bluehouse.enablevolte
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -29,8 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -227,6 +239,122 @@ fun StringPropertyView(label: String, value: String?, onUpdate: ((String) -> Uni
             typedText = value
             openTextEditDialog = true
         }
+    }
+}
+
+enum class ValueType {
+    Int,
+    Long,
+    Bool,
+    String,
+    IntArray,
+    LongArray,
+    BoolArray,
+    StringArray,
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun KeyValueEditView(label: String, onUpdate: ((String, ValueType?, String) -> Boolean)) {
+    var configKey by rememberSaveable { mutableStateOf("") }
+    var selectedValueType: ValueType? by rememberSaveable { mutableStateOf(null) }
+    var value by rememberSaveable { mutableStateOf("") }
+    var openEditPropertyDialog by rememberSaveable { mutableStateOf(false) }
+    var dropdownExpanded by rememberSaveable { mutableStateOf(false) }
+
+    if (openEditPropertyDialog) {
+        Dialog(
+            onDismissRequest = { openEditPropertyDialog = false },
+            properties = DialogProperties(),
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = AlertDialogDefaults.containerColor,
+                    contentColor = AlertDialogDefaults.textContentColor,
+                ),
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(stringResource(R.string.update_value), modifier = Modifier.padding(bottom = 16.dp), style = MaterialTheme.typography.titleLarge)
+                    TextField(
+                        value = configKey,
+                        label = { Text(stringResource(R.string.property_name)) },
+                        onValueChange = { configKey = it },
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = dropdownExpanded,
+                        onExpandedChange = { dropdownExpanded = !dropdownExpanded },
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    ) {
+                        TextField(
+                            // The `menuAnchor` modifier must be passed to the text field for correctness.
+                            modifier = Modifier.menuAnchor().wrapContentWidth(),
+                            readOnly = true,
+                            value = selectedValueType?.name ?: "",
+                            onValueChange = {},
+                            label = { Text(stringResource(R.string.property_type)) },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded)
+                            },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = dropdownExpanded,
+                            onDismissRequest = { dropdownExpanded = false },
+                        ) {
+                            ValueType.values().forEach { valueType ->
+                                DropdownMenuItem(
+                                    text = { Text(text = valueType.name) },
+                                    onClick = {
+                                        if (selectedValueType != valueType) {
+                                            selectedValueType = valueType
+                                            value = ""
+                                        }
+                                        dropdownExpanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                )
+                            }
+                        }
+                    }
+                    when (selectedValueType) {
+                        ValueType.Bool -> Row(
+                            modifier = Modifier.selectableGroup(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = value == "true",
+                                onClick = { value = "true" },
+                            )
+                            Text("true")
+                            RadioButton(
+                                selected = value == "false",
+                                onClick = { value = "false" },
+                            )
+                            Text("false")
+                        }
+                        ValueType.Int, ValueType.Long -> TextField(
+                            value = value,
+                            onValueChange = { value = it },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        )
+                        is ValueType -> TextField(value = value, onValueChange = { value = it })
+                        else -> Box(modifier = Modifier.defaultMinSize(minHeight = 48.dp))
+                    }
+                    Row(modifier = Modifier.padding(top = 16.dp)) {
+                        Spacer(Modifier.weight(1f))
+                        TextButton(onClick = {
+                            if (onUpdate(configKey, selectedValueType, value)) {
+                                openEditPropertyDialog = false
+                            }
+                        }, enabled = selectedValueType != null) { Text(stringResource(R.string.confirm)) }
+                        TextButton(onClick = { openEditPropertyDialog = false }) { Text(stringResource(R.string.dismiss)) }
+                    }
+                }
+            }
+        }
+    }
+    ClickablePropertyView(label = label, value = "") {
+        openEditPropertyDialog = true
     }
 }
 
