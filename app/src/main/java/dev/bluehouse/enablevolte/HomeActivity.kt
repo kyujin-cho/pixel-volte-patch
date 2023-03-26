@@ -38,8 +38,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import dev.bluehouse.enablevolte.pages.Config
+import dev.bluehouse.enablevolte.pages.DumpedConfig
 import dev.bluehouse.enablevolte.pages.Home
 import dev.bluehouse.enablevolte.ui.theme.EnableVoLTETheme
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -90,8 +92,13 @@ fun PixelIMSApp() {
                 Home(navController)
             }
             for (subscription in subscriptions) {
-                composable("config${subscription.subscriptionId}") {
-                    Config(navController, subscription.subscriptionId)
+                navigation(startDestination = "editConfig${subscription.subscriptionId}", route = "config${subscription.subscriptionId}") {
+                    composable("editConfig${subscription.subscriptionId}") {
+                        Config(navController, subscription.subscriptionId)
+                    }
+                    composable("dumpConfig${subscription.subscriptionId}") {
+                        DumpedConfig(subscription.subscriptionId)
+                    }
                 }
             }
         }

@@ -41,4 +41,11 @@
     <string name="update_value">Update Value</string>
     <string name="lgu">LG U+</string>
     <string name="default_">Default</string>
+    <string name="manually_set_config">Manually set config</string>
+    <string name="cannot_find_key">Cannot find specified key</string>
+    <string name="dump_config">Dump Config</string>
+    <string name="property_name">Property Name</string>
+    <string name="property_type">Property Type</string>
+    <string name="value">Value</string>
+    <string name="dump_completed">Dumped config copied to clipboard</string>
 </resources>
