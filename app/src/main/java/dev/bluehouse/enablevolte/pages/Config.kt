@@ -36,6 +36,7 @@ fun Config(navController: NavController, subId: Int) {
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
+    var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
@@ -47,8 +48,9 @@ fun Config(navController: NavController, subId: Int) {
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
-        voLTEEnabled = moder.isVolteConfigEnabled
-        voWiFiEnabled = moder.isVowifiConfigEnabled
+        voLTEEnabled = moder.isVoLteConfigEnabled
+        voWiFiEnabled = moder.isVoWifiConfigEnabled
+        voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
         showVoWifiMode = moder.showVoWifiMode
         showVoWifiRoamingMode = moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
@@ -99,11 +101,19 @@ fun Config(navController: NavController, subId: Int) {
             voWiFiEnabled = if (voWiFiEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, false)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL, false)
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_vowifi_while_roamed), toggled = voWiFiEnabledWhileRoaming) {
+            voWiFiEnabledWhileRoaming = if (voWiFiEnabledWhileRoaming) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL, false)
+                false
+            } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL, true)
                 moder.restartIMSRegistration()
                 true
@@ -119,7 +129,7 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.enable_enhanced_4g_lte_lte_untested), toggled = is4GPlusEnabled) {
+        BooleanPropertyView(label = stringResource(R.string.enable_enhanced_4g_lte_plus), toggled = is4GPlusEnabled) {
             is4GPlusEnabled = if (is4GPlusEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, false)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, false)
