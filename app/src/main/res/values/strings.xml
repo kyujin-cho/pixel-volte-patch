@@ -49,4 +49,6 @@
     <string name="property_type">Property Type</string>
     <string name="value">Value</string>
     <string name="dump_completed">Dumped config copied to clipboard</string>
+    <string name="enable_vonr">Enable VoNR</string>
+    <string name="enable_cross_sim_ims">Enable Cross SIM IMS</string>
 </resources>

@@ -41,6 +41,8 @@ fun Config(navController: NavController, subId: Int) {
 
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
+    var voNREnabled by rememberSaveable { mutableStateOf(false) }
+    var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
@@ -56,6 +58,7 @@ fun Config(navController: NavController, subId: Int) {
 
     fun loadFlags() {
         voLTEEnabled = moder.isVoLteConfigEnabled
+        voNREnabled = moder.isVonrConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
         showVoWifiMode = moder.showVoWifiMode
@@ -105,6 +108,16 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
+        BooleanPropertyView(label = stringResource(R.string.enable_vonr), toggled = voNREnabled) {
+            voNREnabled = if (voNREnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
         BooleanPropertyView(label = stringResource(R.string.enable_vowifi), toggled = voWiFiEnabled) {
             voWiFiEnabled = if (voWiFiEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, false)
@@ -113,6 +126,16 @@ fun Config(navController: NavController, subId: Int) {
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_cross_sim_ims), toggled = crosssimEnabled) {
+            crosssimEnabled = if (crosssimEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
