@@ -1,10 +1,22 @@
-# Pixel 6 & 7 LG U+ VoLTE 활성화
+# Pixel 6 & 7 VoLTE 활성화
 
 English version available [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/README.en.md).
 
 ## 개요
 
-이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 LG U+ 회선에서의 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
+이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
+
+## 지원 통신사
+
+### 1차 지원
+
+즉시 테스트가 가능하여 가/부 여부를 바로 확인할 수 있는 통신사입니다.
+
+- LG U+ (대한민국)
+
+### 2차 지원
+
+테스트가 불가능하지만 커뮤니티에 의해 가능함이 확인된 통신사입니다. 목록은 [링크](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/compatibility-chart.md) 를 참고하세요.
 
 ## 적용 방법
 
@@ -41,7 +53,7 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### 패치 어플리케이션 설치
 
-1. [다음 링크](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.2/dev.bluehouse.enablevolte.apk) 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
+1. [다음 링크](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.4/dev.bluehouse.enablevolte.apk) 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
 2. 다운로드 받은 APK 파일을 설치합니다.
 3. 설치한 어플리케이션을 실행합니다.
 4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.

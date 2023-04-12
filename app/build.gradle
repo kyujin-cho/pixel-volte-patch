@@ -11,8 +11,8 @@ android {
         applicationId "dev.bluehouse.enablevolte"
         minSdk 30
         targetSdk 33
-        versionCode 7
-        versionName "1.2.2"
+        versionCode 9
+        versionName "1.2.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -27,8 +27,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -50,7 +50,7 @@ android {
 dependencies {
     def lifecycle_version = "2.6.0-alpha05"
     def nav_version = "2.5.3"
-    def material3_version = "1.0.1"
+    def material3_version = "1.1.0-beta01"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.0'

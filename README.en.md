@@ -1,8 +1,20 @@
-# Enable VoLTE on Pixel 6 & 7 with LG U+
+# Enable VoLTE on Pixel 6 & 7
 
 ## Introduction
 
 This document describes enabling VoLTE support on select Google Pixel devices by using Android's internal `telephony.ICarrierConfigLoader.overrideConfig()`. This patch can be considered as a rootless method of [voenabler](https://github.com/cigarzh/voenabler).
+
+## Supported Carriers
+
+### First-grade support
+
+Carriers which can test if patch works or not by developer immediately
+
+- LG U+ (Republic of Korea)
+
+### 2차 지원
+
+Carriers which aren't possible for testing by developer but reported as supported by community. Please refer the [Link](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/compatibility-chart.en.md) for complete list of carriers.
 
 ## Applying Patch
 
@@ -33,7 +45,7 @@ This document describes enabling VoLTE support on select Google Pixel devices by
 
 ### Install Patch Application
 
-1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.2/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
+1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.4/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
 2. Install downloaded APK file.
 3. Start installed application.
 4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
