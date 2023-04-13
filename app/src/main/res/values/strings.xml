@@ -12,6 +12,8 @@
     <string name="shizuku_service_running">Shizuku Service Running</string>
     <string name="shizuku_permission_granted">Shizuku Permission Granted</string>
     <string name="enable_volte">Enable VoLTE</string>
+    <string name="enable_vonr">Enable VoNR</string>
+    <string name="enable_crosssim">Enable Backup Calling</string>
     <string name="enable_vowifi">Enable VoWiFi</string>
     <string name="enable_vowifi_while_roamed">Enable VoWiFi while Roamed</string>
     <string name="show_vowifi_preference_in_settings">Show VoWiFi preference in Settings</string>
