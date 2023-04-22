@@ -51,4 +51,7 @@
     <string name="property_type">Property Type</string>
     <string name="value">Value</string>
     <string name="dump_completed">Dumped config copied to clipboard</string>
+    <string name="presets">Presets</string>
+    <string name="true_">True</string>
+    <string name="false_">False</string>
 </resources>

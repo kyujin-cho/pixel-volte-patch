@@ -141,7 +141,7 @@ fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> 
                                 readOnly = true,
                                 value = if (values[selectedIndex] == typedText) labels[selectedIndex] else "Custom",
                                 onValueChange = {},
-                                label = { Text("Presets") },
+                                label = { Text(stringResource(R.string.presets)) },
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
                                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                             )
@@ -325,12 +325,12 @@ fun KeyValueEditView(label: String, onUpdate: ((String, ValueType?, String) -> B
                                 selected = value == "true",
                                 onClick = { value = "true" },
                             )
-                            Text("true")
+                            Text(stringResource(R.string.true_))
                             RadioButton(
                                 selected = value == "false",
                                 onClick = { value = "false" },
                             )
-                            Text("false")
+                            Text(stringResource(R.string.false_))
                         }
                         ValueType.Int, ValueType.Long -> TextField(
                             value = value,
