@@ -56,7 +56,7 @@ fun Config(navController: NavController, subId: Int) {
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
-        voLTEEnabled = moder.isVolteConfigEnabled
+        voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = moder.isVonrConfigEnabled
         crosssimEnabled = moder.isCrosssimConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
