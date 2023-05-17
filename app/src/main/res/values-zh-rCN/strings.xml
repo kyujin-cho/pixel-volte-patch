@@ -35,6 +35,7 @@
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
     <string name="show_4g_for_lte_data_icon">使用4G替换LTE图标</string>
+    <string name="show_vowifi_icon">显示 VoWiFI 图标</string>
     <string name="hide_enhanced_data_icon">隐藏 增强数据 图标</string>
     <string name="enable_enhanced_4g_lte_plus">启用 增强4G (LTE+)</string>
     <string name="string_values">字符串值</string>

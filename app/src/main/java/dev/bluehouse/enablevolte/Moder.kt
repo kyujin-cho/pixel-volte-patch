@@ -267,6 +267,9 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     val showVoWifiInNetworkName: Int
         get() = this.getIntValue(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT)
 
+    val showVoWifiIcon: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL)
+
     val supportWfcWifiOnly: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL)
 
