@@ -316,5 +316,11 @@ fun Config(navController: NavController, subId: Int) {
         ) {
             navController.navigate("dumpConfig$subId")
         }
+        ClickablePropertyView(
+            label = stringResource(R.string.restart_ims_registration),
+            value = "",
+        ) {
+            moder.restartIMSRegistration()
+        }
     }
 }

@@ -56,4 +56,5 @@
     <string name="presets">Presets</string>
     <string name="true_">True</string>
     <string name="false_">False</string>
+    <string name="restart_ims_registration">Restart IMS registration</string>
 </resources>

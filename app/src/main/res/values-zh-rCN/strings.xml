@@ -57,4 +57,5 @@
     <string name="presets">预设</string>
     <string name="true_">是</string>
     <string name="false_">否</string>
+    <string name="restart_ims_registration">重新注册IMS</string>
 </resources>
