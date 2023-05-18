@@ -218,16 +218,6 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.show_vowifi_icon), toggled = showVoWifiIcon) {
-            showVoWifiIcon = if (showVoWifiIcon) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, true)
-                moder.restartIMSRegistration()
-                true
-            }
-        }
         BooleanPropertyView(label = stringResource(R.string.show_wifi_only_for_vowifi), toggled = supportWfcWifiOnly) {
             supportWfcWifiOnly = if (supportWfcWifiOnly) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL, false)
@@ -245,6 +235,15 @@ fun Config(navController: NavController, subId: Int) {
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
                 moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.show_vowifi_icon), toggled = showVoWifiIcon) {
+            showVoWifiIcon = if (showVoWifiIcon) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, true)
                 true
             }
         }
