@@ -35,6 +35,7 @@
     <string name="cosmetic_toggles">Cosmetic Toggles</string>
     <string name="show_4g_for_lte_data_icon">Show 4G for LTE Data Icon</string>
     <string name="show_vowifi_icon">Show VoWiFI Icon</string>
+    <string name="always_show_data_icon">Always Show Data RAT Icon</string>
     <string name="hide_enhanced_data_icon">Hide Enhanced Data Icon</string>
     <string name="enable_enhanced_4g_lte_plus">Enable Enhanced 4G LTE (LTE+)</string>
     <string name="string_values">String Values</string>

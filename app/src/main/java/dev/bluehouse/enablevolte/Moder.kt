@@ -270,6 +270,9 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     val showVoWifiIcon: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL)
 
+    val alwaysDataRATIcon: Boolean
+        get() = this.getBooleanValue(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL)
+
     val supportWfcWifiOnly: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL)
 
