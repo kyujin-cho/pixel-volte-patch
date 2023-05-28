@@ -21,6 +21,7 @@
     <string name="show_vowifi_roaming_preference_in_settings">显示 VoWiFi漫游 选项</string>
     <string name="add_wifi_calling_to_network_name">网络名中添加 \"Wi-Fi Calling\"</string>
     <string name="show_ims_status_in_sim_status">在 SIM 信息中显示 IMS 状态</string>
+    <string name="allow_adding_apns">Allow adding APNs</string>
     <string name="show_wifi_only_for_vowifi">VoWiFi 显示 \"仅WiFi\" 模式</string>
     <string name="enable_video_calling_vt">启用视频通话(VT)</string>
     <string name="enable_ss_over_ut">UT接口下启用补充业务</string>

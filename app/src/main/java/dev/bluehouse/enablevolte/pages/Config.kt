@@ -1,5 +1,6 @@
 package dev.bluehouse.enablevolte.pages
 
+import android.os.Build
 import android.telephony.CarrierConfigManager
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.ValueType
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import java.lang.IllegalStateException
-import java.util.*
 
 @Composable
 fun Config(navController: NavController, subId: Int) {
@@ -41,10 +41,11 @@ fun Config(navController: NavController, subId: Int) {
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
-    var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
+    var crossSIMEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
-    var showIMSinSIMinfo by rememberSaveable { mutableStateOf(false) }
+    var showIMSinSIMInfo by rememberSaveable { mutableStateOf(false) }
+    var allowAddingAPNs by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
@@ -60,11 +61,12 @@ fun Config(navController: NavController, subId: Int) {
 
     fun loadFlags() {
         voLTEEnabled = moder.isVoLteConfigEnabled
-        voNREnabled = moder.isVonrConfigEnabled
-        crosssimEnabled = moder.isCrosssimConfigEnabled
+        voNREnabled = moder.isVoNrConfigEnabled
+        crossSIMEnabled = moder.isCrossSIMConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
-        showIMSinSIMinfo = moder.showIMSinSIMinfo
+        showIMSinSIMInfo = moder.showIMSinSIMInfo
+        allowAddingAPNs = moder.allowAddingAPNs
         showVoWifiMode = moder.showVoWifiMode
         showVoWifiRoamingMode = moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
@@ -127,16 +129,18 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crosssimEnabled) {
-            crosssimEnabled = if (crosssimEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
-                moder.restartIMSRegistration()
-                true
+        BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crossSIMEnabled, enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                crossSIMEnabled = if (crossSIMEnabled) {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
+                    false
+                } else {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
+                    moder.restartIMSRegistration()
+                    true
+                }
             }
         }
         BooleanPropertyView(label = stringResource(R.string.enable_vowifi), toggled = voWiFiEnabled) {
@@ -179,6 +183,15 @@ fun Config(navController: NavController, subId: Int) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, false)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.allow_adding_apns), toggled = allowAddingAPNs) {
+            allowAddingAPNs = if (allowAddingAPNs) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALLOW_ADDING_APNS_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALLOW_ADDING_APNS_BOOL, true)
                 true
             }
         }
@@ -276,8 +289,8 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMinfo) {
-            showIMSinSIMinfo = if (showIMSinSIMinfo) {
+        BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMInfo) {
+            showIMSinSIMInfo = if (showIMSinSIMInfo) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, false)
                 false
             } else {
