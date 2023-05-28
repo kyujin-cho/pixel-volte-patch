@@ -1,5 +1,9 @@
 # Enable VoLTE on Pixel 6 & 7
 
+## Troubleshooting
+
+Refer [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/troubleshooting.en.md).
+
 ## Introduction
 
 This document describes enabling VoLTE support on select Google Pixel devices by using Android's internal `telephony.ICarrierConfigLoader.overrideConfig()`. This patch can be considered as a rootless method of [voenabler](https://github.com/cigarzh/voenabler).
