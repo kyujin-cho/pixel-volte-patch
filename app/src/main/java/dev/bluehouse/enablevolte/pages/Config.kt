@@ -53,6 +53,7 @@ fun Config(navController: NavController, subId: Int) {
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var ssOverUtEnabled by rememberSaveable { mutableStateOf(false) }
+    var ssOverCDMAEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
@@ -73,6 +74,7 @@ fun Config(navController: NavController, subId: Int) {
         supportWfcWifiOnly = moder.supportWfcWifiOnly
         vtEnabled = moder.isVtConfigEnabled
         ssOverUtEnabled = moder.ssOverUtEnabled
+        ssOverCDMAEnabled = moder.ssOverCDMAEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
         is4GPlusEnabled = moder.is4GPlusEnabled
@@ -236,6 +238,16 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_cdma), toggled = ssOverCDMAEnabled) {
+            ssOverCDMAEnabled = if (ssOverCDMAEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
