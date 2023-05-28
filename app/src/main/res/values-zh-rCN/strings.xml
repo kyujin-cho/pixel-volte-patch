@@ -20,6 +20,7 @@
     <string name="show_vowifi_preference_in_settings">显示 VoWiFi 选项</string>
     <string name="show_vowifi_roaming_preference_in_settings">显示 VoWiFi漫游 选项</string>
     <string name="add_wifi_calling_to_network_name">网络名中添加 \"Wi-Fi Calling\"</string>
+    <string name="show_ims_status_in_sim_status">在 SIM 信息中显示 IMS 状态</string>
     <string name="show_wifi_only_for_vowifi">VoWiFi 显示 \"仅WiFi\" 模式</string>
     <string name="enable_video_calling_vt">启用视频通话(VT)</string>
     <string name="enable_ss_over_ut">UT接口下启用补充业务</string>
@@ -34,6 +35,8 @@
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
     <string name="show_4g_for_lte_data_icon">使用4G替换LTE图标</string>
+    <string name="show_vowifi_icon">显示 VoWiFI 图标</string>
+    <string name="always_show_data_icon">始终显示数据速率图标</string>
     <string name="hide_enhanced_data_icon">隐藏增强4G(LTE+)图标</string>
     <string name="enable_enhanced_4g_lte_plus">启用增强4G(LTE+)</string>
     <string name="string_values">字符串值</string>
@@ -55,4 +58,5 @@
     <string name="presets">预设</string>
     <string name="true_">是</string>
     <string name="false_">否</string>
+    <string name="restart_ims_registration">重新注册IMS</string>
 </resources>

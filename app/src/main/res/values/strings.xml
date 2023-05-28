@@ -18,6 +18,7 @@
     <string name="enable_vowifi_while_roamed">Enable VoWiFi while roaming</string>
     <string name="show_vowifi_preference_in_settings">Show VoWiFi preference in Settings</string>
     <string name="show_vowifi_roaming_preference_in_settings">Show VoWiFi Roaming preference in Settings</string>
+    <string name="show_ims_status_in_sim_status">Show IMS Status in SIM Info</string>
     <string name="add_wifi_calling_to_network_name">Add \"Wi-Fi Calling\" to Network Name</string>
     <string name="show_wifi_only_for_vowifi">Show \"WiFi only\" mode for VoWiFi</string>
     <string name="enable_video_calling_vt">Enable Video Calling (VT)</string>
@@ -33,6 +34,8 @@
     <string name="feature_toggles">Enable/Disable Feature</string>
     <string name="cosmetic_toggles">Cosmetic Toggles</string>
     <string name="show_4g_for_lte_data_icon">Show 4G for LTE Data Icon</string>
+    <string name="show_vowifi_icon">Show VoWiFI Icon</string>
+    <string name="always_show_data_icon">Always Show Data RAT Icon</string>
     <string name="hide_enhanced_data_icon">Hide Enhanced Data Icon</string>
     <string name="enable_enhanced_4g_lte_plus">Enable Enhanced 4G LTE (LTE+)</string>
     <string name="string_values">String Values</string>
@@ -54,4 +57,5 @@
     <string name="presets">Presets</string>
     <string name="true_">True</string>
     <string name="false_">False</string>
+    <string name="restart_ims_registration">Restart IMS registration</string>
 </resources>
