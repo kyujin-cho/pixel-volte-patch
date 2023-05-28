@@ -16,3 +16,7 @@ Resetting network related configurations might help resoving the issue.
 3. Reboot your phone.
 4. Start Pixel IMS app. Navigate to desired SIM card page and click "Reset all settings".
 5. Try enabling VoLTE again as usual.
+
+## Setting APN as `ims`
+
+Some carriers (e.g. Polish Play) require IMS APN to be set as `ims`. Check [here](https://github.com/kyujin-cho/pixel-volte-patch/issues/136#issuecomment-1565598716) for more informations.
