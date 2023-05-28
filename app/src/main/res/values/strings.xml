@@ -22,6 +22,7 @@
     <string name="add_wifi_calling_to_network_name">Add \"Wi-Fi Calling\" to Network Name</string>
     <string name="show_wifi_only_for_vowifi">Show \"WiFi only\" mode for VoWiFi</string>
     <string name="enable_video_calling_vt">Enable Video Calling (VT)</string>
+    <string name="allow_adding_apns">Allow adding APNs</string>
     <string name="enable_ss_over_ut">Enable Supplementary Services over UT</string>
     <string name="enable_ss_over_cdma">Enable Supplementary Services over CDMA</string>
     <string name="sim_detected">SIM Detected</string>
