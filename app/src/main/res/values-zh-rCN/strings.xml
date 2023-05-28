@@ -14,14 +14,15 @@
     <string name="shizuku_permission_granted">Shizuku 已授权</string>
     <string name="enable_volte">启用 VoLTE</string>
     <string name="enable_vonr">启用 VoNR</string>
-    <string name="enable_crosssim">启用 备用通话</string>
+    <string name="enable_crosssim">启用备用通话</string>
     <string name="enable_vowifi">启用 VoWiFi</string>
     <string name="enable_vowifi_while_roamed">漫游时启用 VoWiFi</string>
     <string name="show_vowifi_preference_in_settings">显示 VoWiFi 选项</string>
     <string name="show_vowifi_roaming_preference_in_settings">显示 VoWiFi漫游 选项</string>
     <string name="add_wifi_calling_to_network_name">网络名中添加 \"Wi-Fi Calling\"</string>
-    <string name="show_wifi_only_for_vowifi">VoWiFi显示 \"仅WiFi\" 模式</string>
-    <string name="enable_video_calling_vt">启用 视频通话 (VT)</string>
+    <string name="show_ims_status_in_sim_status">在 SIM 信息中显示 IMS 状态</string>
+    <string name="show_wifi_only_for_vowifi">VoWiFi 显示 \"仅WiFi\" 模式</string>
+    <string name="enable_video_calling_vt">启用视频通话(VT)</string>
     <string name="enable_ss_over_ut">UT接口下启用补充业务</string>
     <string name="enable_ss_over_cdma">CDMA下启用补充业务</string>
     <string name="sim_detected">检测到SIM</string>
@@ -35,8 +36,10 @@
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
     <string name="show_4g_for_lte_data_icon">使用4G替换LTE图标</string>
-    <string name="hide_enhanced_data_icon">隐藏 增强数据 图标</string>
-    <string name="enable_enhanced_4g_lte_plus">启用 增强4G (LTE+)</string>
+    <string name="show_vowifi_icon">显示 VoWiFI 图标</string>
+    <string name="always_show_data_icon">始终显示数据速率图标</string>
+    <string name="hide_enhanced_data_icon">隐藏增强4G(LTE+)图标</string>
+    <string name="enable_enhanced_4g_lte_plus">启用增强4G(LTE+)</string>
     <string name="string_values">字符串值</string>
     <string name="miscellaneous">其他</string>
     <string name="reset_all_settings">重置所有设置</string>
@@ -48,7 +51,7 @@
     <string name="default_">默认值</string>
     <string name="manually_set_config">手动设置</string>
     <string name="cannot_find_key">无法找到指定的值</string>
-    <string name="dump_config">导出配置</string>
+    <string name="dump_config">导出设置</string>
     <string name="property_name">属性名</string>
     <string name="property_type">属性类型</string>
     <string name="value">值</string>
@@ -56,4 +59,5 @@
     <string name="presets">预设</string>
     <string name="true_">是</string>
     <string name="false_">否</string>
+    <string name="restart_ims_registration">重新注册IMS</string>
 </resources>

@@ -2,6 +2,10 @@
 
 English version available [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/README.en.md).
 
+## 트러블슛팅
+
+[이곳](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/troubleshooting.md)을 참조하세요.
+
 ## 개요
 
 이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.

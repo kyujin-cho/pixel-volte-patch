@@ -44,9 +44,12 @@ fun Config(navController: NavController, subId: Int) {
     var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
+    var showIMSinSIMinfo by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
+    var showVoWifiIcon by rememberSaveable { mutableStateOf(false) }
+    var alwaysDataRATIcon by rememberSaveable { mutableStateOf(false) }
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var ssOverUtEnabled by rememberSaveable { mutableStateOf(false) }
@@ -62,9 +65,12 @@ fun Config(navController: NavController, subId: Int) {
         crosssimEnabled = moder.isCrosssimConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
+        showIMSinSIMinfo = moder.showIMSinSIMinfo
         showVoWifiMode = moder.showVoWifiMode
         showVoWifiRoamingMode = moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
+        showVoWifiIcon = moder.showVoWifiIcon
+        alwaysDataRATIcon = moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
         vtEnabled = moder.isVtConfigEnabled
         ssOverUtEnabled = moder.ssOverUtEnabled
@@ -243,6 +249,21 @@ fun Config(navController: NavController, subId: Int) {
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
                 moder.restartIMSRegistration()
+        BooleanPropertyView(label = stringResource(R.string.show_vowifi_icon), toggled = showVoWifiIcon) {
+            showVoWifiIcon = if (showVoWifiIcon) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.always_show_data_icon), toggled = alwaysDataRATIcon) {
+            alwaysDataRATIcon = if (alwaysDataRATIcon) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL, true)
                 true
             }
         }
@@ -261,6 +282,15 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMinfo) {
+            showIMSinSIMinfo = if (showIMSinSIMinfo) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, true)
                 true
             }
         }
@@ -304,6 +334,12 @@ fun Config(navController: NavController, subId: Int) {
             value = "",
         ) {
             navController.navigate("dumpConfig$subId")
+        }
+        ClickablePropertyView(
+            label = stringResource(R.string.restart_ims_registration),
+            value = "",
+        ) {
+            moder.restartIMSRegistration()
         }
     }
 }

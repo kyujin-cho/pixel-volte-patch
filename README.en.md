@@ -1,5 +1,9 @@
 # Enable VoLTE on Pixel 6 & 7
 
+## Troubleshooting
+
+Refer [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/troubleshooting.en.md).
+
 ## Introduction
 
 This document describes enabling VoLTE support on select Google Pixel devices by using Android's internal `telephony.ICarrierConfigLoader.overrideConfig()`. This patch can be considered as a rootless method of [voenabler](https://github.com/cigarzh/voenabler).
@@ -26,6 +30,9 @@ Carriers which aren't possible for testing by developer but reported as supporte
   - Google Pixel 6 Pro
   - Google Pixel 7
   - Google Pixel 7 Pro
+
+#### Optional
+only if installing Schizuku using ADB
 - Windows, macOS or Linux PC with [Android Platform Tools](https://developer.android.com/studio/command-line/adb) installed
 - USB-A to USB-C or USB-C to USB-C cable to connect Pixel to the PC
 
@@ -37,11 +44,18 @@ Carriers which aren't possible for testing by developer but reported as supporte
    ![image-1](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png)
 2. Open installed applciation.
    ![image-2](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png)
-3. Connect your Pixel phone with PC by following [this description](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer).
-4. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see somewhat like "Shizuku is running" at your Pixel phone.
+
+### Starting Shizuku without PC (Wi-Fi connection required) 
+1. Follow the [official guide to start Shizuku using Wifi debugging](https://shizuku.rikka.app/guide/setup/#start-via-wireless-debugging) without needing any external PC, after that you should see something like "Shizuku is running" at your Pixel phone.
+   ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
+2. Now continue to next section.
+
+### Using a PC
+1. Connect your Pixel phone with PC by following [this description](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer).
+2. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see something like "Shizuku is running" at your Pixel phone.
    ![image-3](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png)
    ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
-5. Now continue to next section.
+3. Now continue to next section.
 
 ### Install Patch Application
 
