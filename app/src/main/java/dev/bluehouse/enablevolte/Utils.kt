@@ -19,7 +19,7 @@ fun checkShizukuPermission(code: Int): Boolean {
 }
 
 val SubscriptionInfo.uniqueName: String
-    get() = "${this.cardId} - ${this.displayName}"
+    get() = "${this.subscriptionId} - ${this.displayName}"
 
 fun getLatestAppVersion(handler: (String) -> Unit) {
     "https://api.github.com/repos/kyujin-cho/pixel-volte-patch/releases"
