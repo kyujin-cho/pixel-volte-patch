@@ -249,6 +249,9 @@ fun Config(navController: NavController, subId: Int) {
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
                 moder.restartIMSRegistration()
+                true
+            }
+        }
         BooleanPropertyView(label = stringResource(R.string.show_vowifi_icon), toggled = showVoWifiIcon) {
             showVoWifiIcon = if (showVoWifiIcon) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, false)
