@@ -32,7 +32,9 @@ Carriers which aren't possible for testing by developer but reported as supporte
   - Google Pixel 7 Pro
 
 #### Optional
+
 only if installing Schizuku using ADB
+
 - Windows, macOS or Linux PC with [Android Platform Tools](https://developer.android.com/studio/command-line/adb) installed
 - USB-A to USB-C or USB-C to USB-C cable to connect Pixel to the PC
 
@@ -45,12 +47,14 @@ only if installing Schizuku using ADB
 2. Open installed applciation.
    ![image-2](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png)
 
-### Starting Shizuku without PC (Wi-Fi connection required) 
+### Starting Shizuku without PC (Wi-Fi connection required)
+
 1. Follow the [official guide to start Shizuku using Wifi debugging](https://shizuku.rikka.app/guide/setup/#start-via-wireless-debugging) without needing any external PC, after that you should see something like "Shizuku is running" at your Pixel phone.
    ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
 2. Now continue to next section.
 
 ### Using a PC
+
 1. Connect your Pixel phone with PC by following [this description](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer).
 2. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see something like "Shizuku is running" at your Pixel phone.
    ![image-3](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png)
@@ -59,7 +63,7 @@ only if installing Schizuku using ADB
 
 ### Install Patch Application
 
-1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.4/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
+1. Click the [following link](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.5/dev.bluehouse.enablevolte.apk) or check out Releases tab of this Github repository to install latest version of `PixelIMS` application's APK file.
 2. Install downloaded APK file.
 3. Start installed application.
 4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
