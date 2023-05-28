@@ -25,6 +25,7 @@
     <string name="show_wifi_only_for_vowifi">VoWiFi 显示 \"仅WiFi\" 模式</string>
     <string name="enable_video_calling_vt">启用视频通话(VT)</string>
     <string name="enable_ss_over_ut">UT接口下启用补充业务</string>
+    <string name="enable_ss_over_cdma">CDMA下启用补充业务</string>
     <string name="sim_detected">检测到SIM</string>
     <string name="volte_supported_by_device">支持VoLTE</string>
     <string name="ims_status">IMS状态</string>
