@@ -48,6 +48,7 @@ jobs:
             echo "build_filename=app-debug.apk" >> $GITHUB_OUTPUT
           fi
         env:
+          BUILD_TYPE: ${{ inputs.build-type }}
           RUN_ID: ${{ github.run_id }}
       - name: align APK with zipalign
         run: $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
