@@ -43,10 +43,12 @@ jobs:
       contents: write
     steps:
       - name: Download APK
+        id: download
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build-release-apk.outputs.filename }}
-          path: dev.bluehouse.enablevolte.apk
+      - name: Rename APK
+        run: mv ${{ steps.download.outputs.download-path }} dev.bluehouse.enablevolte.apk
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
