@@ -47,6 +47,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build-release-apk.outputs.filename }}
+      - run: |
+        ls -al .
+        ls -al pixel-volte-patch
+        ls -al pixel-volte-patch/pixel-volte-patch
       - name: Rename APK
         run: mv ${{ steps.download.outputs.download-path }} dev.bluehouse.enablevolte-release.apk
       - name: Release to GitHub
