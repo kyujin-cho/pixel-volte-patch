@@ -165,6 +165,26 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
+        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_ut), toggled = ssOverUtEnabled) {
+            ssOverUtEnabled = if (ssOverUtEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_cdma), toggled = ssOverCDMAEnabled) {
+            ssOverCDMAEnabled = if (ssOverCDMAEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
         BooleanPropertyView(label = stringResource(R.string.enable_video_calling_vt), toggled = vtEnabled) {
             vtEnabled = if (vtEnabled) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, false)
@@ -241,26 +261,6 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL, true)
-                moder.restartIMSRegistration()
-                true
-            }
-        }
-        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_ut), toggled = ssOverUtEnabled) {
-            ssOverUtEnabled = if (ssOverUtEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
-                moder.restartIMSRegistration()
-                true
-            }
-        }
-        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_cdma), toggled = ssOverCDMAEnabled) {
-            ssOverCDMAEnabled = if (ssOverCDMAEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
