@@ -48,7 +48,7 @@ jobs:
         with:
           name: ${{ needs.build-release-apk.outputs.filename }}
       - name: Rename APK
-        run: mv ${{ steps.download.outputs.download-path }} dev.bluehouse.enablevolte.apk
+        run: mv ${{ steps.download.outputs.download-path }}/${{ needs.build-release-apk.outputs.filename }} dev.bluehouse.enablevolte.apk
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
