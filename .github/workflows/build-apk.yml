@@ -39,7 +39,7 @@ jobs:
         id: build_apk
         run: |
           if [[ "${BUILD_TYPE}" = "release" ]]; then
-            ./gradlew assembleDebug
+            ./gradlew assembleRelease
             echo "upload_filename=${RUN_ID}-APK" >> $GITHUB_OUTPUT
             echo "build_filename=app-release-unsigned.apk" >> $GITHUB_OUTPUT
           else
