@@ -36,10 +36,10 @@ jobs:
         run: |
           curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
       - name: Build debug APK
-        if: ${{ inputs.build-type == "debug" }}
+        if: ${{ inputs.build-type == 'debug' }}
         run: ./gradlew assemble
       - name: Build release APK
-        if: ${{ inputs.build-type == "release" }}
+        if: ${{ inputs.build-type == 'release' }}
         run: ./gradlew assembleRelease
       - name: Save keystore as file
         run: echo "${KEYSTORE_B64}" | base64 -d > keystore.jks
@@ -50,14 +50,14 @@ jobs:
         env:
           BUILD_TYPE: ${{ inputs.build-type }}
       - name: Sign APK
-        if: ${{ inputs.build-type == "release" }}
+        if: ${{ inputs.build-type == 'release' }}
         run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-${BUILD_TYPE}-unsigned-aligned.apk
         env:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
           BUILD_TYPE: ${{ inputs.build-type }}
       - name: Rename APK
-        if: ${{ inputs.build-type != "release" }}
+        if: ${{ inputs.build-type != 'release' }}
         run: mv app-${BUILD_TYPE}-unsigned-aligned.apk dev.bluehouse.enablevolte.apk
       - name: Upload APK
         uses: actions/upload-artifact@v3
