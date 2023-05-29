@@ -28,7 +28,7 @@ jobs:
       build-type: debug
   build-release-apk:
     needs: [lint]
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' #&& contains(github.ref, 'refs/tags/')
     uses: ./.github/workflows/build-apk.yml
     with:
       build-type: release
