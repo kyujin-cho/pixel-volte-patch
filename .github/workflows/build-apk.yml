@@ -35,10 +35,10 @@ jobs:
       - name: Replace android.jar
         run: |
           curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
-      - name: Build debug APK
+      - name: Build APK
         id: build_apk
         run: |
-          if [ ${BUILD_TYPE} -eq "release"]; then
+          if [ ${BUILD_TYPE} -eq "release" ]; then
             ./gradlew assembleDebug
             echo "upload_filename=${RUN_ID}-APK" >> $GITHUB_OUTPUT
             echo "build_filename=app-release-unsigned.apk" >> $GITHUB_OUTPUT
