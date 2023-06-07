@@ -24,7 +24,8 @@ Carriers which aren't possible for testing by developer but reported as supporte
 
 ### Requirement
 
-- Pixel device with Google Tensor Chipset
+- Pixel device with Android 11 or higher
+  - Google Pixel 5a
   - Google Pixel 6
   - Google Pixel 6a
   - Google Pixel 6 Pro

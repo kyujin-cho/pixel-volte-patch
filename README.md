@@ -26,7 +26,8 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### 준비물
 
-- Google Tensor Chipset이 적용되었으며 Android 11 이상이 설치된 Pixel 단말기
+- 적용되었으며 Android 11 이상이 설치된 Pixel 단말기
+  - Google Pixel 5a
   - Google Pixel 6
   - Google Pixel 6a
   - Google Pixel 6 Pro
