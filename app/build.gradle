@@ -12,8 +12,7 @@ android {
         minSdk 30
         targetSdk 33
         versionCode 9
-        versionName "1.2.4"
-        resourceConfigurations += ["en", "zh_CN"]
+        versionName "1.2.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

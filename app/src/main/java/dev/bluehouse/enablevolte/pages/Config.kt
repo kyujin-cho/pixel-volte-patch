@@ -1,5 +1,6 @@
 package dev.bluehouse.enablevolte.pages
 
+import android.os.Build
 import android.telephony.CarrierConfigManager
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.ValueType
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import java.lang.IllegalStateException
-import java.util.*
 
 @Composable
 fun Config(navController: NavController, subId: Int) {
@@ -41,15 +41,20 @@ fun Config(navController: NavController, subId: Int) {
     var configurable by rememberSaveable { mutableStateOf(false) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
-    var crosssimEnabled by rememberSaveable { mutableStateOf(false) }
+    var crossSIMEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
+    var showIMSinSIMInfo by rememberSaveable { mutableStateOf(false) }
+    var allowAddingAPNs by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
+    var showVoWifiIcon by rememberSaveable { mutableStateOf(false) }
+    var alwaysDataRATIcon by rememberSaveable { mutableStateOf(false) }
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
     var vtEnabled by rememberSaveable { mutableStateOf(false) }
     var ssOverUtEnabled by rememberSaveable { mutableStateOf(false) }
+    var ssOverCDMAEnabled by rememberSaveable { mutableStateOf(false) }
     var show4GForLteEnabled by rememberSaveable { mutableStateOf(false) }
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
@@ -57,16 +62,21 @@ fun Config(navController: NavController, subId: Int) {
 
     fun loadFlags() {
         voLTEEnabled = moder.isVoLteConfigEnabled
-        voNREnabled = moder.isVonrConfigEnabled
-        crosssimEnabled = moder.isCrosssimConfigEnabled
+        voNREnabled = moder.isVoNrConfigEnabled
+        crossSIMEnabled = moder.isCrossSIMConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
+        showIMSinSIMInfo = moder.showIMSinSIMInfo
+        allowAddingAPNs = moder.allowAddingAPNs
         showVoWifiMode = moder.showVoWifiMode
         showVoWifiRoamingMode = moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
+        showVoWifiIcon = moder.showVoWifiIcon
+        alwaysDataRATIcon = moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
         vtEnabled = moder.isVtConfigEnabled
         ssOverUtEnabled = moder.ssOverUtEnabled
+        ssOverCDMAEnabled = moder.ssOverCDMAEnabled
         show4GForLteEnabled = moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
         is4GPlusEnabled = moder.is4GPlusEnabled
@@ -121,16 +131,18 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crosssimEnabled) {
-            crosssimEnabled = if (crosssimEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
-                false
-            } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
-                moder.restartIMSRegistration()
-                true
+        BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crossSIMEnabled, enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                crossSIMEnabled = if (crossSIMEnabled) {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
+                    false
+                } else {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, true)
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, true)
+                    moder.restartIMSRegistration()
+                    true
+                }
             }
         }
         BooleanPropertyView(label = stringResource(R.string.enable_vowifi), toggled = voWiFiEnabled) {
@@ -149,6 +161,26 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_ut), toggled = ssOverUtEnabled) {
+            ssOverUtEnabled = if (ssOverUtEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
+                moder.restartIMSRegistration()
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_cdma), toggled = ssOverCDMAEnabled) {
+            ssOverCDMAEnabled = if (ssOverCDMAEnabled) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL, true)
                 moder.restartIMSRegistration()
                 true
             }
@@ -173,6 +205,15 @@ fun Config(navController: NavController, subId: Int) {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL, true)
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_ENHANCED_4G_LTE_BOOL, false)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.allow_adding_apns), toggled = allowAddingAPNs) {
+            allowAddingAPNs = if (allowAddingAPNs) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALLOW_ADDING_APNS_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALLOW_ADDING_APNS_BOOL, true)
                 true
             }
         }
@@ -224,13 +265,21 @@ fun Config(navController: NavController, subId: Int) {
                 true
             }
         }
-        BooleanPropertyView(label = stringResource(R.string.enable_ss_over_ut), toggled = ssOverUtEnabled) {
-            ssOverUtEnabled = if (ssOverUtEnabled) {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, false)
+        BooleanPropertyView(label = stringResource(R.string.show_vowifi_icon), toggled = showVoWifiIcon) {
+            showVoWifiIcon = if (showVoWifiIcon) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, false)
                 false
             } else {
-                moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL, true)
-                moder.restartIMSRegistration()
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.always_show_data_icon), toggled = alwaysDataRATIcon) {
+            alwaysDataRATIcon = if (alwaysDataRATIcon) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL, true)
                 true
             }
         }
@@ -249,6 +298,15 @@ fun Config(navController: NavController, subId: Int) {
                 false
             } else {
                 moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, true)
+                true
+            }
+        }
+        BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMInfo) {
+            showIMSinSIMInfo = if (showIMSinSIMInfo) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, false)
+                false
+            } else {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, true)
                 true
             }
         }
@@ -292,6 +350,12 @@ fun Config(navController: NavController, subId: Int) {
             value = "",
         ) {
             navController.navigate("dumpConfig$subId")
+        }
+        ClickablePropertyView(
+            label = stringResource(R.string.restart_ims_registration),
+            value = "",
+        ) {
+            moder.restartIMSRegistration()
         }
     }
 }

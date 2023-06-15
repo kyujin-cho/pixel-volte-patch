@@ -108,10 +108,14 @@ fun Home(navController: NavController) {
         BooleanPropertyView(label = stringResource(R.string.volte_supported_by_device), toggled = deviceIMSEnabled)
 
         for (idx in subscriptions.indices) {
+            var isRegistered = false
+            if (isIMSRegistered.isNotEmpty()) {
+                isRegistered = isIMSRegistered[idx]
+            }
             HeaderText(text = stringResource(R.string.ims_status_for, "${subscriptions[idx].uniqueName}"))
             BooleanPropertyView(
                 label = stringResource(R.string.ims_status),
-                toggled = isIMSRegistered[idx],
+                toggled = isRegistered,
                 trueLabel = stringResource(R.string.registered),
                 falseLabel = stringResource(R.string.unregistered),
             )

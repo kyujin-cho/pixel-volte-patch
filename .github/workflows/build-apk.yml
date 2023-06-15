@@ -1,0 +1,78 @@
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        type: string
+        required: true
+    outputs:
+      filename:
+        description: "artifact file name"
+        value: ${{ jobs.build-apk.outputs.filename }}
+    secrets:
+      key-alias:
+        required: false
+      keystore:
+        required: false
+      key-password:
+        required: false
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    outputs:
+      filename: ${{ steps.build_apk.outputs.upload_filename }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up OpenJDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+      - name: Install required platform
+        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+      - name: Replace android.jar
+        run: |
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
+      - name: Build APK
+        id: build_apk
+        run: |
+          if [[ "${BUILD_TYPE}" = "release" ]]; then
+            ./gradlew assembleRelease
+            echo "upload_filename=${RUN_ID}-APK" >> $GITHUB_OUTPUT
+            echo "build_filename=app-release-unsigned.apk" >> $GITHUB_OUTPUT
+          else
+            ./gradlew assemble
+            echo "upload_filename=${RUN_ID}.debug.apk" >> $GITHUB_OUTPUT
+            echo "build_filename=app-debug.apk" >> $GITHUB_OUTPUT
+          fi
+        env:
+          BUILD_TYPE: ${{ inputs.build-type }}
+          RUN_ID: ${{ github.run_id }}
+      - name: align APK with zipalign
+        run: $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
+        env:
+          BUILD_TYPE: ${{ inputs.build-type }}
+          FILENAME: ${{ steps.build_apk.outputs.build_filename }}
+      - name: Save keystore as file
+        if: ${{ inputs.build-type == 'release' }}
+        run: echo "${KEYSTORE_B64}" | base64 -d > keystore.jks
+        env:
+          KEYSTORE_B64: ${{ secrets.keystore }}
+      - name: Sign APK
+        if: ${{ inputs.build-type == 'release' }}
+        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
+        env:
+          KEY_ALIAS: ${{ secrets.key-alias }}
+          KEY_PASSWORD: ${{ secrets.key-password }}
+          BUILD_TYPE: ${{ inputs.build-type }}
+      - name: Rename APK
+        if: ${{ inputs.build-type != 'release' }}
+        run: mv app-unsigned-aligned.apk dev.bluehouse.enablevolte.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build_apk.outputs.upload_filename }}
+          path: dev.bluehouse.enablevolte.apk
+          retention-days: 3

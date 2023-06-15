@@ -2,6 +2,10 @@
 
 English version available [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/README.en.md).
 
+## 트러블슛팅
+
+[이곳](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/troubleshooting.md)을 참조하세요.
+
 ## 개요
 
 이 문서에서는 Android 내부 API 중 `telephony.ICarrierConfigLoader.overrideConfig()` API를 이용하여 루팅 혹은 부트로더 변조 없이 VoLTE (IMS) 기능을 활성화 하는 법에 대해 설명합니다.
@@ -53,7 +57,7 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### 패치 어플리케이션 설치
 
-1. [다음 링크](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.4/dev.bluehouse.enablevolte.apk) 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
+1. [다음 링크](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.6/dev.bluehouse.enablevolte.apk) 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
 2. 다운로드 받은 APK 파일을 설치합니다.
 3. 설치한 어플리케이션을 실행합니다.
 4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
