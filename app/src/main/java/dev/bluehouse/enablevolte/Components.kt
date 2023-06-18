@@ -172,18 +172,18 @@ fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> 
                         Row(modifier = Modifier.align(Alignment.End)) {
                             TextButton(
                                 onClick = {
-                                    openTextEditDialog = false
-                                },
-                            ) {
-                                Text(stringResource(R.string.dismiss))
-                            }
-                            TextButton(
-                                onClick = {
                                     onUpdate(typedText)
                                     openTextEditDialog = false
                                 },
                             ) {
                                 Text(stringResource(R.string.confirm))
+                            }
+                            TextButton(
+                                onClick = {
+                                    openTextEditDialog = false
+                                },
+                            ) {
+                                Text(stringResource(R.string.dismiss))
                             }
                         }
                     }
