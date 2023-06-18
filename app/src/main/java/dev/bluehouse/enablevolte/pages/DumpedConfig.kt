@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,27 +24,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.Lifecycle
-import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.LoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DumpedConfig(subId: Int) {
     val scrollState = rememberScrollState()
     var dumpedConfig by rememberSaveable { mutableStateOf("") }
+    var loading by rememberSaveable { mutableStateOf(true) }
+
     val moder = SubscriptionModer(subId)
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
     val dumpDoneText = stringResource(R.string.dump_completed)
 
-    OnLifecycleEvent { _, event ->
-        if (event == Lifecycle.Event.ON_CREATE) {
-            val sb = CarrierConfigManager::class.java.declaredFields.filter {
-                it.name.startsWith("KEY")
-            }.map {
+    LaunchedEffect(true) {
+        withContext(Dispatchers.Default) {
+            val fields = listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses).map {
+                it.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }
+            }.flatten()
+            val sb = fields.map {
                 try {
                     val split = it.name.split("_")
                     val value = it.get(it) as String
@@ -75,7 +80,13 @@ fun DumpedConfig(subId: Int) {
                 }
             }
             dumpedConfig = sb.joinToString("\n")
+            loading = false
         }
+    }
+
+    if (loading) {
+        LoadingDialog()
+        return
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {

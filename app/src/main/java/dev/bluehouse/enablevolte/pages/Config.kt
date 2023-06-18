@@ -8,28 +8,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import dev.bluehouse.enablevolte.BooleanPropertyView
 import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.KeyValueEditView
-import dev.bluehouse.enablevolte.OnLifecycleEvent
+import dev.bluehouse.enablevolte.LoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.ValueType
 import dev.bluehouse.enablevolte.checkShizukuPermission
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
+import java.lang.reflect.Field
 
 @Composable
 fun Config(navController: NavController, subId: Int) {
@@ -59,8 +64,14 @@ fun Config(navController: NavController, subId: Int) {
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
+    var configurableItems by rememberSaveable { mutableStateOf<List<Field>>(listOf()) }
+    var loading by rememberSaveable { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
     fun loadFlags() {
+        configurableItems = listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses).map {
+            it.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }
+        }.flatten()
         voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
@@ -87,23 +98,30 @@ fun Config(navController: NavController, subId: Int) {
         }
     }
 
-    OnLifecycleEvent { _, event ->
-        if (event == Lifecycle.Event.ON_CREATE) {
-            configurable = try {
-                if (checkShizukuPermission(0)) {
-                    if (carrierModer.deviceSupportsIMS && subId >= 0) {
+    LaunchedEffect(true) {
+        if (checkShizukuPermission(0)) {
+            if (carrierModer.deviceSupportsIMS && subId >= 0) {
+                configurable = try {
+                    withContext(Dispatchers.Default) {
                         loadFlags()
-                        true
-                    } else {
-                        false
                     }
-                } else {
+                    true
+                } catch (e: IllegalStateException) {
                     false
                 }
-            } catch (e: IllegalStateException) {
-                false
+                loading = false
+            } else {
+                loading = false
+                configurable = false
             }
+        } else {
+            loading = false
+            configurable = false
         }
+    }
+
+    if (loading) {
+        return LoadingDialog()
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
@@ -317,10 +335,22 @@ fun Config(navController: NavController, subId: Int) {
             value = stringResource(R.string.reverts_to_carrier_default),
         ) {
             moder.clearCarrierConfig()
-            loadFlags()
+            scope.launch {
+                withContext(Dispatchers.Default) {
+                    loadFlags()
+                }
+            }
         }
-        KeyValueEditView(label = stringResource(id = R.string.manually_set_config)) { key, valueType, value ->
-            val foundKey = CarrierConfigManager::class.java.declaredFields.find { it.name == key.uppercase() || (it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase()) }
+        KeyValueEditView(label = stringResource(id = R.string.manually_set_config), availableKeys = configurableItems.map { it.name } + configurableItems.map { (it.get(it) as String) }) { key, valueType, value ->
+            var foundKey = CarrierConfigManager::class.java.declaredFields.find { it.name == key.uppercase() || ((it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase())) }
+            if (foundKey == null) {
+                for (cls in CarrierConfigManager::class.java.declaredClasses) {
+                    if (cls.declaredFields.find { it.name == "KEY_PREFIX" && key.startsWith(it.get(it) as String) } != null) {
+                        foundKey = cls.declaredFields.find { it.name == key.uppercase() || ((it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase())) }
+                        break
+                    }
+                }
+            }
             if (foundKey == null) {
                 Toast.makeText(context, cannotFindKeyText, Toast.LENGTH_SHORT).show()
                 false

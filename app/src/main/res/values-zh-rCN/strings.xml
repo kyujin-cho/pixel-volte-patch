@@ -61,4 +61,5 @@
     <string name="true_">是</string>
     <string name="false_">否</string>
     <string name="restart_ims_registration">重新注册IMS</string>
+    <string name="please_wait">Working on it…</string>
 </resources>
