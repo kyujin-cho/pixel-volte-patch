@@ -33,7 +33,7 @@ jobs:
       keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
       key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
   post-apk-link:
-    # needs: [build-debug-apk]
+    needs: [build-debug-apk]
     runs-on: ubuntu-latest
     steps:
       - name: Post link to action run detail page
