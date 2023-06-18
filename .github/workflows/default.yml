@@ -33,7 +33,7 @@ jobs:
   post-apk-link:
     needs: [build-debug-apk]
     runs-on: ubuntu-latest
-    jobs:
+    steps:
       - name: Post link to built APK as PR comment
         uses: actions/github-script@v6
         with:
