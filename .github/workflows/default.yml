@@ -44,7 +44,7 @@ jobs:
               run_id: context.runId,
             })
             const artifacts = await github.paginate(opts)
-            for (const artifact in artifacts) {
+            for (const artifact of artifacts) {
               if (artifact.name.indexOf("apk") != -1) {
                 await github.rest.issues.createComment({
                   issue_number: context.issue.number,
