@@ -56,20 +56,15 @@ jobs:
           BUILD_TYPE: ${{ inputs.build-type }}
           FILENAME: ${{ steps.build_apk.outputs.build_filename }}
       - name: Save keystore as file
-        if: ${{ inputs.build-type == 'release' }}
         run: echo "${KEYSTORE_B64}" | base64 -d > keystore.jks
         env:
           KEYSTORE_B64: ${{ secrets.keystore }}
       - name: Sign APK
-        if: ${{ inputs.build-type == 'release' }}
         run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
         env:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
           BUILD_TYPE: ${{ inputs.build-type }}
-      - name: Rename APK
-        if: ${{ inputs.build-type != 'release' }}
-        run: mv app-unsigned-aligned.apk dev.bluehouse.enablevolte.apk
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
