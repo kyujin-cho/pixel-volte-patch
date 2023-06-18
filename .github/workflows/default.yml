@@ -45,16 +45,13 @@ jobs:
               repo: context.repo.repo,
               run_id: context.runId,
             })
-            for (const artifact of artifacts) {
-              if (artifact.name.indexOf("apk") !== -1) {
-                await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: `Click [here](${artifact.url}) to download the APK to test this pull request.`
-                })
-              }
-            }
+            const response = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Click [here](${artifacts[0].url}) to download the APK to test this pull request.`
+            })
+            console.log(response)
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
