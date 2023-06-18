@@ -33,25 +33,28 @@ jobs:
       keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
       key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
   post-apk-link:
-    needs: [build-debug-apk]
+    # needs: [build-debug-apk]
     runs-on: ubuntu-latest
     steps:
       - name: Post link to built APK as PR comment
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: { artifacts } } = await github.rest.actions.listWorkflowRunArtifacts({
+            console.log(context)
+            const response = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.runId,
             })
-            const response = await github.rest.issues.createComment({
+            console.log(response)
+            const { data: { artifacts } } = response
+            const commentResult = await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `Click [here](${artifacts[0].url}) to download the APK to test this pull request.`
             })
-            console.log(response)
+            console.log(commentResult)
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
