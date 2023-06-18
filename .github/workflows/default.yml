@@ -22,14 +22,20 @@ jobs:
         continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
   build-debug-apk:
     needs: [lint]
-    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    steps:
-      - name: build APK
-        uses: ./.github/workflows/build-apk.yml
-        with:
-          build-type: debug
-      - uses: actions/github-script@v6
+    uses: ./.github/workflows/build-apk.yml
+    with:
+      build-type: debug
+    secrets:
+      key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
+      keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
+      key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
+  post-apk-link:
+    needs: [build-debug-apk]
+    runs-on: ubuntu-latest
+    jobs:
+      - name: Post link to built APK as PR comment
+        uses: actions/github-script@v6
         with:
           script: |
             const opts = github.rest.actions.listWorkflowRunArtifacts({
@@ -48,10 +54,6 @@ jobs:
                 })
               }
             }
-    secrets:
-      key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
-      keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
-      key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
