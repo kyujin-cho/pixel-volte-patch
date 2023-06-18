@@ -3,6 +3,8 @@ name: default
 on:
   push:
   pull_request:
+permissions:
+  pull-requests: write
 
 jobs:
   lint:
@@ -26,6 +28,25 @@ jobs:
     uses: ./.github/workflows/build-apk.yml
     with:
       build-type: debug
+    secrets:
+      key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
+      keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
+      key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
+  post-apk-link:
+    needs: [build-debug-apk]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post link to action run detail page
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const commentResult = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `APK build completed! Visit [action run detail page](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) to download the APK to test this pull request.`
+            })
+            console.log(commentResult)
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
