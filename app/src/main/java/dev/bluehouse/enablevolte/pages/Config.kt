@@ -2,6 +2,7 @@ package dev.bluehouse.enablevolte.pages
 
 import android.os.Build
 import android.telephony.CarrierConfigManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -34,10 +35,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
-import java.lang.reflect.Field
 
 @Composable
 fun Config(navController: NavController, subId: Int) {
+    val TAG = "HomeActivity:Home"
+
     val moder = SubscriptionModer(subId)
     val carrierModer = CarrierModer(LocalContext.current)
     val scrollState = rememberScrollState()
@@ -64,14 +66,19 @@ fun Config(navController: NavController, subId: Int) {
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
-    var configurableItems by rememberSaveable { mutableStateOf<List<Field>>(listOf()) }
+    var configurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
+    var reversedConfigurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
     var loading by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
     fun loadFlags() {
+        Log.d(TAG, "loadFlags")
         configurableItems = listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses).map {
-            it.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }
-        }.flatten()
+            it.declaredFields.filter { field ->
+                field.name != "KEY_PREFIX" && field.name.startsWith("KEY_")
+            }
+        }.flatten().associate { field -> field.name to field.get(field) as String }
+        reversedConfigurableItems = configurableItems.entries.associate { (k, v) -> v to k }
         voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
@@ -341,21 +348,12 @@ fun Config(navController: NavController, subId: Int) {
                 }
             }
         }
-        KeyValueEditView(label = stringResource(id = R.string.manually_set_config), availableKeys = configurableItems.map { it.name } + configurableItems.map { (it.get(it) as String) }) { key, valueType, value ->
-            var foundKey = CarrierConfigManager::class.java.declaredFields.find { it.name == key.uppercase() || ((it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase())) }
-            if (foundKey == null) {
-                for (cls in CarrierConfigManager::class.java.declaredClasses) {
-                    if (cls.declaredFields.find { it.name == "KEY_PREFIX" && key.startsWith(it.get(it) as String) } != null) {
-                        foundKey = cls.declaredFields.find { it.name == key.uppercase() || ((it.name.startsWith("KEY_") && (it.get(it) as String) == key.lowercase())) }
-                        break
-                    }
-                }
-            }
-            if (foundKey == null) {
+        KeyValueEditView(label = stringResource(id = R.string.manually_set_config), availableKeys = configurableItems.keys + configurableItems.values) { key, valueType, value ->
+            val actualKey = configurableItems[key] ?: if (reversedConfigurableItems.containsKey(key)) { key } else { null }
+            if (actualKey == null) {
                 Toast.makeText(context, cannotFindKeyText, Toast.LENGTH_SHORT).show()
                 false
             } else {
-                val actualKey = foundKey.get(foundKey) as String
                 try {
                     when (valueType) {
                         ValueType.Bool -> moder.updateCarrierConfig(actualKey, value == "true")

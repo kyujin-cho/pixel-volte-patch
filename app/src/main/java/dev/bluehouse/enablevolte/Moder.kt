@@ -152,6 +152,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getStringValue(key: String): String {
+        Log.d(TAG, "Resolving string value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return ""
@@ -163,6 +164,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getBooleanValue(key: String): Boolean {
+        Log.d(TAG, "Resolving boolean value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return false
@@ -174,6 +176,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getIntValue(key: String): Int {
+        Log.d(TAG, "Resolving integer value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return -1
@@ -185,6 +188,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getLongValue(key: String): Long {
+        Log.d(TAG, "Resolving long value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return -1
@@ -196,6 +200,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getBooleanArrayValue(key: String): BooleanArray {
+        Log.d(TAG, "Resolving boolean array value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return booleanArrayOf()
@@ -207,6 +212,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getIntArrayValue(key: String): IntArray {
+        Log.d(TAG, "Resolving integer value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return intArrayOf()
@@ -218,6 +224,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
     }
 
     fun getStringArrayValue(key: String): Array<String> {
+        Log.d(TAG, "Resolving string array value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return arrayOf()
@@ -228,6 +235,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         return config.getStringArray(key)
     }
     fun getValue(key: String): Any? {
+        Log.d(TAG, "Resolving value of key $key")
         val subscriptionId = this.subscriptionId
         if (subscriptionId < 0) {
             return null
