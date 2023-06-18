@@ -23,13 +23,34 @@ jobs:
   build-debug-apk:
     needs: [lint]
     if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/build-apk.yml
-    with:
-      build-type: debug
-    secrets:
-      key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
-      keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
-      key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
+    steps:
+      - name: build APK
+        uses: ./.github/workflows/build-apk.yml
+        with:
+          build-type: debug
+        secrets:
+          key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
+          keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
+          key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const opts = github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+            const artifacts = await github.paginate(opts)
+            for (const artifact in artifacts) {
+              if (artifact.name.indexOf("apk") != -1) {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: `Click [here](${artifact.url}) to download the APK to test this pull request.`
+                })
+              }
+            }
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
