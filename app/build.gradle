@@ -11,7 +11,7 @@ android {
         applicationId "dev.bluehouse.enablevolte"
         minSdk 30
         targetSdk 33
-        versionCode 9
+        versionCode 11
         versionName "1.2.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
