@@ -36,6 +36,8 @@ jobs:
     needs: [build-debug-apk]
     runs-on: ubuntu-latest
     steps:
+      - name: Sleep
+        run: sleep 10
       - name: Post link to built APK as PR comment
         uses: actions/github-script@v6
         with:
