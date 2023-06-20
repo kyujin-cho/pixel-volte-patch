@@ -2,6 +2,13 @@ package dev.bluehouse.enablevolte
 
 import android.content.pm.PackageManager
 import android.telephony.SubscriptionInfo
+import androidx.compose.runtime.Composable
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.ComposeNavigator
+import androidx.navigation.get
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
@@ -39,4 +46,25 @@ fun getLatestAppVersion(handler: (String) -> Unit) {
                 }
             }
         }
+}
+
+fun NavGraphBuilder.composable(
+    route: String,
+    label: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit,
+) {
+    addDestination(
+        ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
+            this.route = route
+            this.label = label
+            arguments.forEach { (argumentName, argument) ->
+                addArgument(argumentName, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                addDeepLink(deepLink)
+            }
+        },
+    )
 }

@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -41,8 +42,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -257,7 +262,10 @@ enum class ValueType {
     LongArray,
     BoolArray,
     StringArray,
+    Unknown,
 }
+
+data class ArrayValueType<T : ValueType>(val v: T)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -433,31 +441,31 @@ fun KeyValueEditView(label: String, availableKeys: Iterable<String>? = null, onU
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClickablePropertyView(label: String, value: String?, onClick: (() -> Unit)? = null) {
+fun ClickablePropertyView(label: String, value: String?, labelFontSize: TextUnit = 18.sp, valueFontSize: TextUnit = 14.sp, labelFontFamily: FontFamily? = null, valueFontFamily: FontFamily? = null, onClick: (() -> Unit)? = null) {
     if (value == null) {
         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-            Text(text = label, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = stringResource(R.string.unknown), color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+            Text(text = label, fontSize = labelFontSize, modifier = Modifier.padding(bottom = 4.dp))
+            Text(text = stringResource(R.string.unknown), color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize)
         }
         return
     }
     if (onClick != null) {
         Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = 18.sp)
-                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
             }
         }
     } else {
         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-            Text(text = label, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+            Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+            Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
         }
     }
 }
 
 @Composable
-fun LoadingDialog() {
+fun InfiniteLoadingDialog() {
     Dialog(
         onDismissRequest = { },
         properties = DialogProperties(),
@@ -476,11 +484,45 @@ fun LoadingDialog() {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 30.dp, vertical = 30.dp),
+                    modifier = Modifier.padding(30.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator()
                     Text(text = stringResource(R.string.please_wait), modifier = Modifier.padding(start = 16.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FiniteLoadingDialog(current: Int, total: Int) {
+    Dialog(
+        onDismissRequest = { },
+        properties = DialogProperties(),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = AlertDialogDefaults.containerColor,
+                    contentColor = AlertDialogDefaults.textContentColor,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(modifier = Modifier.padding(16.dp)) {
+                    Column {
+                        Text("Loading...", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                        LinearProgressIndicator(
+                            modifier = Modifier.semantics(mergeDescendants = true) {}.padding(top = 24.dp, bottom = 4.dp).fillMaxWidth(),
+                            progress = current.toFloat() / total,
+                        )
+                        Text(text = "Loaded $current of $total")
+                    }
                 }
             }
         }

@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
-import dev.bluehouse.enablevolte.LoadingDialog
+import dev.bluehouse.enablevolte.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
 import kotlinx.coroutines.Dispatchers
@@ -85,21 +85,20 @@ fun DumpedConfig(subId: Int) {
     }
 
     if (loading) {
-        LoadingDialog()
-        return
-    }
-
-    Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
-        Surface(
-            modifier = Modifier.fillMaxWidth().combinedClickable(
-                onClick = {},
-                onLongClick = {
-                    clipboardManager.setText(buildAnnotatedString { append(dumpedConfig) })
-                    Toast.makeText(context, dumpDoneText, Toast.LENGTH_SHORT).show()
-                },
-            ),
-        ) {
-            Text(text = dumpedConfig, fontFamily = FontFamily.Monospace)
+        InfiniteLoadingDialog()
+    } else {
+        Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().combinedClickable(
+                    onClick = {},
+                    onLongClick = {
+                        clipboardManager.setText(buildAnnotatedString { append(dumpedConfig) })
+                        Toast.makeText(context, dumpDoneText, Toast.LENGTH_SHORT).show()
+                    },
+                ),
+            ) {
+                Text(text = dumpedConfig, fontFamily = FontFamily.Monospace)
+            }
         }
     }
 }
