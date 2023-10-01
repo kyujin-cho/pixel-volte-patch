@@ -57,6 +57,4 @@ There is a possibility that your phone was carrier-locked, especially if it was 
 
 Although after your Pixel is unlocked, and you can use your SIM from different carrier (especially in countries where Pixels are not officially available), those preloaded apps from the original carrier are still persist and manipulate the system to register some special services like VoLTE, VoWifi and 5G data to the original carrier configurations. This can lead to difficulties in registering these services on your Pixel.
 
-You will need to do this again if you factory reset your phone. Some Android 14 QPR1 Beta users report Pixel IMS is no longer needed, this however possibly removed in the beta ROM for the sake of platform compability, not because Google decided to open their hands.
-
 You may need to follow these steps again if you ever perform a factory reset on your phone. It's worth noting that some Android 14 QPR1 Beta users have reported that Pixel IMS is no longer needed. This is however possibly removed in the beta ROM for the sake of platform compability, not because Google decided to open their hands.
