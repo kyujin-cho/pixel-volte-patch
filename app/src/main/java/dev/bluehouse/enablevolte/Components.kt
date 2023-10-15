@@ -1,10 +1,11 @@
 package dev.bluehouse.enablevolte
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -15,10 +16,12 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -28,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
@@ -35,10 +39,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -46,6 +55,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
@@ -166,18 +177,18 @@ fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> 
                         Row(modifier = Modifier.align(Alignment.End)) {
                             TextButton(
                                 onClick = {
-                                    openTextEditDialog = false
-                                },
-                            ) {
-                                Text(stringResource(R.string.dismiss))
-                            }
-                            TextButton(
-                                onClick = {
                                     onUpdate(typedText)
                                     openTextEditDialog = false
                                 },
                             ) {
                                 Text(stringResource(R.string.confirm))
+                            }
+                            TextButton(
+                                onClick = {
+                                    openTextEditDialog = false
+                                },
+                            ) {
+                                Text(stringResource(R.string.dismiss))
                             }
                         }
                     }
@@ -251,16 +262,39 @@ enum class ValueType {
     LongArray,
     BoolArray,
     StringArray,
+    Unknown,
 }
+
+data class ArrayValueType<T : ValueType>(val v: T)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KeyValueEditView(label: String, onUpdate: ((String, ValueType?, String) -> Boolean)) {
+fun KeyValueEditView(label: String, availableKeys: Iterable<String>? = null, onUpdate: ((String, ValueType?, String) -> Boolean)) {
+    val TAG = "Components:KeyValueEditView"
     var configKey by rememberSaveable { mutableStateOf("") }
     var selectedValueType: ValueType? by rememberSaveable { mutableStateOf(null) }
     var value by rememberSaveable { mutableStateOf("") }
     var openEditPropertyDialog by rememberSaveable { mutableStateOf(false) }
-    var dropdownExpanded by rememberSaveable { mutableStateOf(false) }
+    var keyDropdownExpanded by rememberSaveable { mutableStateOf(false) }
+    var valueTypeDropdownExpanded by rememberSaveable { mutableStateOf(false) }
+    var filteringOptions by rememberSaveable { mutableStateOf(listOf<String>()) }
+
+    LaunchedEffect(configKey) {
+        if (availableKeys != null) {
+            withContext(Dispatchers.Default) {
+                filteringOptions = if (configKey.length >= 3) {
+                    val filteredItems = availableKeys.filter { it.contains(configKey, ignoreCase = false) }
+                    if (filteredItems.size > 7) {
+                        filteredItems.subList(0, 7)
+                    } else {
+                        filteredItems
+                    }
+                } else {
+                    listOf()
+                }
+            }
+        }
+    }
 
     if (openEditPropertyDialog) {
         Dialog(
@@ -275,70 +309,117 @@ fun KeyValueEditView(label: String, onUpdate: ((String, ValueType?, String) -> B
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(stringResource(R.string.update_value), modifier = Modifier.padding(bottom = 16.dp), style = MaterialTheme.typography.titleLarge)
-                    TextField(
-                        value = configKey,
-                        label = { Text(stringResource(R.string.property_name)) },
-                        onValueChange = { configKey = it },
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = dropdownExpanded,
-                        onExpandedChange = { dropdownExpanded = !dropdownExpanded },
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    ) {
-                        TextField(
-                            // The `menuAnchor` modifier must be passed to the text field for correctness.
-                            modifier = Modifier.menuAnchor().wrapContentWidth(),
-                            readOnly = true,
-                            value = selectedValueType?.name ?: "",
-                            onValueChange = {},
-                            label = { Text(stringResource(R.string.property_type)) },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded)
+                    if (availableKeys != null) {
+                        ExposedDropdownMenuBox(
+                            expanded = keyDropdownExpanded,
+                            onExpandedChange = {
+                                Log.d(TAG, "Expand state change requested: ${!keyDropdownExpanded}")
+                                keyDropdownExpanded = !keyDropdownExpanded
                             },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        )
-                        ExposedDropdownMenu(
-                            expanded = dropdownExpanded,
-                            onDismissRequest = { dropdownExpanded = false },
                         ) {
-                            ValueType.values().forEach { valueType ->
-                                DropdownMenuItem(
-                                    text = { Text(text = valueType.name) },
-                                    onClick = {
-                                        if (selectedValueType != valueType) {
-                                            selectedValueType = valueType
-                                            value = ""
-                                        }
-                                        dropdownExpanded = false
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                                )
+                            TextField(
+                                // The `menuAnchor` modifier must be passed to the text field for correctness.
+                                modifier = Modifier.menuAnchor().fillMaxWidth().onFocusChanged {
+                                    keyDropdownExpanded = it.isFocused
+                                },
+                                value = configKey,
+                                onValueChange = { configKey = it },
+                                label = { Text(stringResource(R.string.property_name)) },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = keyDropdownExpanded) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            )
+                            if (filteringOptions.isNotEmpty() && keyDropdownExpanded) {
+                                ExposedDropdownMenu(
+                                    expanded = true,
+                                    onDismissRequest = {},
+                                ) {
+                                    filteringOptions.forEach { selectionOption ->
+                                        DropdownMenuItem(
+                                            text = { Text(selectionOption) },
+                                            onClick = {
+                                                configKey = selectionOption
+                                                keyDropdownExpanded = false
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                    when (selectedValueType) {
-                        ValueType.Bool -> Row(
-                            modifier = Modifier.selectableGroup(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(
-                                selected = value == "true",
-                                onClick = { value = "true" },
-                            )
-                            Text(stringResource(R.string.true_))
-                            RadioButton(
-                                selected = value == "false",
-                                onClick = { value = "false" },
-                            )
-                            Text(stringResource(R.string.false_))
-                        }
-                        ValueType.Int, ValueType.Long -> TextField(
-                            value = value,
-                            onValueChange = { value = it },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    } else {
+                        TextField(
+                            value = configKey,
+                            label = { Text(stringResource(R.string.property_name)) },
+                            onValueChange = { configKey = it },
                         )
-                        is ValueType -> TextField(value = value, onValueChange = { value = it })
-                        else -> Box(modifier = Modifier.defaultMinSize(minHeight = 48.dp))
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        verticalAlignment = if (selectedValueType == ValueType.Bool) { Alignment.CenterVertically } else { Alignment.Top },
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = valueTypeDropdownExpanded,
+                            onExpandedChange = { valueTypeDropdownExpanded = !valueTypeDropdownExpanded },
+                            modifier = Modifier.padding(bottom = 8.dp).weight(1.0F),
+                        ) {
+                            TextField(
+                                // The `menuAnchor` modifier must be passed to the text field for correctness.
+                                modifier = Modifier.menuAnchor().weight(1.0F),
+                                readOnly = true,
+                                value = selectedValueType?.name ?: "",
+                                onValueChange = {},
+                                label = { Text(stringResource(R.string.property_type)) },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = valueTypeDropdownExpanded)
+                                },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            )
+                            ExposedDropdownMenu(
+                                expanded = valueTypeDropdownExpanded,
+                                onDismissRequest = { valueTypeDropdownExpanded = false },
+                            ) {
+                                ValueType.values().forEach { valueType ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = valueType.name) },
+                                        onClick = {
+                                            if (selectedValueType != valueType) {
+                                                selectedValueType = valueType
+                                                value = ""
+                                            }
+                                            valueTypeDropdownExpanded = false
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                    )
+                                }
+                            }
+                        }
+                        Box(modifier = Modifier.weight(0.05F))
+                        Box(modifier = Modifier.weight(1.0F, fill = true)) {
+                            when (selectedValueType) {
+                                ValueType.Bool -> Row(
+                                    modifier = Modifier.selectableGroup(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    RadioButton(
+                                        selected = value == "true",
+                                        onClick = { value = "true" },
+                                    )
+                                    Text(stringResource(R.string.true_))
+                                    RadioButton(
+                                        selected = value == "false",
+                                        onClick = { value = "false" },
+                                    )
+                                    Text(stringResource(R.string.false_))
+                                }
+                                ValueType.Int, ValueType.Long -> TextField(
+                                    value = value,
+                                    onValueChange = { value = it },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                )
+                                is ValueType -> TextField(value = value, onValueChange = { value = it })
+                                else -> Box(modifier = Modifier.fillMaxWidth())
+                            }
+                        }
                     }
                     Row(modifier = Modifier.padding(top = 16.dp)) {
                         Spacer(Modifier.weight(1f))
@@ -360,25 +441,90 @@ fun KeyValueEditView(label: String, onUpdate: ((String, ValueType?, String) -> B
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClickablePropertyView(label: String, value: String?, onClick: (() -> Unit)? = null) {
+fun ClickablePropertyView(label: String, value: String?, labelFontSize: TextUnit = 18.sp, valueFontSize: TextUnit = 14.sp, labelFontFamily: FontFamily? = null, valueFontFamily: FontFamily? = null, onClick: (() -> Unit)? = null) {
     if (value == null) {
         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-            Text(text = label, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = stringResource(R.string.unknown), color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+            Text(text = label, fontSize = labelFontSize, modifier = Modifier.padding(bottom = 4.dp))
+            Text(text = stringResource(R.string.unknown), color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize)
         }
         return
     }
     if (onClick != null) {
         Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = 18.sp)
-                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
             }
         }
     } else {
         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-            Text(text = label, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = 14f.sp)
+            Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+            Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
+        }
+    }
+}
+
+@Composable
+fun InfiniteLoadingDialog() {
+    Dialog(
+        onDismissRequest = { },
+        properties = DialogProperties(),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = AlertDialogDefaults.containerColor,
+                    contentColor = AlertDialogDefaults.textContentColor,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(30.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator()
+                    Text(text = stringResource(R.string.please_wait), modifier = Modifier.padding(start = 16.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FiniteLoadingDialog(current: Int, total: Int) {
+    Dialog(
+        onDismissRequest = { },
+        properties = DialogProperties(),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = AlertDialogDefaults.containerColor,
+                    contentColor = AlertDialogDefaults.textContentColor,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(modifier = Modifier.padding(16.dp)) {
+                    Column {
+                        Text("Loading...", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                        LinearProgressIndicator(
+                            modifier = Modifier.semantics(mergeDescendants = true) {}.padding(top = 24.dp, bottom = 4.dp).fillMaxWidth(),
+                            progress = current.toFloat() / total,
+                        )
+                        Text(text = "Loaded $current of $total")
+                    }
+                }
+            }
         }
     }
 }

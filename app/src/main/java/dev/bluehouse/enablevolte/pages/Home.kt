@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,14 +20,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import dev.bluehouse.enablevolte.BooleanPropertyView
 import dev.bluehouse.enablevolte.BuildConfig
 import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
-import dev.bluehouse.enablevolte.OnLifecycleEvent
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
@@ -62,29 +61,27 @@ fun Home(navController: NavController) {
         }
     }
 
-    OnLifecycleEvent { _, event ->
-        if (event == Lifecycle.Event.ON_CREATE) {
-            shizukuEnabled = try {
-                if (checkShizukuPermission(0)) {
-                    loadFlags()
-                } else {
-                    Shizuku.addRequestPermissionResultListener { _, grantResult ->
-                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                            loadFlags()
-                        }
+    LaunchedEffect(Unit) {
+        shizukuEnabled = try {
+            if (checkShizukuPermission(0)) {
+                loadFlags()
+            } else {
+                Shizuku.addRequestPermissionResultListener { _, grantResult ->
+                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                        loadFlags()
                     }
                 }
-                true
-            } catch (e: IllegalStateException) {
-                false
             }
-            getLatestAppVersion {
-                Log.d(TAG, "Fetched version $it")
-                val latest = SemVer.parse(it)
-                val current = SemVer.parse(BuildConfig.VERSION_NAME)
-                if (latest > current) {
-                    newerVersion = it
-                }
+            true
+        } catch (e: IllegalStateException) {
+            false
+        }
+        getLatestAppVersion {
+            Log.d(TAG, "Fetched version $it")
+            val latest = SemVer.parse(it)
+            val current = SemVer.parse(BuildConfig.VERSION_NAME)
+            if (latest > current) {
+                newerVersion = it
             }
         }
     }
@@ -92,7 +89,7 @@ fun Home(navController: NavController) {
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
         HeaderText(text = stringResource(R.string.version))
         if (newerVersion.isNotEmpty()) {
-            ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = stringResource(R.string.newer_version_available, "$newerVersion")) {
+            ClickablePropertyView(label = BuildConfig.VERSION_NAME, value = stringResource(R.string.newer_version_available, newerVersion)) {
                 val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/$newerVersion"
                 val i = Intent(Intent.ACTION_VIEW)
                 i.data = Uri.parse(url)
@@ -112,7 +109,7 @@ fun Home(navController: NavController) {
             if (isIMSRegistered.isNotEmpty()) {
                 isRegistered = isIMSRegistered[idx]
             }
-            HeaderText(text = stringResource(R.string.ims_status_for, "${subscriptions[idx].uniqueName}"))
+            HeaderText(text = stringResource(R.string.ims_status_for, subscriptions[idx].uniqueName))
             BooleanPropertyView(
                 label = stringResource(R.string.ims_status),
                 toggled = isRegistered,
