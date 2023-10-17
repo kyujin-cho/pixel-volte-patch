@@ -374,7 +374,7 @@ fun Config(navController: NavController, subId: Int) {
                 }
             }
             ClickablePropertyView(
-                label = "Expert Mode",
+                label = stringResource(R.string.expert_mode),
                 value = "",
             ) {
                 navController.navigate("config$subId/edit")

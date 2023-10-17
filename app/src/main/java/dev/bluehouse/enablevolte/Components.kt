@@ -516,12 +516,12 @@ fun FiniteLoadingDialog(current: Int, total: Int) {
             ) {
                 Box(modifier = Modifier.padding(16.dp)) {
                     Column {
-                        Text("Loading...", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                        Text(stringResource(R.string.loading), fontWeight = FontWeight.Bold, fontSize = 24.sp)
                         LinearProgressIndicator(
                             modifier = Modifier.semantics(mergeDescendants = true) {}.padding(top = 24.dp, bottom = 4.dp).fillMaxWidth(),
                             progress = current.toFloat() / total,
                         )
-                        Text(text = "Loaded $current of $total")
+                        Text(stringResource(R.string.loaded, current, total))
                     }
                 }
             }
