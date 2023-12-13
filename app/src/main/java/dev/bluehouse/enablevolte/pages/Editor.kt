@@ -352,7 +352,7 @@ fun Editor(subId: Int) {
                 IconButton({ showFieldNameInsteadOfKey = !showFieldNameInsteadOfKey }) {
                     if (showFieldNameInsteadOfKey) { Text("a") } else { Text("A") }
                 }
-                TextField(searchKeyword, modifier = Modifier.fillMaxWidth().weight(1f), label = { Text("Search") }, onValueChange = { searchKeyword = it }, singleLine = true, trailingIcon = {
+                TextField(searchKeyword, modifier = Modifier.fillMaxWidth().weight(1f), label = { Text(stringResource(R.string.search)) }, onValueChange = { searchKeyword = it }, singleLine = true, trailingIcon = {
                     if (searchKeyword.isNotEmpty()) {
                         IconButton({ searchKeyword = "" }) {
                             Icon(Icons.Filled.Clear, contentDescription = "Localized description")
@@ -437,7 +437,7 @@ fun Editor(subId: Int) {
                 Column {
                     Row(modifier = Modifier.padding(16.dp)) {
                         Column {
-                            Text("Edit Value", fontWeight = FontWeight.Medium, fontSize = 24.sp)
+                            Text(stringResource(R.string.edit_value), fontWeight = FontWeight.Medium, fontSize = 24.sp)
                             Text("${data.key} (${data.fieldName})", modifier = Modifier.padding(top = 6.dp), fontFamily = FontFamily.Monospace)
                         }
                     }
