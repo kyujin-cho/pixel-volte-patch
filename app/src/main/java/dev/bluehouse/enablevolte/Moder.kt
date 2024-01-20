@@ -81,17 +81,17 @@ class CarrierModer(private val context: Context) : Moder() {
     val subscriptions: List<SubscriptionInfo>
         get() {
             val sub = this.loadCachedInterface { sub }
-            try {
-                return sub.getActiveSubscriptionInfoList(null, null)
-            } catch (e: IllegalArgumentException) {
-                val getActiveSubscriptionInfoListMethod = sub.javaClass.getMethod(
-                    "getActiveSubscriptionInfoListMethod",
-                    String.Companion::class.java,
-                    String.Companion::class.java,
-                    Boolean.Companion::class.java,
-                )
+            return try {
+                sub.getActiveSubscriptionInfoList(null, null)
+            } catch (e: NoSuchMethodError) {
                 // FIXME: lift up reflect as soon as official source code releases
-                return (getActiveSubscriptionInfoListMethod.invoke(sub, null, null, null) as List<SubscriptionInfo>)
+                val getActiveSubscriptionInfoListMethod = sub.javaClass.getMethod(
+                    "getActiveSubscriptionInfoList",
+                    String::class.java,
+                    String::class.java,
+                    Boolean::class.java,
+                )
+                (getActiveSubscriptionInfoListMethod.invoke(sub, null, null, false) as List<SubscriptionInfo>)
             }
         }
 
