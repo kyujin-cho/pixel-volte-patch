@@ -78,7 +78,21 @@ open class Moder {
 
 class CarrierModer(private val context: Context) : Moder() {
     val subscriptions: List<SubscriptionInfo>
-        get() = this.loadCachedInterface { sub }.getActiveSubscriptionInfoList(null, null)
+        get() {
+            val sub = this.loadCachedInterface { sub }
+            return try {
+                sub.getActiveSubscriptionInfoList(null, null)
+            } catch (e: NoSuchMethodError) {
+                // FIXME: lift up reflect as soon as official source code releases
+                val getActiveSubscriptionInfoListMethod = sub.javaClass.getMethod(
+                    "getActiveSubscriptionInfoList",
+                    String::class.java,
+                    String::class.java,
+                    Boolean::class.java,
+                )
+                (getActiveSubscriptionInfoListMethod.invoke(sub, null, null, false) as List<SubscriptionInfo>)
+            }
+        }
 
     val defaultSubId: Int
         get() {
