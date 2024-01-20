@@ -72,12 +72,12 @@ jobs:
       contents: write
     steps:
       - name: Download APK
-        id: download
+        id: download-apk
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build-release-apk.outputs.filename }}
       - name: Download App Bundle
-        id: download
+        id: download-bundle
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build-app-bundle.outputs.filename }}
