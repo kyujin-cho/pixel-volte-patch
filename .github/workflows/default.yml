@@ -57,8 +57,16 @@ jobs:
       key-alias: ${{ secrets.KEY_ALIAS }}
       keystore: ${{ secrets.KEYSTORE_B64 }}
       key-password: ${{ secrets.KEY_PASSWORD }}
+  build-app-bundle:
+    needs: [lint]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/build-aab.yml
+    secrets:
+      key-alias: ${{ secrets.KEY_ALIAS }}
+      keystore: ${{ secrets.KEYSTORE_B64 }}
+      key-password: ${{ secrets.KEY_PASSWORD }}
   release:
-    needs: [build-release-apk]
+    needs: [build-release-apk, build-app-bundle]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -68,9 +76,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build-release-apk.outputs.filename }}
+      - name: Download App Bundle
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build-app-bundle.outputs.filename }}
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
           name: "v${{ github.ref_name }}"
           generate_release_notes: true
-          files: dev.bluehouse.enablevolte.apk
+          files: |
+            dev.bluehouse.enablevolte.apk
+            dev.bluehouse.enablevolte.aab
