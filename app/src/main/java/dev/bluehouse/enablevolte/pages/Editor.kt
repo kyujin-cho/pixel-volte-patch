@@ -107,10 +107,10 @@ data class DataRow(override val field: Field, override val rawValue: Any?) : Bas
     }
     override val typedValue: Any? get() =
         when (fieldType) {
-            ValueType.Int -> this.value?.toInt()
-            ValueType.Long -> this.value?.toLong()
-            ValueType.Bool -> this.value?.let { it == "true" } ?: { null }
-            ValueType.String -> this.value
+            ValueType.Int, ValueType.IntArray -> this.value?.toInt()
+            ValueType.Long, ValueType.LongArray -> this.value?.toLong()
+            ValueType.Bool, ValueType.BoolArray -> this.value?.let { it == "true" } ?: { null }
+            ValueType.String, ValueType.StringArray -> this.value
             else -> null
         }
 }
@@ -179,7 +179,7 @@ fun SingleValueEditor(data: DataRow, onValueChange: (String) -> Unit) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
         )
-        is String -> TextField(
+        is String, null -> TextField(
             value = data.value ?: "",
             onValueChange = { onValueChange(it) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -232,7 +232,7 @@ fun MultiValueEditor(_data: ListDataRow, onUpdate: (List<String?>) -> Unit) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.weight(1f, fill = true))
             IconButton(onClick = {
-                val newItems = items.append("")
+                val newItems = items.append(null)
                 data = data.copy(rawValue = newItems)
             }) { Icon(imageVector = Icons.Filled.Add, contentDescription = "") }
         }
