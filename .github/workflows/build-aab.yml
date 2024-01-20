@@ -3,7 +3,7 @@ on:
     outputs:
       filename:
         description: "artifact file name"
-        value: ${{ jobs.build-apk.outputs.filename }}
+        value: ${{ jobs.build-aab.outputs.filename }}
     secrets:
       key-alias:
         required: false
