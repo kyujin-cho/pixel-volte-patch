@@ -15,7 +15,6 @@ import com.android.internal.telephony.IPhoneSubInfo
 import com.android.internal.telephony.ISub
 import com.android.internal.telephony.ITelephony
 import rikka.shizuku.ShizukuBinderWrapper
-import java.lang.IllegalArgumentException
 
 private const val TAG = "CarrierModer"
 
