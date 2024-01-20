@@ -1,4 +1,4 @@
-# Enable VoLTE on Pixel 6 & 7
+# Pixel IMS: Enable VoLTE on Tensor Pixel devices
 
 ## Troubleshooting
 
@@ -29,7 +29,11 @@ Carriers which aren't possible for testing by developer but reported as supporte
   - Google Pixel 6a
   - Google Pixel 6 Pro
   - Google Pixel 7
+  - Google Pixel 7a
   - Google Pixel 7 Pro
+  - Google Pixel 8
+  - Google Pixel 8 Pro
+  - Google Pixel Fold
 
 #### Optional
 

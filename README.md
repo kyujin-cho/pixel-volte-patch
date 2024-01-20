@@ -1,4 +1,4 @@
-# Pixel 6 & 7 VoLTE 활성화
+# Pixel IMS: Tensor Pixel VoLTE 활성화
 
 English version available [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/README.en.md).
 
@@ -31,7 +31,11 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
   - Google Pixel 6a
   - Google Pixel 6 Pro
   - Google Pixel 7
+  - Google Pixel 7a
   - Google Pixel 7 Pro
+  - Google Pixel 8
+  - Google Pixel 8 Pro
+  - Google Pixel Fold
 - [Android Platform Tools](https://developer.android.com/studio/command-line/adb) 이 설치된 Windows, macOS 혹은 Linux 컴퓨터
 - 데이터 통신이 가능한 USB-A to USB-C 혹은 USB-C to USB-C 케이블
 
