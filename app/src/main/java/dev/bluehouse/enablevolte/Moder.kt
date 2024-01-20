@@ -15,6 +15,7 @@ import com.android.internal.telephony.IPhoneSubInfo
 import com.android.internal.telephony.ISub
 import com.android.internal.telephony.ITelephony
 import rikka.shizuku.ShizukuBinderWrapper
+import java.lang.IllegalArgumentException
 
 private const val TAG = "CarrierModer"
 
@@ -78,7 +79,21 @@ open class Moder {
 
 class CarrierModer(private val context: Context) : Moder() {
     val subscriptions: List<SubscriptionInfo>
-        get() = this.loadCachedInterface { sub }.getActiveSubscriptionInfoList(null, null)
+        get() {
+            val sub = this.loadCachedInterface { sub }
+            try {
+                return sub.getActiveSubscriptionInfoList(null, null)
+            } catch (e: IllegalArgumentException) {
+                val getActiveSubscriptionInfoListMethod = sub.javaClass.getMethod(
+                    "getActiveSubscriptionInfoListMethod",
+                    String.Companion::class.java,
+                    String.Companion::class.java,
+                    Boolean.Companion::class.java,
+                )
+                // FIXME: lift up reflect as soon as official source code releases
+                return (getActiveSubscriptionInfoListMethod.invoke(sub, null, null, null) as List<SubscriptionInfo>)
+            }
+        }
 
     val defaultSubId: Int
         get() {
