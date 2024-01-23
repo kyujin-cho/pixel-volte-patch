@@ -59,14 +59,15 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
    ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
 6. 이제 케이블을 연결한 채로 다음 단계로 이동합니다.
 
-### 패치 어플리케이션 설치
+### Pixel IMS 어플리케이션 설치
 
-1. [다음 링크](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk) 혹은 이 Github Repository의 Releases 탭으로 이동하여 최신 패치 어플리케이션의 설치를 위한 APK 파일을 Pixel 단말기에 다운로드 받습니다.
-2. 다운로드 받은 APK 파일을 설치합니다.
-3. 설치한 어플리케이션을 실행합니다.
-4. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
+1. 현재 다음 두 가지 방법으로 Pixel IMS 앱을 설치할 수 있습니다.
+   - [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk) 에서 APK 다운로드 후 설치
+   - [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte) 에서 다운로드
+2. 설치한 어플리케이션을 실행합니다.
+3. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
    ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
-5. VoLTE를 활성화 할 SIM의 페이지로 이동합니다. "Enable VoLTE" 토글을 활성화합니다.
+4. VoLTE를 활성화 할 SIM의 페이지로 이동합니다. "Enable VoLTE" 토글을 활성화합니다.
    ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
 6. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 

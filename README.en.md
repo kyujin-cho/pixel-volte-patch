@@ -69,13 +69,12 @@ only if installing Schizuku using ADB
 1. As for now, there are two ways to obtain the application. Choose you favourite way and install the application.
    - Via [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte)
    - From [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk), by downloading APK file
-2. Install downloaded APK file.
-3. Start installed application.
-4. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
+2. Start installed application.
+3. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
    ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
-5. Toggle "Enable VoLTE" to enable VoLTE.
+4. Toggle "Enable VoLTE" to enable VoLTE.
    ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
-6. Restart your Pixel phone a couple of times until you can see VoLTE is working.
+5. Restart your Pixel phone a couple of times until you can see VoLTE is working.
 
 ## FAQ
 
