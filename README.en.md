@@ -37,7 +37,7 @@ Carriers which aren't possible for testing by developer but reported as supporte
 
 #### Optional
 
-only if installing Schizuku using ADB
+only if installing Shizuku using ADB
 
 - Windows, macOS or Linux PC with [Android Platform Tools](https://developer.android.com/studio/command-line/adb) installed
 - USB-A to USB-C or USB-C to USB-C cable to connect Pixel to the PC
