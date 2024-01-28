@@ -27,6 +27,7 @@ import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.KeyValueEditView
 import dev.bluehouse.enablevolte.R
+import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.ValueType
@@ -106,7 +107,7 @@ fun Config(navController: NavController, subId: Int) {
     }
 
     LaunchedEffect(true) {
-        if (checkShizukuPermission(0)) {
+        if (checkShizukuPermission(0) == ShizukuStatus.GRANTED) {
             if (carrierModer.deviceSupportsIMS && subId >= 0) {
                 configurable = try {
                     withContext(Dispatchers.Default) {
