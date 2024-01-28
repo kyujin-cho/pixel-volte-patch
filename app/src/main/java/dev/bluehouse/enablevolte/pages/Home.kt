@@ -27,6 +27,7 @@ import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.R
+import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.StringPropertyView
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.checkShizukuPermission
@@ -62,19 +63,26 @@ fun Home(navController: NavController) {
     }
 
     LaunchedEffect(Unit) {
-        shizukuEnabled = try {
-            if (checkShizukuPermission(0)) {
-                loadFlags()
-            } else {
-                Shizuku.addRequestPermissionResultListener { _, grantResult ->
-                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        loadFlags()
+        try {
+            when (checkShizukuPermission(0)) {
+                ShizukuStatus.GRANTED -> {
+                    shizukuEnabled = true
+                    loadFlags()
+                }
+                ShizukuStatus.NOT_GRANTED -> {
+                    shizukuEnabled = true
+                    Shizuku.addRequestPermissionResultListener { _, grantResult ->
+                        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                            loadFlags()
+                        }
                     }
                 }
+                else -> {
+                    shizukuEnabled = false
+                }
             }
-            true
         } catch (e: IllegalStateException) {
-            false
+            shizukuEnabled = false
         }
         getLatestAppVersion {
             Log.d(TAG, "Fetched version $it")

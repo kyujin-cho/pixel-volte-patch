@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -93,6 +94,14 @@ fun PixelIMSApp() {
         })
     }
 
+    fun generateInitialNavBuilder(): (NavGraphBuilder.() -> Unit) {
+        return {
+            composable("home", "Home") {
+                Home(navController)
+            }
+        }
+    }
+
     fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) {
         return {
             composable("home", "Home") {
@@ -114,14 +123,16 @@ fun PixelIMSApp() {
         }
     }
 
-    OnLifecycleEvent { _, event ->
-        if (event == Lifecycle.Event.ON_CREATE) {
-            try {
-                if (checkShizukuPermission(0)) {
+    fun loadApplication() {
+        val shizukuStatus = checkShizukuPermission(0)
+        try {
+            when (shizukuStatus) {
+                ShizukuStatus.GRANTED -> {
                     Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
                     subscriptions = carrierModer.subscriptions
                     navBuilder = generateNavBuilder()
-                } else {
+                }
+                ShizukuStatus.NOT_GRANTED -> {
                     Shizuku.addRequestPermissionResultListener { _, grantResult ->
                         if (grantResult == PackageManager.PERMISSION_GRANTED) {
                             Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
@@ -130,8 +141,18 @@ fun PixelIMSApp() {
                         }
                     }
                 }
-            } catch (_: IllegalStateException) {
+                else -> {
+                    subscriptions = listOf()
+                    navBuilder = generateInitialNavBuilder()
+                }
             }
+        } catch (_: IllegalStateException) {
+        }
+    }
+
+    OnLifecycleEvent { _, event ->
+        if (event == Lifecycle.Event.ON_CREATE) {
+            loadApplication()
         }
     }
     Scaffold(
@@ -145,7 +166,17 @@ fun PixelIMSApp() {
                         IconButton(onClick = { navController.popBackStack() }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
                             Icon(
                                 imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Localized description",
+                                contentDescription = "Go back",
+                            )
+                        }
+                    }
+                },
+                actions = {
+                    if (currentBackStackEntry?.destination?.route == "home") {
+                        IconButton(onClick = { loadApplication() }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Refresh contents",
                             )
                         }
                     }

@@ -14,14 +14,21 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import rikka.shizuku.Shizuku
 
-fun checkShizukuPermission(code: Int): Boolean {
-    return if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-        true
-    } else if (Shizuku.shouldShowRequestPermissionRationale()) {
-        false
+enum class ShizukuStatus {
+    GRANTED, NOT_GRANTED, STOPPED
+}
+fun checkShizukuPermission(code: Int): ShizukuStatus {
+    return if (Shizuku.getBinder() != null) {
+        if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+            ShizukuStatus.GRANTED
+        } else {
+            if (!Shizuku.shouldShowRequestPermissionRationale()) {
+                Shizuku.requestPermission(0)
+            }
+            ShizukuStatus.NOT_GRANTED
+        }
     } else {
-        Shizuku.requestPermission(code)
-        false
+        ShizukuStatus.STOPPED
     }
 }
 
