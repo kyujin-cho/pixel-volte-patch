@@ -57,7 +57,7 @@ only if installing Schizuku using ADB
    ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
 2. Now continue to next section.
 
-### Using a PC
+### Starting Shizuku with PC
 
 1. Connect your Pixel phone with PC by following [this description](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer).
 2. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see something like "Shizuku is running" at your Pixel phone.
@@ -65,7 +65,7 @@ only if installing Schizuku using ADB
    ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
 3. Now continue to next section.
 
-### Install Pixel IMs
+### Install Pixel IMS application
 1. As for now, there are two ways to obtain the application. Choose you favourite way and install the application.
    - Via [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte)
    - From [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk), by downloading APK file
@@ -75,6 +75,9 @@ only if installing Schizuku using ADB
 4. Toggle "Enable VoLTE" to enable VoLTE.
    ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
 5. Restart your Pixel phone a couple of times until you can see VoLTE is working.
+
+### Build application from source
+Download [patched android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar), put it under `$ANDROID_PATH/sdk/platforms/android-33` and start hacking as usual.
 
 ## FAQ
 
