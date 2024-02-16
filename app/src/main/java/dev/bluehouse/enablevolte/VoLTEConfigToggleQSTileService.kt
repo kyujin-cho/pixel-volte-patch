@@ -10,18 +10,22 @@ class SIM1VoLTEConfigToggleQSTileService : VoLTEConfigToggleQSTileService(0)
 class SIM2VoLTEConfigToggleQSTileService : VoLTEConfigToggleQSTileService(1)
 
 open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileService() {
-    val TAG = "SIM${simSlotIndex}VoLTEConfigToggleQSTileService"
+    private val TAG = "SIM${simSlotIndex}VoLTEConfigToggleQSTileService"
 
     private val moder: SubscriptionModer? get() {
         val carrierModer = CarrierModer(this.applicationContext)
 
-        if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
-            val subscriptions = carrierModer.subscriptions
-            val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex) ?: return null
-            return SubscriptionModer(sub.subscriptionId)
-        }
+        try {
+            if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
+                carrierModer.subscriptions
+                val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
+                    ?: return null
+                return SubscriptionModer(sub.subscriptionId)
+            }
+        } catch (_: IllegalStateException) {}
         return null
     }
+
     private val volteEnabled: Boolean? get() {
         /*
          * true: VoLTE enabled
@@ -60,11 +64,6 @@ open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileS
         qsTile.updateTile()
     }
 
-    // Called when your app can no longer update your tile.
-    override fun onStopListening() {
-        super.onStopListening()
-    }
-
     private fun toggleVoLTEStatus() {
         val moder = this.moder ?: return
         val volteEnabled = this.volteEnabled ?: return
@@ -83,10 +82,5 @@ open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileS
         } else {
             toggleVoLTEStatus()
         }
-    }
-
-    // Called when the user removes your tile.
-    override fun onTileRemoved() {
-        super.onTileRemoved()
     }
 }

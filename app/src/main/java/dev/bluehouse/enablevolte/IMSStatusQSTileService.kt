@@ -9,16 +9,19 @@ class SIM1IMSStatusQSTileService : IMSStatusQSTileService(0)
 class SIM2IMSStatusQSTileService : IMSStatusQSTileService(1)
 
 open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService() {
-    val TAG = "SIM${simSlotIndex}IMSStatusQSTileService"
+    private val TAG = "SIM${simSlotIndex}IMSStatusQSTileService"
 
     private val moder: SubscriptionModer? get() {
         val carrierModer = CarrierModer(this.applicationContext)
 
-        if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
-            val subscriptions = carrierModer.subscriptions
-            val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex) ?: return null
-            return SubscriptionModer(sub.subscriptionId)
-        }
+        try {
+            if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
+                carrierModer.subscriptions
+                val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
+                    ?: return null
+                return SubscriptionModer(sub.subscriptionId)
+            }
+        } catch (_: IllegalStateException) {}
         return null
     }
     private val imsActivated: Boolean? get() {
@@ -58,15 +61,5 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
             },
         )
         qsTile.updateTile()
-    }
-
-    // Called when your app can no longer update your tile.
-    override fun onStopListening() {
-        super.onStopListening()
-    }
-
-    // Called when the user removes your tile.
-    override fun onTileRemoved() {
-        super.onTileRemoved()
     }
 }

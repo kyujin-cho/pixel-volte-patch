@@ -33,7 +33,7 @@ fun checkShizukuPermission(code: Int): ShizukuStatus {
 }
 
 val SubscriptionInfo.uniqueName: String
-    get() = "${this.displayName} (SIM ${this.simSlotIndex+1})"
+    get() = "${this.displayName} (SIM ${this.simSlotIndex + 1})"
 
 fun getLatestAppVersion(handler: (String) -> Unit) {
     "https://api.github.com/repos/kyujin-cho/pixel-volte-patch/releases"
