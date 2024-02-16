@@ -64,7 +64,7 @@
     <string name="restart_ims_registration">Restart IMS registration</string>
     <string name="please_wait">Working on it…</string>
     <string name="expert_mode">Expert Mode</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="loaded">Loaded %1$s of %2$s</string>
     <string name="edit_value">Edit Value</string>
     <string name="search">Search</string>
@@ -77,4 +77,6 @@
     <string name="qs_toggle_tile_title_sim_2">VoLTE Config (SIM 2)</string>
     <string name="add_status_tile">Add IMS status display tile</string>
     <string name="add_toggle_tile">Add VoLTE config toggle tile</string>
+    <string name="sim_config">SIM Config</string>
+    <string name="config_dump_viewer">Config Dump Viewer</string>
 </resources>

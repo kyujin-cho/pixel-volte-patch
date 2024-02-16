@@ -26,10 +26,10 @@
     <string name="enable_video_calling_vt">启用视频通话(VT)</string>
     <string name="enable_ss_over_ut">UT接口下启用补充业务</string>
     <string name="enable_ss_over_cdma">CDMA下启用补充业务</string>
-    <string name="sim_detected">检测到SIM</string>
-    <string name="volte_supported_by_device">支持VoLTE</string>
-    <string name="ims_status">IMS状态</string>
-    <string name="ims_status_for">卡 %1$s 的IMS状态</string>
+    <string name="sim_detected">检测到 SIM</string>
+    <string name="volte_supported_by_device">支持 VoLTE</string>
+    <string name="ims_status">IMS 状态</string>
+    <string name="ims_status_for">卡 %1$s 的 IMS 状态</string>
     <string name="permissions_capabilities"><![CDATA[权限与兼容性]]></string>
     <string name="registered">已注册</string>
     <string name="unregistered">未注册</string>
@@ -38,7 +38,7 @@
     <string name="newer_version_available">有新版本 %1$s 可用!</string>
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
-    <string name="show_4g_for_lte_data_icon">使用4G替换LTE图标</string>
+    <string name="show_4g_for_lte_data_icon">使用 4G 替换 LTE 图标</string>
     <string name="show_vowifi_icon">显示 VoWiFI 图标</string>
     <string name="always_show_data_icon">始终显示数据速率图标</string>
     <string name="hide_enhanced_data_icon">隐藏增强4G(LTE+)图标</string>
@@ -65,7 +65,7 @@
     <string name="restart_ims_registration">重新注册IMS</string>
     <string name="please_wait">请稍后…</string>
     <string name="expert_mode">专家模式</string>
-    <string name="loading">加载中...</string>
+    <string name="loading">加载中…</string>
     <string name="loaded">已加载 %1$s 共 %2$s</string>
     <string name="edit_value">更改值</string>
     <string name="search">搜索</string>
@@ -78,4 +78,6 @@
     <string name="qs_toggle_tile_title_sim_2">VoLTE Config (SIM 2)</string>
     <string name="add_status_tile">Add IMS status display tile</string>
     <string name="add_toggle_tile">Add VoLTE config toggle tile</string>
+    <string name="sim_config">SIM 配置</string>
+    <string name="config_dump_viewer">配置转储查看器</string>
 </resources>
