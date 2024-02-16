@@ -1,6 +1,10 @@
 package dev.bluehouse.enablevolte.pages
 
+import android.app.StatusBarManager
+import android.content.ComponentName
+import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.Build.VERSION
 import android.telephony.CarrierConfigManager
 import android.util.Log
 import android.widget.Toast
@@ -71,6 +75,8 @@ fun Config(navController: NavController, subId: Int) {
     var reversedConfigurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
     var loading by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
+    val simSlotIndex = moder.simSlotIndex
+    val statusBarManager: StatusBarManager = context.getSystemService(StatusBarManager::class.java)
 
     fun loadFlags() {
         Log.d(TAG, "loadFlags")
@@ -337,6 +343,40 @@ fun Config(navController: NavController, subId: Int) {
                 }
             }
 
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                HeaderText(text = stringResource(R.string.qstile))
+                ClickablePropertyView(
+                    label = stringResource(R.string.add_status_tile),
+                    value = "",
+                ) {
+                    statusBarManager.requestAddTileService(
+                        ComponentName(
+                            context,
+                            // TODO: what happens if someone tries to use this feature from a triple(or even dual)-SIM phone?
+                            Class.forName("dev.bluehouse.enablevolte.SIM${simSlotIndex + 1}IMSStatusQSTileService"),
+                        ),
+                        context.getString(R.string.qs_status_tile_title, (simSlotIndex + 1).toString()),
+                        Icon.createWithResource(context, R.drawable.ic_launcher_foreground),
+                        {},
+                        {},
+                    )
+                }
+                ClickablePropertyView(
+                    label = stringResource(R.string.add_toggle_tile),
+                    value = "",
+                ) {
+                    statusBarManager.requestAddTileService(
+                        ComponentName(
+                            context,
+                            Class.forName("dev.bluehouse.enablevolte.SIM${simSlotIndex + 1}VoLTEConfigToggleQSTileService"),
+                        ),
+                        context.getString(R.string.qs_toggle_tile_title, (simSlotIndex + 1).toString()),
+                        Icon.createWithResource(context, R.drawable.ic_launcher_foreground),
+                        {},
+                        {},
+                    )
+                }
+            }
             HeaderText(text = stringResource(R.string.miscellaneous))
             ClickablePropertyView(
                 label = stringResource(R.string.reset_all_settings),

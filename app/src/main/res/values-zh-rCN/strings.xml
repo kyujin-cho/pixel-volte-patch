@@ -33,6 +33,8 @@
     <string name="permissions_capabilities"><![CDATA[权限与兼容性]]></string>
     <string name="registered">已注册</string>
     <string name="unregistered">未注册</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
     <string name="newer_version_available">有新版本 %1$s 可用!</string>
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
@@ -67,6 +69,15 @@
     <string name="loaded">已加载 %1$s 共 %2$s</string>
     <string name="edit_value">更改值</string>
     <string name="search">搜索</string>
+    <string name="qstile">Quick Settings Tile</string>
+    <string name="qs_status_tile_title">IMS Status (SIM %1$s)</string>
+    <string name="qs_status_tile_title_sim_1">IMS Status (SIM 1)</string>
+    <string name="qs_status_tile_title_sim_2">IMS Status (SIM 2)</string>
+    <string name="qs_toggle_tile_title">VoLTE Config (SIM %1$s)</string>
+    <string name="qs_toggle_tile_title_sim_1">VoLTE Config (SIM 1)</string>
+    <string name="qs_toggle_tile_title_sim_2">VoLTE Config (SIM 2)</string>
+    <string name="add_status_tile">Add IMS status display tile</string>
+    <string name="add_toggle_tile">Add VoLTE config toggle tile</string>
     <string name="sim_config">SIM 配置</string>
     <string name="config_dump_viewer">配置转储查看器</string>
 </resources>

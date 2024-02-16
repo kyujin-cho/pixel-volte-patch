@@ -68,7 +68,7 @@ only if installing Shizuku using ADB
 ### Install Pixel IMS application
 1. As for now, there are two ways to obtain the application. Choose you favourite way and install the application.
    - Via [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte)
-   - From [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk), by downloading APK file
+   - From [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.8/dev.bluehouse.enablevolte.apk), by downloading APK file
 2. Start installed application.
 3. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
    ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)

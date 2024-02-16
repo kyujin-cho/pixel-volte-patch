@@ -62,7 +62,7 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 ### Pixel IMS 어플리케이션 설치
 
 1. 현재 다음 두 가지 방법으로 Pixel IMS 앱을 설치할 수 있습니다.
-   - [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.7/dev.bluehouse.enablevolte.apk) 에서 APK 다운로드 후 설치
+   - [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.2.8/dev.bluehouse.enablevolte.apk) 에서 APK 다운로드 후 설치
    - [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte) 에서 다운로드
 2. 설치한 어플리케이션을 실행합니다.
 3. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.

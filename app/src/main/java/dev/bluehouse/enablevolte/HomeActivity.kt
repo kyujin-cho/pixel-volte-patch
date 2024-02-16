@@ -182,7 +182,7 @@ fun PixelIMSApp() {
                         }
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
             )
         },
         bottomBar = {
