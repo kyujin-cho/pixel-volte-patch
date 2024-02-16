@@ -77,6 +77,11 @@ open class Moder {
 }
 
 class CarrierModer(private val context: Context) : Moder() {
+    fun getActiveSubscriptionInfoForSimSlotIndex(index: Int): SubscriptionInfo? {
+        val sub = this.loadCachedInterface { sub }
+        return sub.getActiveSubscriptionInfoForSimSlotIndex(index, null, null)
+    }
+
     val subscriptions: List<SubscriptionInfo>
         get() {
             val sub = this.loadCachedInterface { sub }
@@ -259,6 +264,9 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
         return config.get(key)
     }
+
+    val simSlotIndex: Int
+        get() = this.loadCachedInterface { sub }.getSlotIndex(subscriptionId)
 
     val isVoLteConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
