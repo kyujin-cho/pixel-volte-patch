@@ -2,7 +2,7 @@ package dev.bluehouse.enablevolte
 
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.util.Log
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.lang.IllegalStateException
 
 class SIM1IMSStatusQSTileService : IMSStatusQSTileService(0)
@@ -11,12 +11,16 @@ class SIM2IMSStatusQSTileService : IMSStatusQSTileService(1)
 open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService() {
     private val TAG = "SIM${simSlotIndex}IMSStatusQSTileService"
 
+    init {
+        HiddenApiBypass.addHiddenApiExemptions("L")
+        HiddenApiBypass.addHiddenApiExemptions("I")
+    }
+
     private val moder: SubscriptionModer? get() {
         val carrierModer = CarrierModer(this.applicationContext)
 
         try {
             if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
-                carrierModer.subscriptions
                 val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
                     ?: return null
                 return SubscriptionModer(sub.subscriptionId)
@@ -44,9 +48,7 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
         }
     }
 
-    override fun onStartListening() {
-        super.onStartListening()
-        Log.d(TAG, "onStartListening()")
+    private fun refreshStatus() {
         val imsActivated = this.imsActivated
         qsTile.state = when (imsActivated) {
             true -> Tile.STATE_ACTIVE
@@ -61,5 +63,15 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
             },
         )
         qsTile.updateTile()
+    }
+
+    override fun onStartListening() {
+        super.onStartListening()
+        this.refreshStatus()
+    }
+
+    override fun onClick() {
+        super.onClick()
+        this.refreshStatus()
     }
 }

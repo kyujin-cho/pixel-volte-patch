@@ -3,7 +3,7 @@ package dev.bluehouse.enablevolte
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.telephony.CarrierConfigManager
-import android.util.Log
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.lang.IllegalStateException
 
 class SIM1VoLTEConfigToggleQSTileService : VoLTEConfigToggleQSTileService(0)
@@ -11,6 +11,11 @@ class SIM2VoLTEConfigToggleQSTileService : VoLTEConfigToggleQSTileService(1)
 
 open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileService() {
     private val TAG = "SIM${simSlotIndex}VoLTEConfigToggleQSTileService"
+
+    init {
+        HiddenApiBypass.addHiddenApiExemptions("L")
+        HiddenApiBypass.addHiddenApiExemptions("I")
+    }
 
     private val moder: SubscriptionModer? get() {
         val carrierModer = CarrierModer(this.applicationContext)
@@ -48,7 +53,6 @@ open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileS
 
     override fun onStartListening() {
         super.onStartListening()
-        Log.d(TAG, "onStartListening()")
         qsTile.state = when (this.volteEnabled) {
             true -> Tile.STATE_ACTIVE
             false -> Tile.STATE_INACTIVE
@@ -77,7 +81,7 @@ open class VoLTEConfigToggleQSTileService(private val simSlotIndex: Int) : TileS
     // Called when the user taps on your tile in an active or inactive state.
     override fun onClick() {
         super.onClick()
-        if (!isSecure) {
+        if (isLocked) {
             unlockAndRun { toggleVoLTEStatus() }
         } else {
             toggleVoLTEStatus()
