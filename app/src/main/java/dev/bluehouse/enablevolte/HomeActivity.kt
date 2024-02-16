@@ -81,14 +81,15 @@ class HomeActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PixelIMSApp() {
+    val context = LocalContext.current
     val navController = rememberNavController()
-    val carrierModer = CarrierModer(LocalContext.current)
+    val carrierModer = CarrierModer(context)
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
 
     var subscriptions by rememberSaveable { mutableStateOf(listOf<SubscriptionInfo>()) }
     var navBuilder by remember {
         mutableStateOf<NavGraphBuilder.() -> Unit>({
-            composable("home", "Home") {
+            composable("home", context.resources.getString(R.string.home)) {
                 Home(navController)
             }
         })
@@ -104,18 +105,18 @@ fun PixelIMSApp() {
 
     fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) {
         return {
-            composable("home", "Home") {
+            composable("home", context.resources.getString(R.string.home)) {
                 Home(navController)
             }
             for (subscription in subscriptions) {
                 navigation(startDestination = "config${subscription.subscriptionId}", route = "config${subscription.subscriptionId}root") {
-                    composable("config${subscription.subscriptionId}", "SIM Config") {
+                    composable("config${subscription.subscriptionId}", context.resources.getString(R.string.sim_config)) {
                         Config(navController, subscription.subscriptionId)
                     }
-                    composable("config${subscription.subscriptionId}/dump", "Config Dump Viewer") {
+                    composable("config${subscription.subscriptionId}/dump", context.resources.getString(R.string.config_dump_viewer)) {
                         DumpedConfig(subscription.subscriptionId)
                     }
-                    composable("config${subscription.subscriptionId}/edit", "Expert Mode") {
+                    composable("config${subscription.subscriptionId}/edit", context.resources.getString(R.string.expert_mode)) {
                         Editor(subscription.subscriptionId)
                     }
                 }
