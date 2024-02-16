@@ -72,6 +72,7 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
 
     override fun onClick() {
         super.onClick()
+        moder?.restartIMSRegistration()
         this.refreshStatus()
     }
 }
