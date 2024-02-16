@@ -32,6 +32,8 @@
     <string name="permissions_capabilities"><![CDATA[Permissions & Capabilities]]></string>
     <string name="registered">Registered</string>
     <string name="unregistered">Unregistered</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
     <string name="newer_version_available">Newer version %1$s available!</string>
     <string name="feature_toggles">Enable/Disable Feature</string>
     <string name="cosmetic_toggles">Cosmetic Toggles</string>
@@ -66,6 +68,15 @@
     <string name="loaded">Loaded %1$s of %2$s</string>
     <string name="edit_value">Edit Value</string>
     <string name="search">Search</string>
+    <string name="qstile">Quick Settings Tile</string>
+    <string name="qs_status_tile_title">IMS Status (SIM %1$s)</string>
+    <string name="qs_status_tile_title_sim_1">IMS Status (SIM 1)</string>
+    <string name="qs_status_tile_title_sim_2">IMS Status (SIM 2)</string>
+    <string name="qs_toggle_tile_title">VoLTE Config (SIM %1$s)</string>
+    <string name="qs_toggle_tile_title_sim_1">VoLTE Config (SIM 1)</string>
+    <string name="qs_toggle_tile_title_sim_2">VoLTE Config (SIM 2)</string>
+    <string name="add_status_tile">Add IMS status display tile</string>
+    <string name="add_toggle_tile">Add VoLTE config toggle tile</string>
     <string name="sim_config">SIM Config</string>
     <string name="config_dump_viewer">Config Dump Viewer</string>
 </resources>
