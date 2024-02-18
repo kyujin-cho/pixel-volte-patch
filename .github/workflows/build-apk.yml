@@ -75,6 +75,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.key-password }}
           BUILD_TYPE: ${{ inputs.build-type }}
         if: ${{ env.KEY_PASSWORD != '' }}
+      - name: Rename APK
+        run: mv app-unsigned-aligned.apk dev.bluehouse.enablevolte.apk
+        env:
+          KEY_PASSWORD: ${{ secrets.key-password }}
+        if: ${{ env.KEY_PASSWORD == '' }}
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
