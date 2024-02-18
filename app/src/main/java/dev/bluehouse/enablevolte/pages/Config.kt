@@ -7,7 +7,6 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.telephony.CarrierConfigManager
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -29,12 +28,10 @@ import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.ClickablePropertyView
 import dev.bluehouse.enablevolte.HeaderText
 import dev.bluehouse.enablevolte.InfiniteLoadingDialog
-import dev.bluehouse.enablevolte.KeyValueEditView
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.UserAgentPropertyView
-import dev.bluehouse.enablevolte.ValueType
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -389,31 +386,6 @@ fun Config(navController: NavController, subId: Int) {
                 scope.launch {
                     withContext(Dispatchers.Default) {
                         loadFlags()
-                    }
-                }
-            }
-            KeyValueEditView(label = stringResource(id = R.string.manually_set_config), availableKeys = configurableItems.keys + configurableItems.values) { key, valueType, value ->
-                val actualKey = configurableItems[key] ?: if (reversedConfigurableItems.containsKey(key)) { key } else { null }
-                if (actualKey == null) {
-                    Toast.makeText(context, cannotFindKeyText, Toast.LENGTH_SHORT).show()
-                    false
-                } else {
-                    try {
-                        when (valueType) {
-                            ValueType.Bool -> moder.updateCarrierConfig(actualKey, value == "true")
-                            ValueType.String -> moder.updateCarrierConfig(actualKey, value)
-                            ValueType.Int -> moder.updateCarrierConfig(actualKey, value.toInt())
-                            ValueType.Long -> moder.updateCarrierConfig(actualKey, value.toLong())
-                            ValueType.BoolArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim() == "true" }).toBooleanArray())
-                            ValueType.StringArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim() }).toTypedArray())
-                            ValueType.IntArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim().toInt() }).toIntArray())
-                            ValueType.LongArray -> moder.updateCarrierConfig(actualKey, (value.split(",").map { it.trim().toLong() }).toLongArray())
-                            else -> {}
-                        }
-                        true
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "Error while updating: ${e.message}", Toast.LENGTH_SHORT).show()
-                        false
                     }
                 }
             }
