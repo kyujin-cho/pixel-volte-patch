@@ -3,8 +3,8 @@ package dev.bluehouse.enablevolte.pages
 import android.app.StatusBarManager
 import android.content.ComponentName
 import android.graphics.drawable.Icon
-import android.os.Build
 import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.telephony.CarrierConfigManager
 import android.util.Log
 import android.widget.Toast
@@ -87,23 +87,23 @@ fun Config(navController: NavController, subId: Int) {
         }.flatten().associate { field -> field.name to field.get(field) as String }
         reversedConfigurableItems = configurableItems.entries.associate { (k, v) -> v to k }
         voLTEEnabled = moder.isVoLteConfigEnabled
-        voNREnabled = moder.isVoNrConfigEnabled
+        voNREnabled = VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE && moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
-        showIMSinSIMInfo = moder.showIMSinSIMInfo
+        showIMSinSIMInfo = VERSION.SDK_INT >= VERSION_CODES.R && moder.showIMSinSIMInfo
         allowAddingAPNs = moder.allowAddingAPNs
-        showVoWifiMode = moder.showVoWifiMode
-        showVoWifiRoamingMode = moder.showVoWifiRoamingMode
+        showVoWifiMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiMode
+        showVoWifiRoamingMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
         showVoWifiIcon = moder.showVoWifiIcon
-        alwaysDataRATIcon = moder.alwaysDataRATIcon
+        alwaysDataRATIcon = VERSION.SDK_INT >= VERSION_CODES.R && moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
         vtEnabled = moder.isVtConfigEnabled
         ssOverUtEnabled = moder.ssOverUtEnabled
         ssOverCDMAEnabled = moder.ssOverCDMAEnabled
-        show4GForLteEnabled = moder.isShow4GForLteEnabled
-        hideEnhancedDataIconEnabled = moder.isHideEnhancedDataIconEnabled
+        show4GForLteEnabled = VERSION.SDK_INT >= VERSION_CODES.R && moder.isShow4GForLteEnabled
+        hideEnhancedDataIconEnabled = VERSION.SDK_INT >= VERSION_CODES.R && moder.isHideEnhancedDataIconEnabled
         is4GPlusEnabled = moder.is4GPlusEnabled
         configuredUserAgent = try {
             moder.userAgentConfig
@@ -151,20 +151,23 @@ fun Config(navController: NavController, subId: Int) {
                 }
             }
 
-            BooleanPropertyView(label = stringResource(R.string.enable_vonr), toggled = voNREnabled) {
-                voNREnabled = if (voNREnabled) {
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, false)
-                    false
-                } else {
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, true)
-                    moder.restartIMSRegistration()
-                    true
+            BooleanPropertyView(label = stringResource(R.string.enable_vonr), toggled = voNREnabled, minSdk = VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                if (VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    voNREnabled = if (voNREnabled) {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, false)
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, false)
+                        false
+                    } else {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_ENABLED_BOOL, true)
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL, true)
+                        moder.restartIMSRegistration()
+                        true
+                    }
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crossSIMEnabled, enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crossSIMEnabled, minSdk = VERSION_CODES.TIRAMISU) {
+                if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
                     crossSIMEnabled = if (crossSIMEnabled) {
                         moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL, false)
                         moder.updateCarrierConfig(CarrierConfigManager.KEY_ENABLE_CROSS_SIM_CALLING_ON_OPPORTUNISTIC_DATA_BOOL, false)
@@ -257,7 +260,7 @@ fun Config(navController: NavController, subId: Int) {
             }
 
             HeaderText(text = stringResource(R.string.cosmetic_toggles))
-            BooleanPropertyView(label = stringResource(R.string.show_vowifi_preference_in_settings), toggled = showVoWifiMode) {
+            BooleanPropertyView(label = stringResource(R.string.show_vowifi_preference_in_settings), toggled = showVoWifiMode, minSdk = VERSION_CODES.R) {
                 showVoWifiMode = if (showVoWifiMode) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, false)
                     false
@@ -267,7 +270,7 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.show_vowifi_roaming_preference_in_settings), toggled = showVoWifiRoamingMode) {
+            BooleanPropertyView(label = stringResource(R.string.show_vowifi_roaming_preference_in_settings), toggled = showVoWifiRoamingMode, minSdk = VERSION_CODES.R) {
                 showVoWifiRoamingMode = if (showVoWifiRoamingMode) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL, false)
                     false
@@ -306,7 +309,7 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.always_show_data_icon), toggled = alwaysDataRATIcon) {
+            BooleanPropertyView(label = stringResource(R.string.always_show_data_icon), toggled = alwaysDataRATIcon, minSdk = VERSION_CODES.R) {
                 alwaysDataRATIcon = if (alwaysDataRATIcon) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL, false)
                     false
@@ -315,7 +318,7 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.show_4g_for_lte_data_icon), toggled = show4GForLteEnabled) {
+            BooleanPropertyView(label = stringResource(R.string.show_4g_for_lte_data_icon), toggled = show4GForLteEnabled, minSdk = VERSION_CODES.R) {
                 show4GForLteEnabled = if (show4GForLteEnabled) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL, false)
                     false
@@ -324,7 +327,7 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.hide_enhanced_data_icon), toggled = hideEnhancedDataIconEnabled) {
+            BooleanPropertyView(label = stringResource(R.string.hide_enhanced_data_icon), toggled = hideEnhancedDataIconEnabled, minSdk = VERSION_CODES.R) {
                 hideEnhancedDataIconEnabled = if (hideEnhancedDataIconEnabled) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, false)
                     false
@@ -333,7 +336,7 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMInfo) {
+            BooleanPropertyView(label = stringResource(R.string.show_ims_status_in_sim_status), toggled = showIMSinSIMInfo, minSdk = VERSION_CODES.R) {
                 showIMSinSIMInfo = if (showIMSinSIMInfo) {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, false)
                     false
@@ -343,7 +346,7 @@ fun Config(navController: NavController, subId: Int) {
                 }
             }
 
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
                 HeaderText(text = stringResource(R.string.qstile))
                 ClickablePropertyView(
                     label = stringResource(R.string.add_status_tile),

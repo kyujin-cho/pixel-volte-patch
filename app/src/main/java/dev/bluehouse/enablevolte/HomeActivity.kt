@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -227,5 +228,18 @@ fun PixelIMSApp() {
         },
     ) { innerPadding ->
         NavHost(navController, startDestination = "home", Modifier.padding(innerPadding), builder = navBuilder)
+    }
+}
+
+@Preview
+@Composable
+fun PixelIMSAppPreview() {
+    EnableVoLTETheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+        ) {
+            PixelIMSApp()
+        }
     }
 }
