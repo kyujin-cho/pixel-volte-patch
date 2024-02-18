@@ -58,6 +58,7 @@ fun Config(navController: NavController, subId: Int) {
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
+    var alternativeVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
     var showVoWifiIcon by rememberSaveable { mutableStateOf(false) }
     var alwaysDataRATIcon by rememberSaveable { mutableStateOf(false) }
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
@@ -93,6 +94,7 @@ fun Config(navController: NavController, subId: Int) {
         showVoWifiMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiMode
         showVoWifiRoamingMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
+        alternativeVoWifiInNetworkName = (moder.alternativeVoWifiInNetworkName == 4)
         showVoWifiIcon = moder.showVoWifiIcon
         alwaysDataRATIcon = VERSION.SDK_INT >= VERSION_CODES.R && moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
@@ -283,6 +285,16 @@ fun Config(navController: NavController, subId: Int) {
                     false
                 } else {
                     moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 1)
+                    moder.restartIMSRegistration()
+                    true
+                }
+            }
+            BooleanPropertyView(label = stringResource(R.string.alternative_wifi_calling_to_network_name), toggled = alternativeVoWifiInNetworkName) {
+                alternativeVoWifiInNetworkName = if (alternativeVoWifiInNetworkName) {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 0)
+                    false
+                } else {
+                    moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 4)
                     moder.restartIMSRegistration()
                     true
                 }
