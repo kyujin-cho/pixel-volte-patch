@@ -55,12 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import dev.bluehouse.enablevolte.ClickablePropertyView
-import dev.bluehouse.enablevolte.FiniteLoadingDialog
-import dev.bluehouse.enablevolte.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
-import dev.bluehouse.enablevolte.ValueType
+import dev.bluehouse.enablevolte.components.ClickablePropertyView
+import dev.bluehouse.enablevolte.components.FiniteLoadingDialog
+import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
+import dev.bluehouse.enablevolte.components.ValueType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.reflect.Field

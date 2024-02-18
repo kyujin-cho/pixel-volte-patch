@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,16 +24,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
-import dev.bluehouse.enablevolte.BooleanPropertyView
 import dev.bluehouse.enablevolte.CarrierModer
-import dev.bluehouse.enablevolte.ClickablePropertyView
-import dev.bluehouse.enablevolte.HeaderText
-import dev.bluehouse.enablevolte.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
-import dev.bluehouse.enablevolte.UserAgentPropertyView
 import dev.bluehouse.enablevolte.checkShizukuPermission
+import dev.bluehouse.enablevolte.components.BooleanPropertyView
+import dev.bluehouse.enablevolte.components.ClickablePropertyView
+import dev.bluehouse.enablevolte.components.HeaderText
+import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
+import dev.bluehouse.enablevolte.components.RadioSelectPropertyView
+import dev.bluehouse.enablevolte.components.UserAgentPropertyView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,6 +46,7 @@ fun Config(navController: NavController, subId: Int) {
 
     val moder = SubscriptionModer(subId)
     val carrierModer = CarrierModer(LocalContext.current)
+    val carrierName = moder.carrierName
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val cannotFindKeyText = stringResource(R.string.cannot_find_key)
@@ -57,7 +60,7 @@ fun Config(navController: NavController, subId: Int) {
     var allowAddingAPNs by rememberSaveable { mutableStateOf(false) }
     var showVoWifiMode by rememberSaveable { mutableStateOf(false) }
     var showVoWifiRoamingMode by rememberSaveable { mutableStateOf(false) }
-    var showVoWifiInNetworkName by rememberSaveable { mutableStateOf(false) }
+    var wfcSpnFormatIndex by rememberSaveable { mutableIntStateOf(0) }
     var showVoWifiIcon by rememberSaveable { mutableStateOf(false) }
     var alwaysDataRATIcon by rememberSaveable { mutableStateOf(false) }
     var supportWfcWifiOnly by rememberSaveable { mutableStateOf(false) }
@@ -92,7 +95,7 @@ fun Config(navController: NavController, subId: Int) {
         allowAddingAPNs = moder.allowAddingAPNs
         showVoWifiMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiMode
         showVoWifiRoamingMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiRoamingMode
-        showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
+        wfcSpnFormatIndex = moder.wfcSpnFormatIndex
         showVoWifiIcon = moder.showVoWifiIcon
         alwaysDataRATIcon = VERSION.SDK_INT >= VERSION_CODES.R && moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
@@ -277,15 +280,27 @@ fun Config(navController: NavController, subId: Int) {
                     true
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.add_wifi_calling_to_network_name), toggled = showVoWifiInNetworkName) {
-                showVoWifiInNetworkName = if (showVoWifiInNetworkName) {
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 0)
-                    false
-                } else {
-                    moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, 1)
-                    moder.restartIMSRegistration()
-                    true
-                }
+            RadioSelectPropertyView(
+                label = stringResource(R.string.wi_fi_calling_carrier_name_format),
+                values = arrayOf(
+                    "%s".format(carrierName),
+                    "%s Wi-Fi Calling".format(carrierName),
+                    "WLAN Call",
+                    "%s WLAN Call".format(carrierName),
+                    "%s Wi-Fi".format(carrierName),
+                    "WiFi Calling | %s".format(carrierName),
+                    "%s VoWifi".format(carrierName),
+                    "Wi-Fi Calling",
+                    "Wi-Fi",
+                    "WiFi Calling",
+                    "VoWifi",
+                    "%s WiFi Calling".format(carrierName),
+                    "WiFi Call",
+                ),
+                selectedIndex = wfcSpnFormatIndex,
+            ) {
+                moder.updateCarrierConfig(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT, it)
+                wfcSpnFormatIndex = it
             }
             BooleanPropertyView(label = stringResource(R.string.show_wifi_only_for_vowifi), toggled = supportWfcWifiOnly) {
                 supportWfcWifiOnly = if (supportWfcWifiOnly) {
