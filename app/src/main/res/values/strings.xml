@@ -20,6 +20,7 @@
     <string name="show_vowifi_roaming_preference_in_settings">Show VoWiFi Roaming preference in Settings</string>
     <string name="show_ims_status_in_sim_status">Show IMS Status in SIM Info</string>
     <string name="add_wifi_calling_to_network_name">Add \"Wi-Fi Calling\" to Network Name</string>
+    <string name="alternative_wifi_calling_to_network_name">Add \"Wi-Fi\" to Network Name</string>
     <string name="show_wifi_only_for_vowifi">Show \"WiFi only\" mode for VoWiFi</string>
     <string name="enable_video_calling_vt">Enable Video Calling (VT)</string>
     <string name="allow_adding_apns">Allow adding APNs</string>
