@@ -179,7 +179,7 @@ fun Config(navController: NavController, subId: Int) {
                     }
                 }
             }
-            BooleanPropertyView(label = stringResource(R.string.enable_crosssim), toggled = crossSIMInNetworkName, minSdk = VERSION_CODES.TIRAMISU) {
+            BooleanPropertyView(label = stringResource(R.string.add_crosssim_to_network_name), toggled = crossSIMInNetworkName, minSdk = VERSION_CODES.TIRAMISU) {
                 if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
                     crossSIMInNetworkName = if (crossSIMInNetworkName) {
                         moder.updateCarrierConfig(CarrierConfigManager.KEY_CROSS_SIM_SPN_FORMAT_INT, 1)
