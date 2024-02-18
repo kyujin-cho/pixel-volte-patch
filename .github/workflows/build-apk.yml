@@ -74,7 +74,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
           BUILD_TYPE: ${{ inputs.build-type }}
-        if: ${{ secrets.key-password != '' }}
+        if: ${{ env.KEY_PASSWORD != '' }}
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
