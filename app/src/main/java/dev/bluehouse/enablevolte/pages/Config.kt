@@ -94,7 +94,7 @@ fun Config(navController: NavController, subId: Int) {
         showVoWifiMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiMode
         showVoWifiRoamingMode = VERSION.SDK_INT >= VERSION_CODES.R && moder.showVoWifiRoamingMode
         showVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 1)
-        alternativeVoWifiInNetworkName = (moder.alternativeVoWifiInNetworkName == 4)
+        alternativeVoWifiInNetworkName = (moder.showVoWifiInNetworkName == 4)
         showVoWifiIcon = moder.showVoWifiIcon
         alwaysDataRATIcon = VERSION.SDK_INT >= VERSION_CODES.R && moder.alwaysDataRATIcon
         supportWfcWifiOnly = moder.supportWfcWifiOnly
