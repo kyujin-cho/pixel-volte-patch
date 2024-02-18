@@ -31,10 +31,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
       - name: Install required platform
-        run: sdkmanager "platforms;android-33" "build-tools;33.0.2"
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - name: Replace android.jar
         run: |
-          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar > /usr/local/lib/android/sdk/platforms/android-33/android.jar
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar > /usr/local/lib/android/sdk/platforms/android-34/android.jar
       - name: Build APK
         id: build_apk
         run: |
@@ -51,7 +51,7 @@ jobs:
           BUILD_TYPE: ${{ inputs.build-type }}
           RUN_ID: ${{ github.run_id }}
       - name: align APK with zipalign
-        run: $ANDROID_SDK_ROOT/build-tools/33.0.2/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
+        run: $ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
         env:
           BUILD_TYPE: ${{ inputs.build-type }}
           FILENAME: ${{ steps.build_apk.outputs.build_filename }}
@@ -60,7 +60,7 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.keystore }}
       - name: Sign APK
-        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/33.0.2/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
+        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
         env:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
