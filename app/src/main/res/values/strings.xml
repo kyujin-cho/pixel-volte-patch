@@ -14,6 +14,7 @@
     <string name="enable_volte">Enable VoLTE</string>
     <string name="enable_vonr">Enable VoNR</string>
     <string name="enable_crosssim">Enable Backup Calling</string>
+    <string name="add_crosssim_to_network_name">Add \"Backup Calling"\ to Network Name</string>
     <string name="enable_vowifi">Enable VoWiFi</string>
     <string name="enable_vowifi_while_roamed">Enable VoWiFi while roaming</string>
     <string name="show_vowifi_preference_in_settings">Show VoWiFi preference in Settings</string>
