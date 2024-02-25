@@ -209,12 +209,6 @@ fun EditPropertyDialog(
                 }
                 Row(modifier = Modifier.align(Alignment.End).padding(top = 16.dp)) {
                     TextButton(
-                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.padding(end = 8.dp),
-                        shape = ButtonDefaults.outlinedShape,
-                        onClick = { dismissDialog() },
-                    ) { Text(stringResource(R.string.dismiss)) }
-                    TextButton(
                         border = if (selectedValueType != null) BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary) else null,
                         shape = ButtonDefaults.outlinedShape,
                         colors = ButtonDefaults.filledTonalButtonColors(
@@ -227,6 +221,12 @@ fun EditPropertyDialog(
                         },
                         enabled = selectedValueType != null,
                     ) { Text(stringResource(R.string.confirm)) }
+                    TextButton(
+                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.padding(end = 8.dp),
+                        shape = ButtonDefaults.outlinedShape,
+                        onClick = { dismissDialog() },
+                    ) { Text(stringResource(R.string.dismiss)) }
                 }
             }
         }
