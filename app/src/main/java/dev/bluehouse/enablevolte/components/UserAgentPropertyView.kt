@@ -121,8 +121,8 @@ fun UserAgentUpdateDialog(
 
 @Composable
 fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> Unit)? = null) {
-    val labels = arrayOf(stringResource(R.string.default_), stringResource(R.string.lgu))
-    val values = arrayOf(stringResource(R.string.ua_default), stringResource(R.string.ua_lgu))
+    val labels = arrayOf(stringResource(R.string.default_), stringResource(R.string.lgu), stringResource(R.string.pixel_6_pro))
+    val values = arrayOf(stringResource(R.string.ua_default), stringResource(R.string.ua_lgu), stringResource(R.string.p6p))
 
     var typedText by rememberSaveable { mutableStateOf("") }
     var openTextEditDialog by rememberSaveable { mutableStateOf(false) }
@@ -160,8 +160,8 @@ fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> 
 @Preview
 @Composable
 fun UserAgentUpdateDialogPreview() {
-    val labels = arrayOf(stringResource(R.string.default_), stringResource(R.string.lgu))
-    val values = arrayOf(stringResource(R.string.ua_default), stringResource(R.string.ua_lgu))
+    val labels = arrayOf(stringResource(R.string.default_), stringResource(R.string.lgu), stringResource(R.string.pixel_6_pro))
+    val values = arrayOf(stringResource(R.string.ua_default), stringResource(R.string.ua_lgu), stringResource(R.string.p6p))
 
     var typedText by rememberSaveable { mutableStateOf("") }
     var openTextEditDialog by rememberSaveable { mutableStateOf(false) }
