@@ -39,8 +39,12 @@ fun ClickablePropertyView(
     if (onClick != null) {
         Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
-                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
+                if (value != "") {
+                    Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+                    Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
+                } else {
+                    Text(text = label, modifier = Modifier.padding(top = 2.dp, bottom = 2.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
+                }
             }
         }
     } else {
