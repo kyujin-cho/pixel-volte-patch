@@ -2,5 +2,5 @@
 <resources>
     <string name="ua_default">#MANUFACTURE#_#MODEL#_Android #AV#_#BUILD#</string>
     <string name="ua_lgu">TTA-VoLTE/3.0 GB17L/T1B1.220819.007 Device-Type/Android_Phone OMD</string>
-    <string name="ua_p6p">Google_Pixel 6 Pro_Android 14_UQ1A.240205.002</string>
+    <string name="ua_p6p">Google_Pixel 6 Pro_Android 14_AP1A.240305.019.A1</string>
 </resources>
