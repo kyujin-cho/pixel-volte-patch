@@ -311,8 +311,11 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL)
 
-    val showVoWifiInNetworkName: Int
+    val wfcSpnFormatIndex: Int
         get() = this.getIntValue(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT)
+
+    val carrierName: String
+        get() = this.loadCachedInterface { telephony }.getSubscriptionCarrierName(this.subscriptionId)
 
     val showVoWifiIcon: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL)

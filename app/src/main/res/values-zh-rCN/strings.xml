@@ -19,7 +19,7 @@
     <string name="enable_vowifi_while_roamed">漫游时启用 VoWiFi</string>
     <string name="show_vowifi_preference_in_settings">显示 VoWiFi 选项</string>
     <string name="show_vowifi_roaming_preference_in_settings">显示 VoWiFi漫游 选项</string>
-    <string name="add_wifi_calling_to_network_name">网络名中添加 \"Wi-Fi Calling\"</string>
+    <string name="wi_fi_calling_carrier_name_format">Wi-Fi Calling network name format</string>
     <string name="show_ims_status_in_sim_status">在 SIM 信息中显示 IMS 状态</string>
     <string name="allow_adding_apns">允许添加接入点APN</string>
     <string name="show_wifi_only_for_vowifi">VoWiFi 显示 \"仅WiFi\" 模式</string>
