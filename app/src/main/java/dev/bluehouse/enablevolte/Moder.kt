@@ -3,6 +3,7 @@ package dev.bluehouse.enablevolte
 import android.content.Context
 import android.content.res.Resources
 import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.os.IInterface
 import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
@@ -31,7 +32,7 @@ open class Moder {
         } ?: run {
             val i = interfaceLoader()
             InterfaceCache.cache[T::class.java.name] = i
-            return i as T
+            return i
         }
     }
 
@@ -178,7 +179,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getString(key)
     }
 
@@ -190,7 +191,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getBoolean(key)
     }
 
@@ -202,7 +203,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getInt(key)
     }
 
@@ -214,7 +215,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getLong(key)
     }
 
@@ -226,7 +227,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getBooleanArray(key)
     }
 
@@ -238,7 +239,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getIntArray(key)
     }
 
@@ -250,7 +251,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.getStringArray(key)
     }
     fun getValue(key: String): Any? {
@@ -261,7 +262,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         }
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
 
-        val config = iCclInstance.getConfigForSubId(subscriptionId, iCclInstance.defaultCarrierServicePackageName)
+        val config = iCclInstance.getConfigForSubIdWithFeature(subscriptionId, iCclInstance.defaultCarrierServicePackageName, "")
         return config.get(key)
     }
 
@@ -272,6 +273,7 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL)
 
     val isVoNrConfigEnabled: Boolean
+        @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_VONR_ENABLED_BOOL) &&
             this.getBooleanValue(CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL)
 
@@ -292,24 +294,31 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL)
 
     val showIMSinSIMInfo: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL)
 
     val allowAddingAPNs: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_ALLOW_ADDING_APNS_BOOL)
 
     val showVoWifiMode: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL)
 
     val showVoWifiRoamingMode: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL)
 
-    val showVoWifiInNetworkName: Int
+    val wfcSpnFormatIndex: Int
         get() = this.getIntValue(CarrierConfigManager.KEY_WFC_SPN_FORMAT_IDX_INT)
+
+    val carrierName: String
+        get() = this.loadCachedInterface { telephony }.getSubscriptionCarrierName(this.subscriptionId)
 
     val showVoWifiIcon: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_WIFI_CALLING_ICON_IN_STATUS_BAR_BOOL)
 
     val alwaysDataRATIcon: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_ALWAYS_SHOW_DATA_RAT_ICON_BOOL)
 
     val supportWfcWifiOnly: Boolean
@@ -325,9 +334,11 @@ class SubscriptionModer(val subscriptionId: Int) : Moder() {
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SUPPORT_SS_OVER_CDMA_BOOL)
 
     val isShow4GForLteEnabled: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL)
 
     val isHideEnhancedDataIconEnabled: Boolean
+        @RequiresApi(VERSION_CODES.R)
         get() = this.getBooleanValue(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL)
 
     val is4GPlusEnabled: Boolean

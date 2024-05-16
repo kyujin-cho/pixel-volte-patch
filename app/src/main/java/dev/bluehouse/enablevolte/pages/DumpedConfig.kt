@@ -24,9 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
-import dev.bluehouse.enablevolte.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
