@@ -1,0 +1,58 @@
+name: default
+
+on:
+  push:
+    paths:
+    - 'app/src/**'
+  pull_request:
+    paths: 
+    - 'app/src/**'
+permissions:
+  pull-requests: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.2/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+      - name: run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml
+        continue-on-error: true
+      - uses: yutailang0119/action-ktlint@v3
+        with:
+          report-path: build/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
+        continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
+  build-debug-apk:
+    needs: [lint]
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/build-apk.yml
+    with:
+      build-type: debug
+    secrets:
+      key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
+      keystore: ${{ secrets.DEBUG_KEYSTORE_B64 }}
+      key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
+  post-apk-link:
+    needs: [build-debug-apk]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post link to action run detail page
+        uses: actions/github-script@v6
+        with:
+          script: |
+            try {
+              const commentResult = await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `APK build completed! Visit [action run detail page](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) to download the APK to test this pull request.`
+              })
+              console.log(commentResult)
+            } catch (e) {
+              console.log("Comment not posted:")
+              console.log(e)
+            }
