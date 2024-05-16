@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -44,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import dev.bluehouse.enablevolte.components.OnLifecycleEvent
 import dev.bluehouse.enablevolte.pages.Config
 import dev.bluehouse.enablevolte.pages.DumpedConfig
 import dev.bluehouse.enablevolte.pages.Editor
@@ -227,5 +229,18 @@ fun PixelIMSApp() {
         },
     ) { innerPadding ->
         NavHost(navController, startDestination = "home", Modifier.padding(innerPadding), builder = navBuilder)
+    }
+}
+
+@Preview
+@Composable
+fun PixelIMSAppPreview() {
+    EnableVoLTETheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+        ) {
+            PixelIMSApp()
+        }
     }
 }

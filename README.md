@@ -72,7 +72,7 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 6. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 
 ### APK 직접 빌드
-[패치된 android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-33/android.jar) 파일을 다운로드 후에 `$ANDROID_PATH/sdk/platforms/android-33` 경로 아래에 붙여넣습니다. 이후에 앱을 빌드 및 시작합니다.
+[패치된 android.jar](https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar) 파일을 다운로드 후에 `$ANDROID_PATH/sdk/platforms/android-34` 경로 아래에 붙여넣습니다. 이후에 앱을 빌드 및 시작합니다.
 
 ## 자주 묻는 질문
 
