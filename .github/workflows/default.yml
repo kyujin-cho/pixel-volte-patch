@@ -40,13 +40,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const commentResult = await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `APK build completed! Visit [action run detail page](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) to download the APK to test this pull request.`
-            })
-            console.log(commentResult)
+            try {
+              const commentResult = await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `APK build completed! Visit [action run detail page](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) to download the APK to test this pull request.`
+              })
+              console.log(commentResult)
+            } catch (e) {
+              console.log("Comment not posted:")
+              console.log(e)
+            }
   build-release-apk:
     needs: [lint]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
