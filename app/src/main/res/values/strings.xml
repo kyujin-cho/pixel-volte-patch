@@ -50,6 +50,7 @@
     <string name="version">Version</string>
     <string name="update_value">Update Value</string>
     <string name="lgu">LG U+</string>
+    <string name="pixel_6_pro">Pixel 6 Pro</string>
     <string name="default_">Default</string>
     <string name="manually_set_config">Manually set config</string>
     <string name="cannot_find_key">Cannot find specified key</string>
