@@ -152,6 +152,8 @@ fun <T>List<T>.removeAt(index: Int): List<T> {
 
 @Composable
 fun SingleValueEditor(data: DataRow, onValueChange: (String) -> Unit) {
+    var inputValue by remember { mutableStateOf(data.value ?: "") }
+
     when (val typedValue = data.typedValue) {
         is Boolean -> Row(
             modifier = Modifier.selectableGroup().fillMaxWidth(),
@@ -168,24 +170,39 @@ fun SingleValueEditor(data: DataRow, onValueChange: (String) -> Unit) {
             )
             Text(stringResource(R.string.false_))
         }
-        is Int -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        is Long -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        is String, null -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth(),
-        )
+        is Int -> {
+            TextField(
+                value = inputValue,
+                onValueChange = { newInput ->
+                    inputValue = newInput
+                    newInput.toIntOrNull()?.let { onValueChange(it.toString()) }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        is Long -> {
+            TextField(
+                value = inputValue,
+                onValueChange = { newInput ->
+                    inputValue = newInput
+                    newInput.toLongOrNull()?.let { onValueChange(it.toString()) }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        is String, null -> {
+            TextField(
+                value = inputValue,
+                onValueChange = { newInput ->
+                    inputValue = newInput
+                    onValueChange(newInput)
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         else -> {}
     }
 }
