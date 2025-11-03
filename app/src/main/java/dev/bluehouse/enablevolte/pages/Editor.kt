@@ -114,8 +114,8 @@ data class DataRow(
 
     override val typedValue: Any? get() =
         when (fieldType) {
-            ValueType.Int, ValueType.IntArray -> this.value?.toInt()
-            ValueType.Long, ValueType.LongArray -> this.value?.toLong()
+            ValueType.Int, ValueType.IntArray -> this.value?.toIntOrNull()
+            ValueType.Long, ValueType.LongArray -> this.value?.toLongOrNull()
             ValueType.Bool, ValueType.BoolArray -> this.value?.let { it == "true" } ?: { null }
             ValueType.String, ValueType.StringArray -> this.value
             else -> null
@@ -141,8 +141,8 @@ data class ListDataRow(
     override val typedValue: List<Any?> get() =
         this.value.map {
             when (fieldType) {
-                ValueType.Int -> it?.toInt()
-                ValueType.Long -> it?.toLong()
+                ValueType.Int -> it?.toIntOrNull()
+                ValueType.Long -> it?.toLongOrNull()
                 ValueType.Bool -> it?.let { it == "true" } ?: { null }
                 ValueType.String -> it
                 else -> null
