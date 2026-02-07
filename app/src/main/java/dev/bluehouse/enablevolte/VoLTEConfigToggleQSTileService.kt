@@ -26,7 +26,7 @@ open class VoLTEConfigToggleQSTileService(
         val carrierModer = CarrierModer(this.applicationContext)
 
         try {
-            if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
+            if (checkShizukuPermission(0) == ShizukuStatus.GRANTED) {
                 carrierModer.subscriptions
                 val sub =
                     carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
