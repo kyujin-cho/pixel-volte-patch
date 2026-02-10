@@ -441,6 +441,9 @@ class SubscriptionModer(
             }
         }
 
+    val isCrossSIMInNetwork: Int
+        get() = this.getIntValue(CarrierConfigManager.KEY_CROSS_SIM_SPN_FORMAT_INT)
+
     val isVoWifiConfigEnabled: Boolean
         get() = this.getBooleanValue(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL)
 

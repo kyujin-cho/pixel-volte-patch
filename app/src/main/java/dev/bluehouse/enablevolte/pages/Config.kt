@@ -58,6 +58,7 @@ fun Config(
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var crossSIMEnabled by rememberSaveable { mutableStateOf(false) }
+    var crossSIMInNetworkName by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
     var showIMSinSIMInfo by rememberSaveable { mutableStateOf(false) }
@@ -95,6 +96,7 @@ fun Config(
         voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE && moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
+        crossSIMInNetworkName = (moder.showCrossSIMInNetworkName == 2)
         voWiFiEnabled = moder.isVoWifiConfigEnabled
         voWiFiEnabledWhileRoaming = moder.isVoWifiWhileRoamingEnabled
         showIMSinSIMInfo = VERSION.SDK_INT >= VERSION_CODES.R && moder.showIMSinSIMInfo
@@ -197,6 +199,18 @@ fun Config(
                             moder.restartIMSRegistration()
                             true
                         }
+                }
+            }
+            BooleanPropertyView(label = stringResource(R.string.add_crosssim_to_network_name), toggled = crossSIMInNetworkName, minSdk = VERSION_CODES.TIRAMISU) {
+                if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                    crossSIMInNetworkName = if (crossSIMInNetworkName) {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CROSS_SIM_SPN_FORMAT_INT, 1)
+                        false
+                    } else {
+                        moder.updateCarrierConfig(CarrierConfigManager.KEY_CROSS_SIM_SPN_FORMAT_INT, 2)
+                        moder.restartIMSRegistration()
+                        true
+                    }
                 }
             }
             BooleanPropertyView(label = stringResource(R.string.enable_vowifi), toggled = voWiFiEnabled) {
