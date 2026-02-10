@@ -1,5 +1,6 @@
 package dev.bluehouse.enablevolte
 
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -12,6 +13,9 @@ class SIM2IMSStatusQSTileService : IMSStatusQSTileService(1)
 open class IMSStatusQSTileService(
     private val simSlotIndex: Int,
 ) : TileService() {
+    @Suppress("ktlint:standard:property-naming")
+    private val TAG = "SIM${simSlotIndex}IMSStatusQSTileService"
+
     init {
         HiddenApiBypass.addHiddenApiExemptions("L")
         HiddenApiBypass.addHiddenApiExemptions("I")
@@ -31,10 +35,11 @@ open class IMSStatusQSTileService(
         }
         return null
     }
+
     private val imsActivated: Boolean? get() {
         /*
-         * true: VoLTE enabled
-         * false: VoLTE disabled
+         * true: IMS registered
+         * false: IMS unregistered
          * null: cannot determine status (Shizuku not running or permission not granted, SIM slot not active, ...)
          */
         val moder = this.moder ?: return null
@@ -52,33 +57,35 @@ open class IMSStatusQSTileService(
         }
     }
 
-    private fun refreshStatus() {
-        val imsActivated = this.imsActivated
+    private fun refreshStatus(imsActivated: Boolean?) {
         qsTile.state =
             when (imsActivated) {
                 true -> Tile.STATE_ACTIVE
                 false -> Tile.STATE_INACTIVE
                 null -> Tile.STATE_UNAVAILABLE
             }
-        qsTile.subtitle =
-            getString(
-                when (imsActivated) {
-                    true -> R.string.registered
-                    false -> R.string.unregistered
-                    null -> R.string.unknown
-                },
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            qsTile.subtitle =
+                getString(
+                    when (imsActivated) {
+                        true -> R.string.registered
+                        false -> R.string.unregistered
+                        null -> R.string.unknown
+                    },
+                )
+        }
         qsTile.updateTile()
     }
 
     override fun onStartListening() {
         super.onStartListening()
-        this.refreshStatus()
+        this.refreshStatus(this.imsActivated)
     }
 
+    // Called when the user taps on your tile in an active or inactive state.
     override fun onClick() {
         super.onClick()
         moder?.restartIMSRegistration()
-        this.refreshStatus()
+        this.refreshStatus(this.imsActivated)
     }
 }

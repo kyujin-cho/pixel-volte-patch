@@ -27,7 +27,6 @@ open class VoLTEConfigToggleQSTileService(
 
         try {
             if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
-                carrierModer.subscriptions
                 val sub =
                     carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
                         ?: return null
@@ -59,10 +58,9 @@ open class VoLTEConfigToggleQSTileService(
         }
     }
 
-    override fun onStartListening() {
-        super.onStartListening()
+    private fun refreshStatus(volteEnabled: Boolean?) {
         qsTile.state =
-            when (this.volteEnabled) {
+            when (volteEnabled) {
                 true -> Tile.STATE_ACTIVE
                 false -> Tile.STATE_INACTIVE
                 null -> Tile.STATE_UNAVAILABLE
@@ -70,7 +68,7 @@ open class VoLTEConfigToggleQSTileService(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             qsTile.subtitle =
                 getString(
-                    when (this.volteEnabled) {
+                    when (volteEnabled) {
                         true -> R.string.enabled
                         false -> R.string.disabled
                         null -> R.string.unknown
@@ -80,16 +78,17 @@ open class VoLTEConfigToggleQSTileService(
         qsTile.updateTile()
     }
 
+    override fun onStartListening() {
+        super.onStartListening()
+        this.refreshStatus(this.volteEnabled)
+    }
+
     private fun toggleVoLTEStatus() {
         val moder = this.moder ?: return
         val volteEnabled = this.volteEnabled ?: return
         moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, !volteEnabled)
         moder.restartIMSRegistration()
-        qsTile.state = if (volteEnabled) Tile.STATE_INACTIVE else Tile.STATE_ACTIVE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            qsTile.subtitle = getString(if (volteEnabled) R.string.disabled else R.string.enabled)
-        }
-        qsTile.updateTile()
+        this.refreshStatus(!volteEnabled)
     }
 
     // Called when the user taps on your tile in an active or inactive state.
