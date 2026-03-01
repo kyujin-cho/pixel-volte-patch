@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.IActivityManager
 import android.app.Instrumentation
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.system.Os
 import android.telephony.CarrierConfigManager
@@ -26,15 +27,8 @@ class BrokerInstrumentation : Instrumentation() {
             val configurationManager = this.context.getSystemService(CarrierConfigManager::class.java)
             val overrideValues = toPersistableBundle(arguments)
 
-            try {
-                configurationManager.overrideConfig(subId, overrideValues, true)
-            } catch (e: SecurityException) {
-                if (e.message?.contains("overrideConfig with persistent=true only can be invoked by system app") == true) {
-                    configurationManager.overrideConfig(subId, overrideValues, false)
-                } else {
-                    throw e
-                }
-            }
+            val persistent = Build.VERSION.SDK_INT < 36
+            configurationManager.overrideConfig(subId, overrideValues, persistent)
         } finally {
             Log.i(TAG, "applyConfig done")
             am.stopDelegateShellPermissionIdentity()
@@ -49,15 +43,8 @@ class BrokerInstrumentation : Instrumentation() {
         try {
             val configurationManager = this.context.getSystemService(CarrierConfigManager::class.java)
 
-            try {
-                configurationManager.overrideConfig(subId, null, true)
-            } catch (e: SecurityException) {
-                if (e.message?.contains("overrideConfig with persistent=true only can be invoked by system app") == true) {
-                    configurationManager.overrideConfig(subId, null, false)
-                } else {
-                    throw e
-                }
-            }
+            val persistent = Build.VERSION.SDK_INT < 36
+            configurationManager.overrideConfig(subId, null, persistent)
         } finally {
             Log.i(TAG, "clearConfig done")
             am.stopDelegateShellPermissionIdentity()
