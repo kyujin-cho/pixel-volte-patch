@@ -12,6 +12,7 @@
   <string name="running_latest_version">最新のバージョンで実行中</string>
   <string name="shizuku_service_running">Shizuku サービスが実行中</string>
   <string name="shizuku_permission_granted">Shizuku の権限を許可</string>
+  <string name="persist_config">再起動後も設定を維持する (クラッシュ時はオフにしてください)</string>
   <string name="enable_volte">VoLTE を有効化</string>
   <string name="enable_vonr">VoNR を有効化</string>
   <string name="enable_crosssim">バックアップ通話を有効化</string>

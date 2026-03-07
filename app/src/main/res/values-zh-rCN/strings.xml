@@ -12,6 +12,7 @@
     <string name="running_latest_version">正在运行最新版本</string>
     <string name="shizuku_service_running">Shizuku 服务正在运行</string>
     <string name="shizuku_permission_granted">Shizuku 已授权</string>
+    <string name="persist_config">重启后保留设置 (若遇到崩溃请关闭)</string>
     <string name="enable_volte">启用 VoLTE</string>
     <string name="enable_vonr">启用 VoNR</string>
     <string name="enable_crosssim">启用备用通话</string>
