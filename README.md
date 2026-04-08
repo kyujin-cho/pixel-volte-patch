@@ -46,20 +46,20 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 [Shizuku](https://shizuku.rikka.app/) 는 ADB 혹은 루트 권한으로 동작하는 서비스를 통하여 일반적인 경로로는 접근할 수 없는 시스템 API를 호출할 수 있도록 하는 서비스입니다. 이 방법을 사용하기 위해서는 시스템 API의 호출이 필요합니다.
 
-1. VoLTE 패치를 적용할 Pixel 단말기의 Google Play Store 를 실행한 후 [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) 애플리케이션을 설치합니다.
-   ![image-1](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png)
-2. 설치한 Shizuku 애플리케이션을 실행합니다.
-   ![image-2](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png)
+1. VoLTE 패치를 적용할 Pixel 단말기의 Google Play Store 를 실행한 후 [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) 애플리케이션을 설치합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png">
+2. 설치한 Shizuku 애플리케이션을 실행합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png">
 3. Pixel 단말기와 컴퓨터 간 ADB 통신이 가능한 상태로 준비 후 Pixel 단말기와 컴퓨터를 연결합니다. ADB 통신이 가능한 상태로 준비하는 방법에 대해서는 [Shizuku 문서 (영문)](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer) 을 참고하세요.
 4. 다음 명령어를 입력하여 Shizuku 서비스를 실행합니다.
-   `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`
-   ![image-3](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png)
+   `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`  
+   <img width="974" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png">
 5. Shizuku 애플리케이션의 화면에 다음과 같은 문구가 표시되는 것을 확인합니다.
-   ```
+   ```  
    Shizuku is running
    Version <임의의 버전 번호>, adb
    ```
-   ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png">
 6. 이제 케이블을 연결한 채로 다음 단계로 이동합니다.
 
 ### Pixel IMS 애플리케이션 설치
@@ -68,10 +68,10 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
    - [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.3.2/dev.bluehouse.enablevolte.apk) 에서 APK 다운로드 후 설치
    - [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte) 에서 다운로드
 2. 설치한 애플리케이션을 실행합니다.
-3. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.
-   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
-4. VoLTE를 활성화 할 SIM의 페이지로 이동합니다. "Enable VoLTE" 토글을 활성화합니다.
-   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
+3. 다음과 같이 Shizuku 권한을 묻는 팝업 창이 뜰 경우 "모든 경우에 허용" 을 선택합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png">
+4. VoLTE를 활성화 할 SIM의 페이지로 이동합니다. "Enable VoLTE" 토글을 활성화합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png">
 6. VoLTE가 작동하는 것을 확인할 때 까지 5분 간격으로 2-3회 Pixel 기기를 다시 시작합니다.
 
 ### APK 직접 빌드
@@ -92,22 +92,22 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 ### VoLTE가 적용되었는지 확인 가능한 방법이 있나요?
 
-애플리케이션의 Home 페이지에서 `IMS Status` 항목이 `Registered`이면 VoLTE가 성공적으로 활성화된 것입니다.
-![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png)
+애플리케이션의 Home 페이지에서 `IMS Status` 항목이 `Registered`이면 VoLTE가 성공적으로 활성화된 것입니다.  
+<img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png">
 
 더욱 상세한 정보가 필요할 경우, Pixel 단말기에 내장 제공되는 통신 정보 확인용 내부 애플리케이션을 이용할 수 있습니다.
 
-1. Pixel 단말기의 기본 전화 애플리케이션을 실행합니다.
-   ![image-8](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035705.png)
-2. 키패드에서 `*#*#4636#*#*` 키를 차례대로 입력합니다.
-   ![image-9](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035701.png)
-3. "Phone information" 항목을 터치합니다.
-   ![image-10](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035650.png)
-4. 우측 상단의 삼점 메뉴를 터치 후 "IMS Service Status" 항목을 터치합니다.
-   ![image-11](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-030524.png)
+1. Pixel 단말기의 기본 전화 애플리케이션을 실행합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035705.png">
+2. 키패드에서 `*#*#4636#*#*` 키를 차례대로 입력합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035701.png">
+3. "Phone information" 항목을 터치합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035650.png">
+4. 우측 상단의 삼점 메뉴를 터치 후 "IMS Service Status" 항목을 터치합니다.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-030524.png">
 5. 다음과 같은 문구가 표시된다면 VoLTE가 활성화 된 것입니다.  
-   `IMS Registration: Registered`
-   ![image-12](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035645.png)
+   `IMS Registration: Registered`  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035645.png">
 
 ### 해당 패치는 재부팅 시마다 다시 실행하여야 하나요?
 

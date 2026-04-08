@@ -49,23 +49,23 @@ only if installing Shizuku using ADB
 
 [Shizuku](https://shizuku.rikka.app/) makes possible to call internal Android API without root permission by creating a proxy service with ADB user.
 
-1. Install [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) at the Pixel device you're trying to patch.
-   ![image-1](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png)
-2. Open installed applciation.
-   ![image-2](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png)
+1. Install [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) at the Pixel device you're trying to patch.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035249.png">
+2. Open installed applciation.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035312.png">
 
 ### Starting Shizuku without PC (Wi-Fi connection required)
 
-1. Follow the [official guide to start Shizuku using Wifi debugging](https://shizuku.rikka.app/guide/setup/#start-via-wireless-debugging) without needing any external PC, after that you should see something like "Shizuku is running" at your Pixel phone.
-   ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
+1. Follow the [official guide to start Shizuku using Wifi debugging](https://shizuku.rikka.app/guide/setup/#start-via-wireless-debugging) without needing any external PC, after that you should see something like "Shizuku is running" at your Pixel phone.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png">
 2. Now continue to next section.
 
 ### Starting Shizuku with PC
 
 1. Connect your Pixel phone with PC by following [this description](https://shizuku.rikka.app/guide/setup/#start-by-connecting-to-a-computer).
-2. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see something like "Shizuku is running" at your Pixel phone.
-   ![image-3](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png)
-   ![image-4](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png)
+2. Start shizuku service by executing `adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh`. You should see something like "Shizuku is running" at your Pixel phone.  
+   <img width="974" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot%202023-02-06%20at%203.54.00%20AM.png">
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035351.png">
 3. Now continue to next section.
 
 ### Install Pixel IMS application
@@ -73,10 +73,10 @@ only if installing Shizuku using ADB
    - Via [Play Store](https://play.google.com/store/apps/details?id=dev.bluehouse.enablevolte)
    - From [Github Releases](https://github.com/kyujin-cho/pixel-volte-patch/releases/download/1.3.1/dev.bluehouse.enablevolte.apk), by downloading APK file
 2. Start installed application.
-3. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.
-   ![image-5](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png)
-4. Toggle "Enable VoLTE" to enable VoLTE.
-   ![image-6](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png)
+3. Tap "Allow all the time" when seeing prompt asking for Shizuku permission.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-235239.png">
+4. Toggle "Enable VoLTE" to enable VoLTE.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234343.png">
 5. Restart your Pixel phone a couple of times until you can see VoLTE is working.
 
 ### Build application from source
@@ -95,21 +95,21 @@ AYOR. Tested and checked working only with LG U+.
 
 ### How do I know if VoLTE is enabled or not?
 
-`Registered` IMS Status at Home page means VoLTE is activated.
-![image-7](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png)
+`Registered` IMS Status at Home page means VoLTE is activated.  
+<img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230208-234340.png">
 
 For more information, you can make use of Pixel's internal application. To open it:
 
-1. Open vanilla Dialer app from your Pixel phone.
-   ![image-8](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035705.png)
-2. Dial `*#*#4636#*#*`.
-   ![image-9](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035701.png)
-3. Tap "Phone information" menu.
-   ![image-10](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035650.png)
-4. Tap triple-dot icon at the upper right screen then select "IMS Service Status" menu.
-   ![image-11](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-030524.png)
-5. You should see `IMS Registration: Registered` if everything's done well.
-   ![image-12](https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035645.png)
+1. Open vanilla Dialer app from your Pixel phone.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035705.png">
+2. Dial `*#*#4636#*#*`.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035701.png">
+3. Tap "Phone information" menu.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035650.png">
+4. Tap triple-dot icon at the upper right screen then select "IMS Service Status" menu.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-030524.png">
+5. You should see `IMS Registration: Registered` if everything's done well.  
+   <img width="360" src="https://github.com/kyujin-cho/pixel-volte-patch/raw/main/assets/Screenshot_20230206-035645.png">
 
 ### Do I have to do this every time I reboot the phone?
 
