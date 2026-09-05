@@ -87,6 +87,27 @@ fun getValueTypeFromFieldName(key: String): ValueType {
     }
 }
 
+fun ValueType.elementType(): ValueType =
+    when (this) {
+        ValueType.IntArray -> ValueType.Int
+        ValueType.LongArray -> ValueType.Long
+        ValueType.BoolArray -> ValueType.Bool
+        ValueType.StringArray -> ValueType.String
+        else -> this
+    }
+
+fun parseTypedValue(
+    fieldType: ValueType,
+    value: String?,
+): Any? =
+    when (fieldType) {
+        ValueType.Int, ValueType.IntArray -> value?.toIntOrNull()
+        ValueType.Long, ValueType.LongArray -> value?.toLongOrNull()
+        ValueType.Bool, ValueType.BoolArray -> value?.let { it == "true" }
+        ValueType.String, ValueType.StringArray -> value
+        else -> null
+    }
+
 abstract class BaseDataRow(
     open val field: Field,
     open val rawValue: Any?,
@@ -112,14 +133,7 @@ data class DataRow(
 
     override fun toString(): String = this.value ?: "(null)"
 
-    override val typedValue: Any? get() =
-        when (fieldType) {
-            ValueType.Int, ValueType.IntArray -> this.value?.toInt()
-            ValueType.Long, ValueType.LongArray -> this.value?.toLong()
-            ValueType.Bool, ValueType.BoolArray -> this.value?.let { it == "true" } ?: { null }
-            ValueType.String, ValueType.StringArray -> this.value
-            else -> null
-        }
+    override val typedValue: Any? get() = parseTypedValue(fieldType, this.value)
 }
 
 data class ListDataRow(
@@ -138,16 +152,7 @@ data class ListDataRow(
             ValueType.StringArray -> ValueType.String
             else -> ValueType.Unknown
         }
-    override val typedValue: List<Any?> get() =
-        this.value.map {
-            when (fieldType) {
-                ValueType.Int -> it?.toInt()
-                ValueType.Long -> it?.toLong()
-                ValueType.Bool -> it?.let { it == "true" } ?: { null }
-                ValueType.String -> it
-                else -> null
-            }
-        }
+    override val typedValue: List<Any?> get() = this.value.map { parseTypedValue(fieldType, it) }
 }
 
 fun <T> List<T>.replaceAt(
@@ -165,8 +170,9 @@ fun SingleValueEditor(
     data: DataRow,
     onValueChange: (String) -> Unit,
 ) {
-    when (val typedValue = data.typedValue) {
-        is Boolean ->
+    when (data.fieldType.elementType()) {
+        ValueType.Bool -> {
+            val typedValue = data.typedValue == true
             Row(
                 modifier = Modifier.selectableGroup().fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -182,21 +188,16 @@ fun SingleValueEditor(
                 )
                 Text(stringResource(R.string.false_))
             }
-        is Int ->
+        }
+        ValueType.Int, ValueType.Long ->
             TextField(
                 value = data.value ?: "",
                 onValueChange = { onValueChange(it) },
+                isError = data.typedValue == null,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
-        is Long ->
-            TextField(
-                value = data.value ?: "",
-                onValueChange = { onValueChange(it) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        is String, null ->
+        ValueType.String ->
             TextField(
                 value = data.value ?: "",
                 onValueChange = { onValueChange(it) },
@@ -249,7 +250,7 @@ fun MultiValueEditor(
                         IconButton(onClick = {
                             val newItems = items.removeAt(index)
                             data = data.copy(rawValue = newItems)
-                            onUpdate(items)
+                            onUpdate(newItems)
                         }) { Icon(imageVector = Icons.Filled.Delete, contentDescription = "") }
                     }
                 }
@@ -482,20 +483,23 @@ fun Editor(subId: Int) {
         if (data.rawValue == null) return
         when (data) {
             is DataRow -> {
+                val typedValue = data.typedValue ?: return
                 when (data.fieldType) {
-                    ValueType.Int -> moder.updateCarrierConfig(data.key, data.typedValue as Int)
-                    ValueType.Long -> moder.updateCarrierConfig(data.key, data.typedValue as Long)
-                    ValueType.Bool -> moder.updateCarrierConfig(data.key, data.typedValue as Boolean)
-                    ValueType.String -> moder.updateCarrierConfig(data.key, data.typedValue as String)
+                    ValueType.Int -> moder.updateCarrierConfig(data.key, typedValue as Int)
+                    ValueType.Long -> moder.updateCarrierConfig(data.key, typedValue as Long)
+                    ValueType.Bool -> moder.updateCarrierConfig(data.key, typedValue as Boolean)
+                    ValueType.String -> moder.updateCarrierConfig(data.key, typedValue as String)
                     else -> {}
                 }
             }
             is ListDataRow -> {
+                val typedValues = data.typedValue
+                if (typedValues.any { it == null }) return
                 when (data.fieldType) {
-                    ValueType.Int -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Int>).toIntArray())
-                    ValueType.Long -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Long>).toLongArray())
-                    ValueType.Bool -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Boolean>).toBooleanArray())
-                    ValueType.String -> moder.updateCarrierConfig(data.key, (data.typedValue as List<String>).toTypedArray())
+                    ValueType.Int -> moder.updateCarrierConfig(data.key, typedValues.map { it as Int }.toIntArray())
+                    ValueType.Long -> moder.updateCarrierConfig(data.key, typedValues.map { it as Long }.toLongArray())
+                    ValueType.Bool -> moder.updateCarrierConfig(data.key, typedValues.map { it as Boolean }.toBooleanArray())
+                    ValueType.String -> moder.updateCarrierConfig(data.key, typedValues.map { it as String }.toTypedArray())
                     else -> {}
                 }
             }
