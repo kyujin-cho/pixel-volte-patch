@@ -67,6 +67,10 @@ import kotlinx.coroutines.withContext
 import java.lang.reflect.Field
 
 fun getValueTypeFromFieldName(key: String): ValueType {
+    // This Boolean CarrierConfig constant does not use the usual type suffix.
+    if (key == "KEY_IGNORE_DATA_ENABLED_CHANGED_FOR_VIDEO_CALLS") {
+        return ValueType.Bool
+    }
     val split = key.split("_")
     return when (split.last()) {
         "BOOL", "BOOLEAN" -> ValueType.Bool
