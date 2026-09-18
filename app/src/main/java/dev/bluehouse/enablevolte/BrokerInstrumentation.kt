@@ -37,7 +37,11 @@ class BrokerInstrumentation : Instrumentation() {
             }
         } finally {
             Log.i(TAG, "applyConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            try {
+                am.stopDelegateShellPermissionIdentity()
+            } catch (e: Exception) {
+                Log.w(TAG, "stopDelegateShellPermissionIdentity failed", e)
+            }
         }
     }
 
@@ -60,7 +64,11 @@ class BrokerInstrumentation : Instrumentation() {
             }
         } finally {
             Log.i(TAG, "clearConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            try {
+                am.stopDelegateShellPermissionIdentity()
+            } catch (e: Exception) {
+                Log.w(TAG, "stopDelegateShellPermissionIdentity failed", e)
+            }
         }
     }
 
