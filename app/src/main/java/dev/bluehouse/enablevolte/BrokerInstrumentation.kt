@@ -164,6 +164,7 @@ class BrokerInstrumentation : Instrumentation() {
         super.onCreate(arguments)
 
         if (arguments == null) {
+            finish(0, Bundle())
             return
         }
 
