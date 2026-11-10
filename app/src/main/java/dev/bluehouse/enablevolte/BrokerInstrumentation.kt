@@ -21,8 +21,10 @@ class BrokerInstrumentation : Instrumentation() {
     ) {
         Log.i(TAG, "applyConfig")
         val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE)))
-        am.startDelegateShellPermissionIdentity(Os.getuid(), null)
-        try {
+        val uid = Os.getuid()
+        val identity = ShellPermissionIdentity(am, IActivityManager::class.java, uid)
+        am.startDelegateShellPermissionIdentity(uid, null)
+        identity.use {
             val configurationManager = this.context.getSystemService(CarrierConfigManager::class.java)
             val overrideValues = toPersistableBundle(arguments)
 
@@ -35,18 +37,18 @@ class BrokerInstrumentation : Instrumentation() {
                     throw e
                 }
             }
-        } finally {
-            Log.i(TAG, "applyConfig done")
-            am.stopDelegateShellPermissionIdentity()
         }
+        Log.i(TAG, "applyConfig done")
     }
 
     @SuppressLint("MissingPermission")
     private fun clearConfig(subId: Int) {
         Log.i(TAG, "clearConfig")
         val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE)))
-        am.startDelegateShellPermissionIdentity(Os.getuid(), null)
-        try {
+        val uid = Os.getuid()
+        val identity = ShellPermissionIdentity(am, IActivityManager::class.java, uid)
+        am.startDelegateShellPermissionIdentity(uid, null)
+        identity.use {
             val configurationManager = this.context.getSystemService(CarrierConfigManager::class.java)
 
             try {
@@ -58,10 +60,8 @@ class BrokerInstrumentation : Instrumentation() {
                     throw e
                 }
             }
-        } finally {
-            Log.i(TAG, "clearConfig done")
-            am.stopDelegateShellPermissionIdentity()
         }
+        Log.i(TAG, "clearConfig done")
     }
 
     override fun onCreate(arguments: Bundle?) {
