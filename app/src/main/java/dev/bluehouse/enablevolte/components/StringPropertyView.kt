@@ -21,7 +21,12 @@ import androidx.compose.ui.unit.dp
 import dev.bluehouse.enablevolte.R
 
 @Composable
-fun StringPropertyUpdateDialog(typedText: String, onUpdate: (String) -> Unit, onConfirm: () -> Unit, onClose: () -> Unit) {
+fun StringPropertyUpdateDialog(
+    typedText: String,
+    onUpdate: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onClose: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = {
             // Dismiss the dialog when the user clicks outside the dialog or on the back
@@ -43,9 +48,10 @@ fun StringPropertyUpdateDialog(typedText: String, onUpdate: (String) -> Unit, on
             TextButton(
                 border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary),
                 shape = ButtonDefaults.outlinedShape,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ),
+                colors =
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    ),
                 onClick = {
                     onConfirm()
                     onClose()
@@ -62,7 +68,11 @@ fun StringPropertyUpdateDialog(typedText: String, onUpdate: (String) -> Unit, on
 }
 
 @Composable
-fun StringPropertyView(label: String, value: String?, onUpdate: ((String) -> Unit)? = null) {
+fun StringPropertyView(
+    label: String,
+    value: String?,
+    onUpdate: ((String) -> Unit)? = null,
+) {
     var typedText by rememberSaveable { mutableStateOf("") }
     var openTextEditDialog by rememberSaveable { mutableStateOf(false) }
 

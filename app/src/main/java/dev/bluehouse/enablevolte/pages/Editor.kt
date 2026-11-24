@@ -47,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -86,7 +87,10 @@ fun getValueTypeFromFieldName(key: String): ValueType {
     }
 }
 
-abstract class BaseDataRow(open val field: Field, open val rawValue: Any?) {
+abstract class BaseDataRow(
+    open val field: Field,
+    open val rawValue: Any?,
+) {
     val key: String get() {
         return try {
             this.field.get(this.field) as String
@@ -100,12 +104,14 @@ abstract class BaseDataRow(open val field: Field, open val rawValue: Any?) {
     abstract val typedValue: Any?
 }
 
-data class DataRow(override val field: Field, override val rawValue: Any?) : BaseDataRow(field, rawValue) {
+data class DataRow(
+    override val field: Field,
+    override val rawValue: Any?,
+) : BaseDataRow(field, rawValue) {
     val value: String? get() = this.rawValue?.toString()
 
-    override fun toString(): String {
-        return this.value ?: "(null)"
-    }
+    override fun toString(): String = this.value ?: "(null)"
+
     override val typedValue: Any? get() =
         when (fieldType) {
             ValueType.Int, ValueType.IntArray -> this.value?.toInt()
@@ -116,82 +122,97 @@ data class DataRow(override val field: Field, override val rawValue: Any?) : Bas
         }
 }
 
-data class ListDataRow(override val field: Field, override val rawValue: List<Any?>) : BaseDataRow(field, rawValue) {
+data class ListDataRow(
+    override val field: Field,
+    override val rawValue: List<Any?>,
+) : BaseDataRow(field, rawValue) {
     val value: List<String?> get() = this.rawValue.map { it?.toString() }
 
-    override fun toString(): String {
-        return "[" + this.value.joinToString(",") + "]"
-    }
-    override val fieldType: ValueType get() = when (super.fieldType) {
-        ValueType.IntArray -> ValueType.Int
-        ValueType.LongArray -> ValueType.Long
-        ValueType.BoolArray -> ValueType.Bool
-        ValueType.StringArray -> ValueType.String
-        else -> ValueType.Unknown
-    }
-    override val typedValue: List<Any?> get() = this.value.map {
-        when (fieldType) {
-            ValueType.Int -> it?.toInt()
-            ValueType.Long -> it?.toLong()
-            ValueType.Bool -> it?.let { it == "true" } ?: { null }
-            ValueType.String -> it
-            else -> null
+    override fun toString(): String = "[" + this.value.joinToString(",") + "]"
+
+    override val fieldType: ValueType get() =
+        when (super.fieldType) {
+            ValueType.IntArray -> ValueType.Int
+            ValueType.LongArray -> ValueType.Long
+            ValueType.BoolArray -> ValueType.Bool
+            ValueType.StringArray -> ValueType.String
+            else -> ValueType.Unknown
         }
-    }
+    override val typedValue: List<Any?> get() =
+        this.value.map {
+            when (fieldType) {
+                ValueType.Int -> it?.toInt()
+                ValueType.Long -> it?.toLong()
+                ValueType.Bool -> it?.let { it == "true" } ?: { null }
+                ValueType.String -> it
+                else -> null
+            }
+        }
 }
 
-fun <T>List<T>.replaceAt(index: Int, newItem: T): List<T> {
-    return this.subList(0, index) + listOf(newItem) + this.subList(index + 1, this.size)
-}
-fun <T>List<T>.append(newItem: T): List<T> {
-    return this + listOf(newItem)
-}
-fun <T>List<T>.removeAt(index: Int): List<T> {
-    return this.subList(0, index) + this.subList(index + 1, this.size)
-}
+fun <T> List<T>.replaceAt(
+    index: Int,
+    newItem: T,
+): List<T> = this.subList(0, index) + listOf(newItem) + this.subList(index + 1, this.size)
 
+fun <T> List<T>.append(newItem: T): List<T> = this + listOf(newItem)
+
+fun <T> List<T>.removeAt(index: Int): List<T> = this.subList(0, index) + this.subList(index + 1, this.size)
+
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun SingleValueEditor(data: DataRow, onValueChange: (String) -> Unit) {
+fun SingleValueEditor(
+    data: DataRow,
+    onValueChange: (String) -> Unit,
+) {
     when (val typedValue = data.typedValue) {
-        is Boolean -> Row(
-            modifier = Modifier.selectableGroup().fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            RadioButton(
-                selected = typedValue,
-                onClick = { onValueChange("true") },
+        is Boolean ->
+            Row(
+                modifier = Modifier.selectableGroup().fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = typedValue,
+                    onClick = { onValueChange("true") },
+                )
+                Text(stringResource(R.string.true_))
+                RadioButton(
+                    selected = !typedValue,
+                    onClick = { onValueChange("false") },
+                )
+                Text(stringResource(R.string.false_))
+            }
+        is Int ->
+            TextField(
+                value = data.value ?: "",
+                onValueChange = { onValueChange(it) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
             )
-            Text(stringResource(R.string.true_))
-            RadioButton(
-                selected = !typedValue,
-                onClick = { onValueChange("false") },
+        is Long ->
+            TextField(
+                value = data.value ?: "",
+                onValueChange = { onValueChange(it) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
             )
-            Text(stringResource(R.string.false_))
-        }
-        is Int -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        is Long -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        is String, null -> TextField(
-            value = data.value ?: "",
-            onValueChange = { onValueChange(it) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth(),
-        )
+        is String, null ->
+            TextField(
+                value = data.value ?: "",
+                onValueChange = { onValueChange(it) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                modifier = Modifier.fillMaxWidth(),
+            )
         else -> {}
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun MultiValueEditor(_data: ListDataRow, onUpdate: (List<String?>) -> Unit) {
+fun MultiValueEditor(
+    _data: ListDataRow,
+    onUpdate: (List<String?>) -> Unit,
+) {
     val scrollState = rememberScrollState()
     var data by remember { mutableStateOf(_data) }
     var editIndex by remember { mutableIntStateOf(-1) }
@@ -218,7 +239,12 @@ fun MultiValueEditor(_data: ListDataRow, onUpdate: (List<String?>) -> Unit) {
                             editIndex = -1
                         }) { Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = "") }
                     } else {
-                        Text(it.toString(), fontSize = 18.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f, fill = true))
+                        Text(
+                            it.toString(),
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f, fill = true),
+                        )
                         IconButton(onClick = { editIndex = index }) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "") }
                         IconButton(onClick = {
                             val newItems = items.removeAt(index)
@@ -240,35 +266,46 @@ fun MultiValueEditor(_data: ListDataRow, onUpdate: (List<String?>) -> Unit) {
     }
 }
 
-data class Section(val name: String, val rows: List<BaseDataRow>)
+data class Section(
+    val name: String,
+    val rows: List<BaseDataRow>,
+)
 
-fun fieldToDataRow(moder: SubscriptionModer, field: Field): BaseDataRow {
+fun fieldToDataRow(
+    moder: SubscriptionModer,
+    field: Field,
+): BaseDataRow {
     try {
         val value = field.get(field) as String
         return when (getValueTypeFromFieldName(field.name)) {
             ValueType.Int -> DataRow(field, moder.getIntValue(value))
             ValueType.String -> DataRow(field, moder.getStringValue(value))
-            ValueType.Bool -> DataRow(
-                field,
-                moder.getBooleanValue(value),
-            )
+            ValueType.Bool ->
+                DataRow(
+                    field,
+                    moder.getBooleanValue(value),
+                )
             ValueType.Long -> DataRow(field, moder.getLongValue(value))
-            ValueType.IntArray -> ListDataRow(
-                field,
-                moder.getIntArrayValue(value).toList(),
-            )
-            ValueType.BoolArray -> ListDataRow(
-                field,
-                moder.getBooleanArrayValue(value).toList(),
-            )
-            ValueType.StringArray -> ListDataRow(
-                field,
-                moder.getStringArrayValue(value).toList(),
-            )
-            ValueType.LongArray -> ListDataRow(
-                field,
-                moder.getIntArrayValue(value).toList(),
-            )
+            ValueType.IntArray ->
+                ListDataRow(
+                    field,
+                    moder.getIntArrayValue(value).toList(),
+                )
+            ValueType.BoolArray ->
+                ListDataRow(
+                    field,
+                    moder.getBooleanArrayValue(value).toList(),
+                )
+            ValueType.StringArray ->
+                ListDataRow(
+                    field,
+                    moder.getStringArrayValue(value).toList(),
+                )
+            ValueType.LongArray ->
+                ListDataRow(
+                    field,
+                    moder.getIntArrayValue(value).toList(),
+                )
             ValueType.Unknown -> {
                 val anyVal = moder.getValue(value)
                 if (anyVal != null) {
@@ -283,9 +320,11 @@ fun fieldToDataRow(moder: SubscriptionModer, field: Field): BaseDataRow {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Editor(subId: Int) {
+    val context = LocalContext.current
     var sections by remember { mutableStateOf(listOf<Section>()) }
     var loading by rememberSaveable { mutableStateOf(true) }
     var saving by rememberSaveable { mutableStateOf(false) }
@@ -296,44 +335,58 @@ fun Editor(subId: Int) {
     var rowsToLoad by remember { mutableIntStateOf(1) }
     var searchKeyword by remember { mutableStateOf("") }
     var showFieldNameInsteadOfKey by remember { mutableStateOf(false) }
-    val filteredSections = remember(sections, searchKeyword) {
-        if (searchKeyword.isEmpty()) {
-            sections
-        } else {
-            sections.map {
-                Section(name = it.name, rows = it.rows.filter { row -> row.key.contains(searchKeyword) || row.fieldName.contains(searchKeyword) }.map { it })
+    val filteredSections =
+        remember(sections, searchKeyword) {
+            if (searchKeyword.isEmpty()) {
+                sections
+            } else {
+                sections.map { it ->
+                    Section(
+                        name = it.name,
+                        rows =
+                            it.rows
+                                .filter { row ->
+                                    row.key.contains(searchKeyword) ||
+                                        row.fieldName.contains(searchKeyword)
+                                }.map { ii -> ii },
+                    )
+                }
             }
         }
-    }
 
-    val moder = SubscriptionModer(subId)
+    val moder = SubscriptionModer(context, subId)
 
     LaunchedEffect(true) {
         withContext(Dispatchers.Default) {
-            val classes = listOf(
-                CarrierConfigManager::class.java,
-                *CarrierConfigManager::class.java.declaredClasses,
-            )
-            val fields = listOf(
-                CarrierConfigManager::class.java,
-                *CarrierConfigManager::class.java.declaredClasses,
-            ).map {
-                it.declaredFields.filter { field ->
-                    field.name != "KEY_PREFIX" && field.name.startsWith(
-                        "KEY_",
+            val classes =
+                listOf(
+                    CarrierConfigManager::class.java,
+                    *CarrierConfigManager::class.java.declaredClasses,
+                )
+            val fields =
+                listOf(
+                    CarrierConfigManager::class.java,
+                    *CarrierConfigManager::class.java.declaredClasses,
+                ).map {
+                    it.declaredFields.filter { field ->
+                        field.name != "KEY_PREFIX" &&
+                            field.name.startsWith(
+                                "KEY_",
+                            )
+                    }
+                }.flatten()
+            rowsToLoad = fields.size
+            sections =
+                classes.map { cls ->
+                    Section(
+                        name = cls.simpleName,
+                        rows =
+                            cls.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }.map {
+                                rowsLoaded += 1
+                                fieldToDataRow(moder, it)
+                            },
                     )
                 }
-            }.flatten()
-            rowsToLoad = fields.size
-            sections = classes.map { cls ->
-                Section(
-                    name = cls.simpleName,
-                    rows = cls.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }.map {
-                        rowsLoaded += 1
-                        fieldToDataRow(moder, it)
-                    },
-                )
-            }
             loading = false
         }
     }
@@ -349,46 +402,76 @@ fun Editor(subId: Int) {
 
     LazyColumn {
         stickyHeader {
-            Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 IconButton({ showFieldNameInsteadOfKey = !showFieldNameInsteadOfKey }) {
-                    if (showFieldNameInsteadOfKey) { Text("a") } else { Text("A") }
-                }
-                TextField(searchKeyword, modifier = Modifier.fillMaxWidth().weight(1f), label = { Text(stringResource(R.string.search)) }, onValueChange = { searchKeyword = it }, singleLine = true, trailingIcon = {
-                    if (searchKeyword.isNotEmpty()) {
-                        IconButton({ searchKeyword = "" }) {
-                            Icon(Icons.Filled.Clear, contentDescription = "Localized description")
-                        }
+                    if (showFieldNameInsteadOfKey) {
+                        Text("a")
+                    } else {
+                        Text("A")
                     }
-                })
+                }
+                TextField(
+                    searchKeyword,
+                    modifier =
+                        Modifier.fillMaxWidth().weight(
+                            1f,
+                        ),
+                    label = { Text(stringResource(R.string.search)) },
+                    onValueChange = {
+                        searchKeyword =
+                            it
+                    },
+                    singleLine = true,
+                    trailingIcon = {
+                        if (searchKeyword.isNotEmpty()) {
+                            IconButton({ searchKeyword = "" }) {
+                                Icon(Icons.Filled.Clear, contentDescription = "Localized description")
+                            }
+                        }
+                    },
+                )
             }
         }
         filteredSections.forEachIndexed { sectionIndex, section ->
             item {
                 Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .fillMaxWidth(),
                 ) {
                     Text(section.name, modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp))
                 }
             }
             items(section.rows) { row ->
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
                 ) {
                     ClickablePropertyView(
-                        label = if (showFieldNameInsteadOfKey) { row.fieldName } else { row.key },
+                        label =
+                            if (showFieldNameInsteadOfKey) {
+                                row.fieldName
+                            } else {
+                                row.key
+                            },
                         value = row.toString(),
                         labelFontFamily = FontFamily.Monospace,
-                        onClick = if (getValueTypeFromFieldName(row.fieldName) != ValueType.Unknown) { {
-                            sectionIndexOfEditingData = sectionIndex
-                            rowIndexOfEditingData = sections[sectionIndex].rows.indexOf(row)
-                            dataToEdit = row
-                        } } else {
-                            null
-                        },
+                        onClick =
+                            if (getValueTypeFromFieldName(row.fieldName) != ValueType.Unknown) {
+                                {
+                                    sectionIndexOfEditingData = sectionIndex
+                                    rowIndexOfEditingData = sections[sectionIndex].rows.indexOf(row)
+                                    dataToEdit = row
+                                }
+                            } else {
+                                null
+                            },
                     )
                 }
             }
@@ -430,24 +513,30 @@ fun Editor(subId: Int) {
             properties = DialogProperties(),
         ) {
             Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = AlertDialogDefaults.containerColor,
-                    contentColor = AlertDialogDefaults.textContentColor,
-                ),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = AlertDialogDefaults.containerColor,
+                        contentColor = AlertDialogDefaults.textContentColor,
+                    ),
             ) {
                 Column {
                     Row(modifier = Modifier.padding(16.dp)) {
                         Column {
                             Text(stringResource(R.string.edit_value), fontWeight = FontWeight.Medium, fontSize = 24.sp)
-                            Text("${data.key} (${data.fieldName})", modifier = Modifier.padding(top = 6.dp), fontFamily = FontFamily.Monospace)
+                            Text(
+                                "${data.key} (${data.fieldName})",
+                                modifier = Modifier.padding(top = 6.dp),
+                                fontFamily = FontFamily.Monospace,
+                            )
                         }
                     }
                     Row(modifier = Modifier.padding(8.dp).fillMaxWidth()) {
                         when (data) {
                             is DataRow -> SingleValueEditor(data) { dataToEdit = data.copy(rawValue = it) }
-                            is ListDataRow -> MultiValueEditor(data) {
-                                dataToEdit = data.copy(rawValue = it)
-                            }
+                            is ListDataRow ->
+                                MultiValueEditor(data) {
+                                    dataToEdit = data.copy(rawValue = it)
+                                }
                             else -> Box(modifier = Modifier.fillMaxWidth())
                         }
                     }
@@ -461,9 +550,10 @@ fun Editor(subId: Int) {
                         TextButton(
                             border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary),
                             shape = ButtonDefaults.outlinedShape,
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
+                            colors =
+                                ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                ),
                             onClick = {
                                 dataToEdit = null
                                 saving = true
