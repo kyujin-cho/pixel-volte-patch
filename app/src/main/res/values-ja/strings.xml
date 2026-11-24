@@ -80,4 +80,5 @@
   <string name="add_toggle_tile">VoLTE 設定の切り替えタイルを追加する</string>
   <string name="sim_config">SIM の設定</string>
   <string name="config_dump_viewer">設定ダンプビューワー</string>
+  <string name="sim_page_unavailable">この SIM は利用できません。Shizuku が実行中で権限が付与されていることを確認してから、ホーム画面で更新してください。</string>
 </resources>

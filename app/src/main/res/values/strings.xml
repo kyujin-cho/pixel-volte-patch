@@ -79,4 +79,5 @@
     <string name="add_toggle_tile">Add VoLTE config toggle tile</string>
     <string name="sim_config">SIM Config</string>
     <string name="config_dump_viewer">Config Dump Viewer</string>
+    <string name="sim_page_unavailable">This SIM is not available. Make sure Shizuku is running and permission is granted, then refresh on the home page.</string>
 </resources>

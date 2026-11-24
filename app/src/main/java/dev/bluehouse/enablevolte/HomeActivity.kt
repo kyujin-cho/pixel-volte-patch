@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -77,6 +79,7 @@ fun configDumpRoute(subId: Int) = CONFIG_DUMP_ROUTE.replace("{$SUB_ID_ARG}", sub
 fun configEditRoute(subId: Int) = CONFIG_EDIT_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
 
 private val topLevelRoutes = setOf(HOME_ROUTE, CONFIG_ROUTE)
+private val simRoutes = setOf(CONFIG_ROUTE, CONFIG_DUMP_ROUTE, CONFIG_EDIT_ROUTE)
 
 val NavBackStackEntry.subIdArg: Int get() = this.arguments?.getInt(SUB_ID_ARG, -1) ?: -1
 
@@ -111,23 +114,42 @@ fun PixelIMSApp() {
 
     var subscriptions by remember { mutableStateOf(listOf<SubscriptionInfo>()) }
 
+    // Whether `subscriptions` reflects a load done with Shizuku granted.
+    var subscriptionsLoaded by remember { mutableStateOf(false) }
+
+    // Initialised without side effects so that a SIM page restored by the navigation
+    // back stack is gated correctly on the very first frame.
+    var shizukuGranted by remember { mutableStateOf(isShizukuPermissionGranted()) }
+
+    fun onShizukuGranted() {
+        Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
+        shizukuGranted = true
+        subscriptions = carrierModer.subscriptions
+        subscriptionsLoaded = true
+    }
+
     fun loadApplication() {
-        val shizukuStatus = checkShizukuPermission(0)
         try {
+            val shizukuStatus = checkShizukuPermission(0)
             when (shizukuStatus) {
                 ShizukuStatus.GRANTED -> {
-                    Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
-                    subscriptions = carrierModer.subscriptions
+                    onShizukuGranted()
                 }
                 ShizukuStatus.NOT_GRANTED -> {
+                    shizukuGranted = false
+                    subscriptionsLoaded = false
                     Shizuku.addRequestPermissionResultListener { _, grantResult ->
                         if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                            Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
-                            subscriptions = carrierModer.subscriptions
+                            try {
+                                onShizukuGranted()
+                            } catch (_: IllegalStateException) {
+                            }
                         }
                     }
                 }
                 else -> {
+                    shizukuGranted = false
+                    subscriptionsLoaded = false
                     subscriptions = listOf()
                 }
             }
@@ -142,6 +164,40 @@ fun PixelIMSApp() {
     }
     val currentRoute = currentBackStackEntry?.destination?.route
     val isTopLevel = currentRoute != null && currentRoute in topLevelRoutes
+    val currentSubId = currentBackStackEntry?.subIdArg
+
+    fun isSimAvailable(subId: Int): Boolean =
+        subId >= 0 &&
+            shizukuGranted &&
+            (!subscriptionsLoaded || subscriptions.any { it.subscriptionId == subId })
+
+    // A restored back stack can point at a SIM that no longer exists (removed SIM, or an
+    // invalid id). Once the subscription list is known, leave such pages for home.
+    LaunchedEffect(subscriptionsLoaded, subscriptions, currentRoute, currentSubId) {
+        if (currentRoute in simRoutes && currentSubId != null) {
+            val invalid =
+                currentSubId < 0 ||
+                    (subscriptionsLoaded && subscriptions.none { it.subscriptionId == currentSubId })
+            if (invalid) {
+                navController.popBackStack(HOME_ROUTE, inclusive = false)
+            }
+        }
+    }
+
+    @Composable
+    fun SimPage(
+        subId: Int,
+        content: @Composable () -> Unit,
+    ) {
+        if (isSimAvailable(subId)) {
+            content()
+        } else {
+            Text(
+                stringResource(R.string.sim_page_unavailable),
+                modifier = Modifier.padding(16.dp),
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -182,7 +238,6 @@ fun PixelIMSApp() {
         bottomBar = {
             if (isTopLevel) {
                 NavigationBar {
-                    val currentSubId = currentBackStackEntry?.subIdArg
                     val items =
                         arrayListOf(
                             Screen(HOME_ROUTE, stringResource(R.string.home), Icons.Filled.Home),
@@ -206,18 +261,21 @@ fun PixelIMSApp() {
                     }
 
                     items.forEach { screen ->
+                        val selected =
+                            if (screen.subId == null) {
+                                currentRoute == screen.route
+                            } else {
+                                currentRoute == CONFIG_ROUTE && currentSubId == screen.subId
+                            }
                         NavigationBarItem(
                             icon = { Icon(screen.icon, contentDescription = null) },
                             label = {
                                 Text(screen.title)
                             },
-                            selected =
-                                if (screen.subId == null) {
-                                    currentRoute == screen.route
-                                } else {
-                                    currentRoute == CONFIG_ROUTE && currentSubId == screen.subId
-                                },
+                            selected = selected,
                             onClick = {
+                                // Reselecting the current tab would pop and recreate the page.
+                                if (selected) return@NavigationBarItem
                                 navController.navigate(screen.route) {
                                     // Pop up to the start destination of the graph to
                                     // avoid building up a large stack of destinations
@@ -244,13 +302,16 @@ fun PixelIMSApp() {
                 Home(navController)
             }
             composable(CONFIG_ROUTE, context.resources.getString(R.string.sim_config), subIdArguments) {
-                Config(navController, it.subIdArg)
+                val subId = it.subIdArg
+                SimPage(subId) { Config(navController, subId) }
             }
             composable(CONFIG_DUMP_ROUTE, context.resources.getString(R.string.config_dump_viewer), subIdArguments) {
-                DumpedConfig(context, it.subIdArg)
+                val subId = it.subIdArg
+                SimPage(subId) { DumpedConfig(context, subId) }
             }
             composable(CONFIG_EDIT_ROUTE, context.resources.getString(R.string.expert_mode), subIdArguments) {
-                Editor(it.subIdArg)
+                val subId = it.subIdArg
+                SimPage(subId) { Editor(subId) }
             }
         }
     }

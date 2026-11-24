@@ -38,6 +38,16 @@ fun checkShizukuPermission(code: Int): ShizukuStatus =
         ShizukuStatus.STOPPED
     }
 
+/**
+ * Side-effect free variant of [checkShizukuPermission]: never requests the permission.
+ */
+fun isShizukuPermissionGranted(): Boolean =
+    try {
+        Shizuku.pingBinder() && Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+    } catch (_: RuntimeException) {
+        false
+    }
+
 val SubscriptionInfo.uniqueName: String
     get() = "${this.displayName} (SIM ${this.simSlotIndex + 1})"
 

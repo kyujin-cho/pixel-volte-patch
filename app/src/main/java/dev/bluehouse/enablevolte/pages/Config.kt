@@ -52,7 +52,6 @@ fun Config(
 
     val moder = SubscriptionModer(LocalContext.current, subId)
     val carrierModer = CarrierModer(LocalContext.current)
-    val carrierName = moder.carrierName
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val cannotFindKeyText = stringResource(R.string.cannot_find_key)
@@ -79,7 +78,10 @@ fun Config(
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
     var loading by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
-    val simSlotIndex = moder.simSlotIndex
+
+    // Read through Shizuku, so only after the permission check in LaunchedEffect below.
+    var carrierName: String? by rememberSaveable { mutableStateOf(null) }
+    var simSlotIndex by rememberSaveable { mutableIntStateOf(-1) }
 
     fun loadFlags() {
         Log.d(TAG, "loadFlags")
@@ -112,6 +114,14 @@ fun Config(
 
     LaunchedEffect(true) {
         if (checkShizukuPermission(0) == ShizukuStatus.GRANTED) {
+            try {
+                withContext(Dispatchers.Default) {
+                    carrierName = moder.carrierName
+                    simSlotIndex = moder.simSlotIndex
+                }
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "Failed to read SIM info", e)
+            }
             if (carrierModer.deviceSupportsIMS && subId >= 0) {
                 configurable =
                     try {
@@ -484,7 +494,7 @@ fun Config(
                 }
             }
 
-            if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU && simSlotIndex >= 0) {
                 val statusBarManager: StatusBarManager = context.getSystemService(StatusBarManager::class.java)
 
                 HeaderText(text = stringResource(R.string.qstile))
