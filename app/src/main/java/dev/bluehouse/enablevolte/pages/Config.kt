@@ -121,7 +121,7 @@ fun Config(
 
     LaunchedEffect(true) {
         if (checkShizukuPermission(0) == ShizukuStatus.GRANTED) {
-            if (carrierModer.deviceSupportsIMS && subId >= 0) {
+            if (subId >= 0) {
                 configurable =
                     try {
                         withContext(Dispatchers.Default) {
