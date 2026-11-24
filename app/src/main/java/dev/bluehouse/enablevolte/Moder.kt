@@ -414,14 +414,7 @@ class SubscriptionModer(
 
     fun getLongArrayValue(key: String): LongArray {
         Log.d(TAG, "Resolving long array value of key $key")
-        val subscriptionId = this.subscriptionId
-        if (subscriptionId < 0) {
-            return longArrayOf()
-        }
-        val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
-
-        val config = this.getConfigForSubId(iCclInstance, subscriptionId)
-        return config?.getLongArray(key) ?: LongArray(0)
+        return this.config?.getLongArray(key) ?: LongArray(0)
     }
 
     fun getStringArrayValue(key: String): Array<String> {
