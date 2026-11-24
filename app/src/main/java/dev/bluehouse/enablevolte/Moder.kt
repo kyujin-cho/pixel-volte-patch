@@ -8,13 +8,16 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.os.Handler
 import android.os.IInterface
+import android.os.Looper
 import android.os.PersistableBundle
 import android.os.ServiceManager
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionInfo
 import android.telephony.TelephonyFrameworkInitializer
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.android.internal.telephony.ICarrierConfigLoader
 import com.android.internal.telephony.IPhoneSubInfo
@@ -209,7 +212,7 @@ class SubscriptionModer(
         try {
             iCclInstance.overrideConfig(subscriptionId, args, configPersistent)
         } catch (_: NoSuchMethodError) {
-            // SDK 29/30 only have the two-arg overload, which never persists; the broker cannot persist there either.
+            // SDK 29 only has the two-arg overload, which never persists (SDK 30+ has the three-arg one).
             val overrideConfigMethod =
                 iCclInstance.javaClass.getMethod(
                     "overrideConfig",
@@ -257,19 +260,40 @@ class SubscriptionModer(
         )
     }
 
+    private fun reportOverrideFailure(failure: Throwable) {
+        Log.e(TAG, "Failed to override carrier config", failure)
+        val message = context.getString(R.string.config_apply_failed, failure.message ?: failure.javaClass.simpleName)
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun overrideConfig(bundle: Bundle?) {
+        if (Build.VERSION.SDK_INT < VERSION_CODES.Q) {
+            // ICarrierConfigLoader has no overrideConfig before Android 10.
+            reportOverrideFailure(UnsupportedOperationException("overrideConfig is not available before Android 10"))
+            return
+        }
         val configPersistent = isConfigPersistent(context)
         val patchDate = securityPatchDate
-        if (patchDate == null || patchDate.isBefore(LocalDate.of(2025, 10, 1))) {
-            try {
-                return this.overrideConfigDirectly(bundle, configPersistent)
-            } catch (e: SecurityException) {
-                Log.w(TAG, "Direct overrideConfig was rejected, falling back to the broker", e)
-            } catch (e: NoSuchMethodError) {
-                Log.w(TAG, "Direct overrideConfig is unavailable, falling back to the broker", e)
-            } catch (e: NoSuchMethodException) {
-                Log.w(TAG, "Direct overrideConfig is unavailable, falling back to the broker", e)
+        // The broker relies on INSTR_FLAG_NO_RESTART (API 31+); before that, startInstrumentation force-stops the app.
+        val canUseBroker = Build.VERSION.SDK_INT >= VERSION_CODES.S
+        if (!canUseBroker || patchDate == null || patchDate.isBefore(LocalDate.of(2025, 10, 1))) {
+            val failure: Throwable =
+                try {
+                    return this.overrideConfigDirectly(bundle, configPersistent)
+                } catch (e: SecurityException) {
+                    e
+                } catch (e: NoSuchMethodError) {
+                    e
+                } catch (e: NoSuchMethodException) {
+                    e
+                }
+            if (!canUseBroker) {
+                reportOverrideFailure(failure)
+                return
             }
+            Log.w(TAG, "Direct overrideConfig failed, falling back to the broker", failure)
         }
         this.overrideConfigUsingBroker(bundle, configPersistent)
     }

@@ -6,8 +6,6 @@ import android.app.IActivityManager
 import android.app.Instrumentation
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.PersistableBundle
 import android.system.Os
 import android.telephony.CarrierConfigManager
@@ -80,6 +78,7 @@ class BrokerInstrumentation : Instrumentation() {
         super.onCreate(arguments)
 
         if (arguments == null) {
+            finish(Activity.RESULT_CANCELED, Bundle())
             return
         }
 
@@ -120,16 +119,10 @@ class BrokerInstrumentation : Instrumentation() {
     }
 
     private fun reportFailure(failure: Throwable) {
-        // The broker runs in the app's own process, so surface the error to the user here;
-        // the caller only schedules the instrumentation and cannot observe the outcome.
+        // The broker runs on the app's main thread without a restart (API 31+ only), so surface
+        // the error to the user here; the caller only schedules the instrumentation and cannot observe the outcome.
         val appContext = this.targetContext
         val message = appContext.getString(R.string.config_apply_failed, failure.message ?: failure.javaClass.simpleName)
-        val show = { Toast.makeText(appContext, message, Toast.LENGTH_LONG).show() }
-        // Enqueue before finish() when already on the main thread, so the toast survives a process restart.
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            show()
-        } else {
-            Handler(Looper.getMainLooper()).post(show)
-        }
+        Toast.makeText(appContext, message, Toast.LENGTH_LONG).show()
     }
 }
