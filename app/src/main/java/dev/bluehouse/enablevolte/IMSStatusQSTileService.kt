@@ -6,11 +6,12 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 import java.lang.IllegalStateException
 
 class SIM1IMSStatusQSTileService : IMSStatusQSTileService(0)
+
 class SIM2IMSStatusQSTileService : IMSStatusQSTileService(1)
 
-open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService() {
-    private val TAG = "SIM${simSlotIndex}IMSStatusQSTileService"
-
+open class IMSStatusQSTileService(
+    private val simSlotIndex: Int,
+) : TileService() {
     init {
         HiddenApiBypass.addHiddenApiExemptions("L")
         HiddenApiBypass.addHiddenApiExemptions("I")
@@ -21,11 +22,13 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
 
         try {
             if (checkShizukuPermission(0) == ShizukuStatus.GRANTED && carrierModer.deviceSupportsIMS) {
-                val sub = carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
-                    ?: return null
-                return SubscriptionModer(sub.subscriptionId)
+                val sub =
+                    carrierModer.getActiveSubscriptionInfoForSimSlotIndex(this.simSlotIndex)
+                        ?: return null
+                return SubscriptionModer(this.applicationContext, sub.subscriptionId)
             }
-        } catch (_: IllegalStateException) {}
+        } catch (_: IllegalStateException) {
+        }
         return null
     }
     private val imsActivated: Boolean? get() {
@@ -37,7 +40,8 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
         val moder = this.moder ?: return null
         try {
             return moder.isIMSRegistered
-        } catch (_: IllegalStateException) {}
+        } catch (_: IllegalStateException) {
+        }
         return null
     }
 
@@ -50,18 +54,20 @@ open class IMSStatusQSTileService(private val simSlotIndex: Int) : TileService()
 
     private fun refreshStatus() {
         val imsActivated = this.imsActivated
-        qsTile.state = when (imsActivated) {
-            true -> Tile.STATE_ACTIVE
-            false -> Tile.STATE_INACTIVE
-            null -> Tile.STATE_UNAVAILABLE
-        }
-        qsTile.subtitle = getString(
+        qsTile.state =
             when (imsActivated) {
-                true -> R.string.registered
-                false -> R.string.unregistered
-                null -> R.string.unknown
-            },
-        )
+                true -> Tile.STATE_ACTIVE
+                false -> Tile.STATE_INACTIVE
+                null -> Tile.STATE_UNAVAILABLE
+            }
+        qsTile.subtitle =
+            getString(
+                when (imsActivated) {
+                    true -> R.string.registered
+                    false -> R.string.unregistered
+                    null -> R.string.unknown
+                },
+            )
         qsTile.updateTile()
     }
 

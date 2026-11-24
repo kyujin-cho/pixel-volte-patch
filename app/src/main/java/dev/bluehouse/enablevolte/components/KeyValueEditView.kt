@@ -53,7 +53,9 @@ enum class ValueType {
     Unknown,
 }
 
-data class ArrayValueType<T : ValueType>(val v: T)
+data class ArrayValueType<T : ValueType>(
+    val v: T,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,13 +81,18 @@ fun EditPropertyDialog(
         properties = DialogProperties(),
     ) {
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = AlertDialogDefaults.containerColor,
-                contentColor = AlertDialogDefaults.textContentColor,
-            ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = AlertDialogDefaults.containerColor,
+                    contentColor = AlertDialogDefaults.textContentColor,
+                ),
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text(stringResource(R.string.update_value), modifier = Modifier.padding(bottom = 16.dp), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.update_value),
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 if (availableKeys != null) {
                     ExposedDropdownMenuBox(
                         expanded = keyDropdownExpanded,
@@ -96,12 +103,13 @@ fun EditPropertyDialog(
                     ) {
                         TextField(
                             // The `menuAnchor` modifier must be passed to the text field for correctness.
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth()
-                                .onFocusChanged {
-                                    onKeyDropdownExpandedChange(it.isFocused)
-                                },
+                            modifier =
+                                Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
+                                    .onFocusChanged {
+                                        onKeyDropdownExpandedChange(it.isFocused)
+                                    },
                             value = configKey,
                             onValueChange = { onConfigKeyChange(it) },
                             label = { Text(stringResource(R.string.property_name)) },
@@ -134,23 +142,31 @@ fun EditPropertyDialog(
                     )
                 }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    verticalAlignment = if (selectedValueType == ValueType.Bool) { Alignment.CenterVertically } else { Alignment.Top },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                    verticalAlignment =
+                        if (selectedValueType == ValueType.Bool) {
+                            Alignment.CenterVertically
+                        } else {
+                            Alignment.Top
+                        },
                 ) {
                     ExposedDropdownMenuBox(
                         expanded = valueTypeDropdownExpanded,
                         onExpandedChange = { onValueDropdownExpandedChange(it) },
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .weight(1.0F),
+                        modifier =
+                            Modifier
+                                .padding(bottom = 8.dp)
+                                .weight(1.0F),
                     ) {
                         TextField(
                             // The `menuAnchor` modifier must be passed to the text field for correctness.
-                            modifier = Modifier
-                                .menuAnchor()
-                                .weight(1.0F),
+                            modifier =
+                                Modifier
+                                    .menuAnchor()
+                                    .weight(1.0F),
                             readOnly = true,
                             value = selectedValueType?.name ?: "",
                             onValueChange = {},
@@ -182,26 +198,28 @@ fun EditPropertyDialog(
                     Box(modifier = Modifier.weight(0.05F))
                     Box(modifier = Modifier.weight(1.0F, fill = true)) {
                         when (selectedValueType) {
-                            ValueType.Bool -> Row(
-                                modifier = Modifier.selectableGroup(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                RadioButton(
-                                    selected = value == "true",
-                                    onClick = { onValueChange("true") },
+                            ValueType.Bool ->
+                                Row(
+                                    modifier = Modifier.selectableGroup(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    RadioButton(
+                                        selected = value == "true",
+                                        onClick = { onValueChange("true") },
+                                    )
+                                    Text(stringResource(R.string.true_))
+                                    RadioButton(
+                                        selected = value == "false",
+                                        onClick = { onValueChange("false") },
+                                    )
+                                    Text(stringResource(R.string.false_))
+                                }
+                            ValueType.Int, ValueType.Long ->
+                                TextField(
+                                    value = value,
+                                    onValueChange = { onValueChange(it) },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 )
-                                Text(stringResource(R.string.true_))
-                                RadioButton(
-                                    selected = value == "false",
-                                    onClick = { onValueChange("false") },
-                                )
-                                Text(stringResource(R.string.false_))
-                            }
-                            ValueType.Int, ValueType.Long -> TextField(
-                                value = value,
-                                onValueChange = { onValueChange(it) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                            )
                             is ValueType -> TextField(value = value, onValueChange = { onValueChange(it) })
                             else -> Box(modifier = Modifier.fillMaxWidth())
                         }
@@ -217,9 +235,10 @@ fun EditPropertyDialog(
                     TextButton(
                         border = if (selectedValueType != null) BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary) else null,
                         shape = ButtonDefaults.outlinedShape,
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
+                        colors =
+                            ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
                         onClick = {
                             if (onUpdate(configKey, selectedValueType, value)) {
                                 dismissDialog()
@@ -234,7 +253,11 @@ fun EditPropertyDialog(
 }
 
 @Composable
-fun KeyValueEditView(label: String, availableKeys: Iterable<String>? = null, onUpdate: ((String, ValueType?, String) -> Boolean)) {
+fun KeyValueEditView(
+    label: String,
+    availableKeys: Iterable<String>? = null,
+    onUpdate: ((String, ValueType?, String) -> Boolean),
+) {
     var configKey by rememberSaveable { mutableStateOf("") }
     var selectedValueType: ValueType? by rememberSaveable { mutableStateOf(null) }
     var value by rememberSaveable { mutableStateOf("") }
@@ -246,16 +269,17 @@ fun KeyValueEditView(label: String, availableKeys: Iterable<String>? = null, onU
     LaunchedEffect(configKey) {
         if (availableKeys != null) {
             withContext(Dispatchers.Default) {
-                filteringOptions = if (configKey.length >= 3) {
-                    val filteredItems = availableKeys.filter { it.contains(configKey, ignoreCase = false) }
-                    if (filteredItems.size > 7) {
-                        filteredItems.subList(0, 7)
+                filteringOptions =
+                    if (configKey.length >= 3) {
+                        val filteredItems = availableKeys.filter { it.contains(configKey, ignoreCase = false) }
+                        if (filteredItems.size > 7) {
+                            filteredItems.subList(0, 7)
+                        } else {
+                            filteredItems
+                        }
                     } else {
-                        filteredItems
+                        listOf()
                     }
-                } else {
-                    listOf()
-                }
             }
         }
     }

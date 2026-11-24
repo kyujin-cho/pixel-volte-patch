@@ -18,8 +18,8 @@ jobs:
     outputs:
       filename: ${{ steps.build_aab.outputs.upload_filename }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - uses: actions/checkout@v5
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -29,17 +29,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Set up OpenJDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: "17"
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
       - name: Install required platform
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
       - name: Replace android.jar
         run: |
-          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-34/android.jar > /usr/local/lib/android/sdk/platforms/android-34/android.jar
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar > /usr/local/lib/android/sdk/platforms/android-36/android.jar
       - name: Build App Bundle
         id: build_aab
         run: |
@@ -64,7 +64,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build_aab.outputs.upload_filename }}
           path: dev.bluehouse.enablevolte.aab

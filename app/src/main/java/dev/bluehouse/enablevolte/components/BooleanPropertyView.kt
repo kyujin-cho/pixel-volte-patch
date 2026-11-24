@@ -47,7 +47,16 @@ fun BooleanPropertyView(
     } else {
         Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
             Text(text = label, fontSize = 18.sp, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = if (toggled) { trueLabel } else { falseLabel }, fontSize = 14.sp, color = MaterialTheme.colorScheme.outline)
+            Text(
+                text =
+                    if (toggled) {
+                        trueLabel
+                    } else {
+                        falseLabel
+                    },
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.outline,
+            )
         }
     }
 }

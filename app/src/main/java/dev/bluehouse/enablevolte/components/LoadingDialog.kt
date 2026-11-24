@@ -32,16 +32,18 @@ fun InfiniteLoadingDialog() {
         properties = DialogProperties(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
             contentAlignment = Alignment.Center,
         ) {
             Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = AlertDialogDefaults.containerColor,
-                    contentColor = AlertDialogDefaults.textContentColor,
-                ),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = AlertDialogDefaults.containerColor,
+                        contentColor = AlertDialogDefaults.textContentColor,
+                    ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -57,32 +59,38 @@ fun InfiniteLoadingDialog() {
 }
 
 @Composable
-fun FiniteLoadingDialog(current: Int, total: Int) {
+fun FiniteLoadingDialog(
+    current: Int,
+    total: Int,
+) {
     Dialog(
         onDismissRequest = { },
         properties = DialogProperties(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(20.dp),
             contentAlignment = Alignment.Center,
         ) {
             Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = AlertDialogDefaults.containerColor,
-                    contentColor = AlertDialogDefaults.textContentColor,
-                ),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = AlertDialogDefaults.containerColor,
+                        contentColor = AlertDialogDefaults.textContentColor,
+                    ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(modifier = Modifier.padding(16.dp)) {
                     Column {
                         Text(stringResource(R.string.loading), fontWeight = FontWeight.Bold, fontSize = 24.sp)
                         LinearProgressIndicator(
-                            modifier = Modifier
-                                .semantics(mergeDescendants = true) {}
-                                .padding(top = 24.dp, bottom = 4.dp)
-                                .fillMaxWidth(),
+                            modifier =
+                                Modifier
+                                    .semantics(mergeDescendants = true) {}
+                                    .padding(top = 24.dp, bottom = 4.dp)
+                                    .fillMaxWidth(),
                             progress = current.toFloat() / total,
                         )
                         Text(stringResource(R.string.loaded, current, total))

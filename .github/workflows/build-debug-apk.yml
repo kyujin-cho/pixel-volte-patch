@@ -3,14 +3,29 @@ name: default
 on:
   push:
     paths:
-    - 'app/src/**'
+      - "app/src/**"
   pull_request:
-    paths: 
-    - 'app/src/**'
+    paths:
+      - "app/src/**"
 permissions:
   pull-requests: write
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: install ktlint
+        run: |
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.7.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+      - name: run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml
+        continue-on-error: true
+      - uses: yutailang0119/action-ktlint@v3
+        with:
+          report-path: build/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
+        continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
   build-debug-apk:
     needs: [lint]
     if: github.event_name == 'pull_request'
@@ -26,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post link to action run detail page
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             try {
