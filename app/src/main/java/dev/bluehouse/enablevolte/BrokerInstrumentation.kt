@@ -1,14 +1,18 @@
 package dev.bluehouse.enablevolte
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.IActivityManager
 import android.app.Instrumentation
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PersistableBundle
 import android.system.Os
 import android.telephony.CarrierConfigManager
 import android.util.Log
+import android.widget.Toast
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
 
@@ -83,16 +87,49 @@ class BrokerInstrumentation : Instrumentation() {
         val subId = arguments.getInt("moder_subId")
         val persistent = arguments.getBoolean("moder_persistent", true)
 
-        try {
-            if (clear) {
-                this.clearConfig(subId, persistent)
-            } else {
-                this.applyConfig(subId, arguments, persistent)
+        val failure: Throwable? =
+            try {
+                if (clear) {
+                    this.clearConfig(subId, persistent)
+                } else {
+                    this.applyConfig(subId, arguments, persistent)
+                }
+                null
+            } catch (e: Exception) {
+                e
+            } catch (e: LinkageError) {
+                // e.g. NoSuchMethodError when a hidden API is missing on this Android version
+                e
             }
-        } catch (e: Throwable) {
-            Log.e(TAG, "Failed to override carrier config", e)
+
+        val results = Bundle()
+        if (failure == null) {
+            finish(Activity.RESULT_OK, results)
+            return
+        }
+
+        Log.e(TAG, "Failed to override carrier config", failure)
+        results.putString("moder_error", failure.toString())
+        try {
+            reportFailure(failure)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to report the carrier config failure", e)
         } finally {
-            finish(0, Bundle())
+            finish(Activity.RESULT_CANCELED, results)
+        }
+    }
+
+    private fun reportFailure(failure: Throwable) {
+        // The broker runs in the app's own process, so surface the error to the user here;
+        // the caller only schedules the instrumentation and cannot observe the outcome.
+        val appContext = this.targetContext
+        val message = appContext.getString(R.string.config_apply_failed, failure.message ?: failure.javaClass.simpleName)
+        val show = { Toast.makeText(appContext, message, Toast.LENGTH_LONG).show() }
+        // Enqueue before finish() when already on the main thread, so the toast survives a process restart.
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            show()
+        } else {
+            Handler(Looper.getMainLooper()).post(show)
         }
     }
 }

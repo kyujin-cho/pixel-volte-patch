@@ -22,6 +22,7 @@ import com.android.internal.telephony.ISub
 import com.android.internal.telephony.ITelephony
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
+import java.lang.reflect.InvocationTargetException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -40,9 +41,12 @@ val securityPatchDate: LocalDate?
             null
         }
 
-// persistent=true crashes on Android 16 with the 2025-12 security patch or later
+// persistent=true crashes on Android 16 (or later) with the 2025-12 security patch or later
 private val defaultConfigPersistent: Boolean
-    get() = securityPatchDate?.isBefore(LocalDate.of(2025, 12, 1)) ?: true
+    get() {
+        val patchDate = securityPatchDate ?: return true
+        return !(Build.VERSION.SDK_INT >= 36 && !patchDate.isBefore(LocalDate.of(2025, 12, 1)))
+    }
 
 fun isConfigPersistent(context: Context): Boolean =
     context
@@ -204,16 +208,19 @@ class SubscriptionModer(
 
         try {
             iCclInstance.overrideConfig(subscriptionId, args, configPersistent)
-        } catch (e: NoSuchMethodError) {
+        } catch (_: NoSuchMethodError) {
+            // SDK 29/30 only have the two-arg overload, which never persists; the broker cannot persist there either.
             val overrideConfigMethod =
                 iCclInstance.javaClass.getMethod(
                     "overrideConfig",
                     Int::class.javaPrimitiveType,
                     PersistableBundle::class.java,
                 )
-            overrideConfigMethod.invoke(iCclInstance, subscriptionId, args)
-            if (configPersistent) {
-                throw e
+            try {
+                overrideConfigMethod.invoke(iCclInstance, subscriptionId, args)
+            } catch (e: InvocationTargetException) {
+                // Unwrap so callers see the real failure (e.g. SecurityException) instead of the reflection wrapper.
+                throw e.cause ?: e
             }
         }
     }
@@ -256,12 +263,12 @@ class SubscriptionModer(
         if (patchDate == null || patchDate.isBefore(LocalDate.of(2025, 10, 1))) {
             try {
                 return this.overrideConfigDirectly(bundle, configPersistent)
-            } catch (_: SecurityException) {
-            } catch (_: NoSuchMethodError) {
-            } catch (_: NoSuchMethodException) {
-            }
-            if (!configPersistent) {
-                return
+            } catch (e: SecurityException) {
+                Log.w(TAG, "Direct overrideConfig was rejected, falling back to the broker", e)
+            } catch (e: NoSuchMethodError) {
+                Log.w(TAG, "Direct overrideConfig is unavailable, falling back to the broker", e)
+            } catch (e: NoSuchMethodException) {
+                Log.w(TAG, "Direct overrideConfig is unavailable, falling back to the broker", e)
             }
         }
         this.overrideConfigUsingBroker(bundle, configPersistent)
