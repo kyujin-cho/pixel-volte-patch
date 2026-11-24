@@ -47,6 +47,9 @@ jobs:
           java-version: "17"
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The default also installs the removed 'tools' package, which makes sdkmanager exit 1.
+          packages: platform-tools
       - name: Install required platform
         run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
       - name: Replace android.jar
