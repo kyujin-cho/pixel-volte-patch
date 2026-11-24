@@ -48,14 +48,19 @@ fun UserAgentUpdateDialog(
 ) {
     BasicAlertDialog(onDismissRequest = onDismissRequest) {
         Surface(
-            modifier = Modifier
-                .wrapContentWidth()
-                .wrapContentHeight(),
+            modifier =
+                Modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight(),
             shape = RoundedCornerShape(10),
             color = MaterialTheme.colorScheme.surface,
         ) {
             Column(modifier = Modifier.padding(all = 16.dp)) {
-                Text(text = stringResource(R.string.update_value), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(bottom = 24.dp))
+                Text(
+                    text = stringResource(R.string.update_value),
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(bottom = 24.dp),
+                )
                 ExposedDropdownMenuBox(
                     expanded = dropdownExpanded,
                     onExpandedChange = onExpandedChange,
@@ -63,9 +68,10 @@ fun UserAgentUpdateDialog(
                 ) {
                     TextField(
                         // The `menuAnchor` modifier must be passed to the text field for correctness.
-                        modifier = Modifier
-                            .menuAnchor()
-                            .wrapContentWidth(),
+                        modifier =
+                            Modifier
+                                .menuAnchor()
+                                .wrapContentWidth(),
                         readOnly = true,
                         value = if (values[selectedIndex] == typedText) labels[selectedIndex] else "Custom",
                         onValueChange = {},
@@ -103,9 +109,10 @@ fun UserAgentUpdateDialog(
                     TextButton(
                         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary),
                         shape = ButtonDefaults.outlinedShape,
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
+                        colors =
+                            ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
                         onClick = {
                             onTextUpdate(typedText)
                             onDismissRequest()
@@ -120,7 +127,11 @@ fun UserAgentUpdateDialog(
 }
 
 @Composable
-fun UserAgentPropertyView(label: String, value: String?, onUpdate: ((String) -> Unit)? = null) {
+fun UserAgentPropertyView(
+    label: String,
+    value: String?,
+    onUpdate: ((String) -> Unit)? = null,
+) {
     val labels = arrayOf(stringResource(R.string.default_), stringResource(R.string.lgu))
     val values = arrayOf(stringResource(R.string.ua_default), stringResource(R.string.ua_lgu))
 

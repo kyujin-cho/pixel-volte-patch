@@ -3,10 +3,10 @@ name: default
 on:
   push:
     paths:
-    - 'app/src/**'
+      - "app/src/**"
   pull_request:
-    paths: 
-    - 'app/src/**'
+    paths:
+      - "app/src/**"
 permissions:
   pull-requests: write
 
@@ -14,10 +14,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: install ktlint
         run: |
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.48.2/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.7.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
       - name: run ktlint
         run: |
           ktlint --reporter=checkstyle,output=build/ktlint-report.xml
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Post link to action run detail page
-        uses: actions/github-script@v6
+        uses: actions/github-script@v8
         with:
           script: |
             try {
