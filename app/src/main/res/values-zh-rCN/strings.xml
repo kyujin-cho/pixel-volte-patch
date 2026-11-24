@@ -70,6 +70,8 @@
     <string name="loading">加载中…</string>
     <string name="loaded">已加载 %1$s 共 %2$s</string>
     <string name="edit_value">更改值</string>
+    <string name="invalid_number_value">请输入有效的 %1$s 值</string>
+    <string name="update_value_failed">更新值失败：%1$s</string>
     <string name="search">搜索</string>
     <string name="qstile">快捷设置图块</string>
     <string name="qs_status_tile_title">IMS 状态 (SIM %1$s)</string>

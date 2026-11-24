@@ -70,6 +70,8 @@
   <string name="loading">読み込み中…</string>
   <string name="loaded">「%2$s」の「%1$s」を読み込みました</string>
   <string name="edit_value">値を編集</string>
+  <string name="invalid_number_value">有効な %1$s 値を入力してください</string>
+  <string name="update_value_failed">値の更新に失敗しました: %1$s</string>
   <string name="search">検索</string>
   <string name="qstile">クイック設定タイル</string>
   <string name="qs_status_tile_title">IMS ステータス (SIM %1$s)</string>

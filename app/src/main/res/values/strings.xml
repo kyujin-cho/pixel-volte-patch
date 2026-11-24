@@ -69,6 +69,8 @@
     <string name="loading">Loading…</string>
     <string name="loaded">Loaded %1$s of %2$s</string>
     <string name="edit_value">Edit Value</string>
+    <string name="invalid_number_value">Enter a valid %1$s value</string>
+    <string name="update_value_failed">Failed to update value: %1$s</string>
     <string name="search">Search</string>
     <string name="qstile">Quick Settings Tile</string>
     <string name="qs_status_tile_title">IMS Status (SIM %1$s)</string>
