@@ -75,23 +75,12 @@ fun Config(
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
-    var configurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
-    var reversedConfigurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
     var loading by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
     val simSlotIndex = moder.simSlotIndex
 
     fun loadFlags() {
         Log.d(TAG, "loadFlags")
-        configurableItems =
-            listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses)
-                .map {
-                    it.declaredFields.filter { field ->
-                        field.name != "KEY_PREFIX" && field.name.startsWith("KEY_")
-                    }
-                }.flatten()
-                .associate { field -> field.name to field.get(field) as String }
-        reversedConfigurableItems = configurableItems.entries.associate { (k, v) -> v to k }
         voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE && moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled

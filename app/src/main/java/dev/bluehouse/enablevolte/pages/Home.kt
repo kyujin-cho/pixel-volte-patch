@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun Home(navController: NavController) {
 
     var shizukuEnabled by rememberSaveable { mutableStateOf(false) }
     var shizukuGranted by rememberSaveable { mutableStateOf(false) }
-    var subscriptions by rememberSaveable { mutableStateOf(listOf<SubscriptionInfo>()) }
+    var subscriptions by remember { mutableStateOf(listOf<SubscriptionInfo>()) }
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
     var isIMSRegistered by rememberSaveable { mutableStateOf(listOf<Boolean>()) }
