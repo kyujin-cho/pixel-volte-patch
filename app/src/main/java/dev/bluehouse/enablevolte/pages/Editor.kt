@@ -116,7 +116,14 @@ fun isValidTypedInput(
     value: String?,
 ): Boolean = parseTypedValue(fieldType, value) != null
 
-fun isBlankArrayItem(value: String?): Boolean = value.isNullOrBlank()
+/**
+ * An untouched array item. For String arrays only null counts, so existing empty or
+ * whitespace-only strings in the carrier config are kept.
+ */
+fun isBlankArrayItem(
+    elementType: ValueType,
+    value: String?,
+): Boolean = if (elementType == ValueType.String) value == null else value.isNullOrBlank()
 
 /**
  * Parses array editor items for saving. Blank items (e.g. freshly added with "+") are dropped.
@@ -127,7 +134,7 @@ fun parseArrayItemsForSave(
     items: List<String?>,
 ): List<Any>? =
     items
-        .filterNot { isBlankArrayItem(it) }
+        .filterNot { isBlankArrayItem(elementType, it) }
         .map { parseTypedValue(elementType, it) ?: return null }
 
 fun BaseDataRow.isSavable(): Boolean =
@@ -221,7 +228,7 @@ fun SingleValueEditor(
             }
         }
         ValueType.Int, ValueType.Long -> {
-            val isError = !(allowBlank && isBlankArrayItem(data.value)) && !isValidTypedInput(elementType, data.value)
+            val isError = !(allowBlank && isBlankArrayItem(elementType, data.value)) && !isValidTypedInput(elementType, data.value)
             TextField(
                 value = data.value ?: "",
                 onValueChange = { onValueChange(it) },
@@ -271,7 +278,7 @@ fun MultiValueEditor(
     Column {
         Column(modifier = Modifier.height(150.dp).verticalScroll(scrollState)) {
             items.mapIndexed { index, it ->
-                val itemValid = isBlankArrayItem(it) || isValidTypedInput(data.fieldType, it)
+                val itemValid = isBlankArrayItem(data.fieldType, it) || isValidTypedInput(data.fieldType, it)
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("${index + 1}: ")
                     if (index == editIndex) {
@@ -312,7 +319,8 @@ fun MultiValueEditor(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.weight(1f, fill = true))
             IconButton(onClick = {
-                applyItems(items.append(null))
+                // A Bool item is shown with "false" selected, so store that instead of null.
+                applyItems(items.append(if (data.fieldType == ValueType.Bool) "false" else null))
             }) { Icon(imageVector = Icons.Filled.Add, contentDescription = "") }
         }
     }

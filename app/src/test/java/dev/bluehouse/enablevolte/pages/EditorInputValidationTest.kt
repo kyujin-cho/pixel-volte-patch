@@ -42,10 +42,13 @@ class EditorInputValidationTest {
 
     @Test
     fun `blank array item covers null empty and whitespace`() {
-        assertTrue(isBlankArrayItem(null))
-        assertTrue(isBlankArrayItem(""))
-        assertTrue(isBlankArrayItem("  "))
-        assertFalse(isBlankArrayItem("0"))
+        assertTrue(isBlankArrayItem(ValueType.Int, null))
+        assertTrue(isBlankArrayItem(ValueType.Int, ""))
+        assertTrue(isBlankArrayItem(ValueType.Int, "  "))
+        assertFalse(isBlankArrayItem(ValueType.Int, "0"))
+        assertTrue(isBlankArrayItem(ValueType.String, null))
+        assertFalse(isBlankArrayItem(ValueType.String, ""))
+        assertFalse(isBlankArrayItem(ValueType.String, "  "))
     }
 
     @Test
@@ -76,5 +79,15 @@ class EditorInputValidationTest {
     fun `list row is savable with blank items but not with invalid ones`() {
         assertTrue(ListDataRow(intArrayField, listOf("1", null, "")).isSavable())
         assertFalse(ListDataRow(intArrayField, listOf("1", "x")).isSavable())
+    }
+
+    @Test
+    fun keepsEmptyStringItemsInStringArrays() {
+        assertEquals(listOf("a", "", " "), parseArrayItemsForSave(ValueType.String, listOf("a", "", null, " ")))
+    }
+
+    @Test
+    fun parsesBoolArrayItems() {
+        assertEquals(listOf(true, false), parseArrayItemsForSave(ValueType.Bool, listOf("true", "false")))
     }
 }
