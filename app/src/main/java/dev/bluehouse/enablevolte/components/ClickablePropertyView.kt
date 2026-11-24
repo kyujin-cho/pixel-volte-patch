@@ -1,7 +1,9 @@
 package dev.bluehouse.enablevolte.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,15 +40,32 @@ fun ClickablePropertyView(
     }
     if (onClick != null) {
         Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
-                Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
-                Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
-            }
+            PropertyContent(label, value, labelFontSize, valueFontSize, labelFontFamily, valueFontFamily)
         }
     } else {
-        Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)) {
+        PropertyContent(label, value, labelFontSize, valueFontSize, labelFontFamily, valueFontFamily)
+    }
+}
+
+@Composable
+private fun PropertyContent(
+    label: String,
+    value: String,
+    labelFontSize: TextUnit,
+    valueFontSize: TextUnit,
+    labelFontFamily: FontFamily?,
+    valueFontFamily: FontFamily?,
+) {
+    // Rows without a value show only the label, centred vertically at the minimum row height.
+    Column(
+        modifier = Modifier.heightIn(min = 56.dp).padding(top = 12.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        if (value.isNotEmpty()) {
             Text(text = label, modifier = Modifier.padding(bottom = 4.dp), fontSize = labelFontSize, fontFamily = labelFontFamily)
             Text(text = value, color = MaterialTheme.colorScheme.outline, fontSize = valueFontSize, fontFamily = valueFontFamily)
+        } else {
+            Text(text = label, fontSize = labelFontSize, fontFamily = labelFontFamily)
         }
     }
 }
