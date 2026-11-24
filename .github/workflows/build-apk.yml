@@ -39,6 +39,9 @@ jobs:
           java-version: "17"
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The default also installs the removed 'tools' package, which makes sdkmanager exit 1.
+          packages: platform-tools
       - name: Install required platform
         run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
       - name: Replace android.jar
@@ -60,7 +63,7 @@ jobs:
           BUILD_TYPE: ${{ inputs.build-type }}
           RUN_ID: ${{ github.run_id }}
       - name: align APK with zipalign
-        run: $ANDROID_SDK_ROOT/build-tools/34.0.0/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
+        run: $ANDROID_SDK_ROOT/build-tools/35.0.0/zipalign -v -p 4 app/build/outputs/apk/${BUILD_TYPE}/${FILENAME} app-unsigned-aligned.apk
         env:
           BUILD_TYPE: ${{ inputs.build-type }}
           FILENAME: ${{ steps.build_apk.outputs.build_filename }}
@@ -69,7 +72,7 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.keystore }}
       - name: Sign APK
-        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
+        run: echo "${KEY_PASSWORD}" | $ANDROID_SDK_ROOT/build-tools/35.0.0/apksigner sign --ks keystore.jks --ks-key-alias "${KEY_ALIAS}" --key-pass "env:KEY_PASSWORD" --out dev.bluehouse.enablevolte.apk app-unsigned-aligned.apk
         env:
           KEY_ALIAS: ${{ secrets.key-alias }}
           KEY_PASSWORD: ${{ secrets.key-password }}
