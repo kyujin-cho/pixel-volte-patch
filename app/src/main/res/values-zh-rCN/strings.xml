@@ -12,6 +12,8 @@
     <string name="running_latest_version">正在运行最新版本</string>
     <string name="shizuku_service_running">Shizuku 服务正在运行</string>
     <string name="shizuku_permission_granted">Shizuku 已授权</string>
+    <string name="persist_config">重启后保留设置 (若设置无法生效请关闭)</string>
+    <string name="config_apply_failed">应用运营商配置失败：%1$s</string>
     <string name="enable_volte">启用 VoLTE</string>
     <string name="enable_vonr">启用 VoNR</string>
     <string name="enable_crosssim">启用备用通话</string>
@@ -68,6 +70,8 @@
     <string name="loading">加载中…</string>
     <string name="loaded">已加载 %1$s 共 %2$s</string>
     <string name="edit_value">更改值</string>
+    <string name="invalid_number_value">请输入有效的 %1$s 值</string>
+    <string name="update_value_failed">更新值失败：%1$s</string>
     <string name="search">搜索</string>
     <string name="qstile">快捷设置图块</string>
     <string name="qs_status_tile_title">IMS 状态 (SIM %1$s)</string>

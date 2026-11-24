@@ -22,8 +22,39 @@ jobs:
         with:
           report-path: build/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
         continue-on-error: false # If annotations contain error of severity, action-ktlint exit 1.
-  build-release-apk:
+  unit-test:
     needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            /usr/local/lib/android
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties' )}}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Set up OpenJDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: "zulu"
+          java-version: "17"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # The default also installs the removed 'tools' package, which makes sdkmanager exit 1.
+          packages: platform-tools
+      - name: Install required platform
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
+      - name: Replace android.jar
+        run: |
+          curl -L https://github.com/Reginer/aosp-android-jar/raw/main/android-36/android.jar > /usr/local/lib/android/sdk/platforms/android-36/android.jar
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+  build-release-apk:
+    needs: [lint, unit-test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     uses: ./.github/workflows/build-apk.yml
     with:
@@ -33,7 +64,7 @@ jobs:
       keystore: ${{ secrets.KEYSTORE_B64 }}
       key-password: ${{ secrets.KEY_PASSWORD }}
   build-app-bundle:
-    needs: [lint]
+    needs: [lint, unit-test]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     uses: ./.github/workflows/build-aab.yml
     secrets:

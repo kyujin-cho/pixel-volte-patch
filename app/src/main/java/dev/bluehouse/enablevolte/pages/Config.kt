@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -37,6 +38,8 @@ import dev.bluehouse.enablevolte.components.RadioSelectPropertyView
 import dev.bluehouse.enablevolte.components.UserAgentPropertyView
 import dev.bluehouse.enablevolte.configDumpRoute
 import dev.bluehouse.enablevolte.configEditRoute
+import dev.bluehouse.enablevolte.isConfigPersistent
+import dev.bluehouse.enablevolte.setConfigPersistent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,6 +59,7 @@ fun Config(
     val context = LocalContext.current
     val cannotFindKeyText = stringResource(R.string.cannot_find_key)
     var configurable by rememberSaveable { mutableStateOf(false) }
+    var configPersistent by remember { mutableStateOf(isConfigPersistent(context)) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var crossSIMEnabled by rememberSaveable { mutableStateOf(false) }
@@ -148,6 +152,11 @@ fun Config(
         InfiniteLoadingDialog()
     } else {
         Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
+            BooleanPropertyView(label = stringResource(R.string.persist_config), toggled = configPersistent) {
+                configPersistent = !configPersistent
+                setConfigPersistent(context, configPersistent)
+            }
+
             HeaderText(text = stringResource(R.string.feature_toggles))
             BooleanPropertyView(label = stringResource(R.string.enable_volte), toggled = voLTEEnabled) {
                 voLTEEnabled =

@@ -1,6 +1,8 @@
 package dev.bluehouse.enablevolte.pages
 
 import android.telephony.CarrierConfigManager
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -46,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -86,6 +89,60 @@ fun getValueTypeFromFieldName(key: String): ValueType {
     }
 }
 
+fun ValueType.elementType(): ValueType =
+    when (this) {
+        ValueType.IntArray -> ValueType.Int
+        ValueType.LongArray -> ValueType.Long
+        ValueType.BoolArray -> ValueType.Bool
+        ValueType.StringArray -> ValueType.String
+        else -> this
+    }
+
+fun parseTypedValue(
+    fieldType: ValueType,
+    value: String?,
+): Any? =
+    when (fieldType) {
+        ValueType.Int, ValueType.IntArray -> value?.toIntOrNull()
+        ValueType.Long, ValueType.LongArray -> value?.toLongOrNull()
+        ValueType.Bool, ValueType.BoolArray -> value?.let { it == "true" }
+        ValueType.String, ValueType.StringArray -> value
+        else -> null
+    }
+
+fun isValidTypedInput(
+    fieldType: ValueType,
+    value: String?,
+): Boolean = parseTypedValue(fieldType, value) != null
+
+/**
+ * An untouched array item. For String arrays only null counts, so existing empty or
+ * whitespace-only strings in the carrier config are kept.
+ */
+fun isBlankArrayItem(
+    elementType: ValueType,
+    value: String?,
+): Boolean = if (elementType == ValueType.String) value == null else value.isNullOrBlank()
+
+/**
+ * Parses array editor items for saving. Blank items (e.g. freshly added with "+") are dropped.
+ * Returns null when any non-blank item does not parse for [elementType].
+ */
+fun parseArrayItemsForSave(
+    elementType: ValueType,
+    items: List<String?>,
+): List<Any>? =
+    items
+        .filterNot { isBlankArrayItem(elementType, it) }
+        .map { parseTypedValue(elementType, it) ?: return null }
+
+fun BaseDataRow.isSavable(): Boolean =
+    when (this) {
+        is DataRow -> isValidTypedInput(fieldType, value)
+        is ListDataRow -> parseArrayItemsForSave(fieldType, value) != null
+        else -> false
+    }
+
 abstract class BaseDataRow(
     open val field: Field,
     open val rawValue: Any?,
@@ -111,14 +168,7 @@ data class DataRow(
 
     override fun toString(): String = this.value ?: "(null)"
 
-    override val typedValue: Any? get() =
-        when (fieldType) {
-            ValueType.Int, ValueType.IntArray -> this.value?.toInt()
-            ValueType.Long, ValueType.LongArray -> this.value?.toLong()
-            ValueType.Bool, ValueType.BoolArray -> this.value?.let { it == "true" } ?: { null }
-            ValueType.String, ValueType.StringArray -> this.value
-            else -> null
-        }
+    override val typedValue: Any? get() = parseTypedValue(fieldType, this.value)
 }
 
 data class ListDataRow(
@@ -137,16 +187,7 @@ data class ListDataRow(
             ValueType.StringArray -> ValueType.String
             else -> ValueType.Unknown
         }
-    override val typedValue: List<Any?> get() =
-        this.value.map {
-            when (fieldType) {
-                ValueType.Int -> it?.toInt()
-                ValueType.Long -> it?.toLong()
-                ValueType.Bool -> it?.let { it == "true" } ?: { null }
-                ValueType.String -> it
-                else -> null
-            }
-        }
+    override val typedValue: List<Any?> get() = this.value.map { parseTypedValue(fieldType, it) }
 }
 
 fun <T> List<T>.replaceAt(
@@ -162,10 +203,13 @@ fun <T> List<T>.removeAt(index: Int): List<T> = this.subList(0, index) + this.su
 @Composable
 fun SingleValueEditor(
     data: DataRow,
+    allowBlank: Boolean = false,
     onValueChange: (String) -> Unit,
 ) {
-    when (val typedValue = data.typedValue) {
-        is Boolean ->
+    val elementType = data.fieldType.elementType()
+    when (elementType) {
+        ValueType.Bool -> {
+            val typedValue = data.typedValue == true
             Row(
                 modifier = Modifier.selectableGroup().fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -181,21 +225,24 @@ fun SingleValueEditor(
                 )
                 Text(stringResource(R.string.false_))
             }
-        is Int ->
+        }
+        ValueType.Int, ValueType.Long -> {
+            val isError = !(allowBlank && isBlankArrayItem(elementType, data.value)) && !isValidTypedInput(elementType, data.value)
             TextField(
                 value = data.value ?: "",
                 onValueChange = { onValueChange(it) },
+                isError = isError,
+                supportingText =
+                    if (isError) {
+                        { Text(stringResource(R.string.invalid_number_value, elementType.name)) }
+                    } else {
+                        null
+                    },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
-        is Long ->
-            TextField(
-                value = data.value ?: "",
-                onValueChange = { onValueChange(it) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        is String, null ->
+        }
+        ValueType.String ->
             TextField(
                 value = data.value ?: "",
                 onValueChange = { onValueChange(it) },
@@ -215,40 +262,53 @@ fun MultiValueEditor(
     val scrollState = rememberScrollState()
     var data by remember { mutableStateOf(_data) }
     var editIndex by remember { mutableIntStateOf(-1) }
+    var valueBeforeEdit by remember { mutableStateOf<String?>(null) }
     val items by remember(data.value) { derivedStateOf { data.value } }
     LaunchedEffect(items) {
         scrollState.scrollTo(scrollState.maxValue)
     }
 
+    // Propagate every change so the dialog's Confirm button always validates what is on screen.
+    fun applyItems(newItems: List<String?>) {
+        data = data.copy(rawValue = newItems)
+        onUpdate(newItems)
+    }
+
     Column {
         Column(modifier = Modifier.height(150.dp).verticalScroll(scrollState)) {
             items.mapIndexed { index, it ->
+                val itemValid = isBlankArrayItem(data.fieldType, it) || isValidTypedInput(data.fieldType, it)
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("${index + 1}: ")
                     if (index == editIndex) {
                         Box(modifier = Modifier.weight(1f)) {
-                            SingleValueEditor(DataRow(field = data.field, rawValue = it)) { updated ->
-                                val newItems = items.replaceAt(editIndex, updated)
-                                data = data.copy(rawValue = newItems)
+                            SingleValueEditor(DataRow(field = data.field, rawValue = it), allowBlank = true) { updated ->
+                                applyItems(items.replaceAt(index, updated))
                             }
                         }
-                        IconButton(onClick = { editIndex = -1 }) { Icon(imageVector = Icons.Filled.Close, contentDescription = "") }
                         IconButton(onClick = {
-                            onUpdate(items)
+                            applyItems(items.replaceAt(index, valueBeforeEdit))
                             editIndex = -1
-                        }) { Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = "") }
+                        }) { Icon(imageVector = Icons.Filled.Close, contentDescription = "") }
+                        IconButton(
+                            enabled = itemValid,
+                            onClick = { editIndex = -1 },
+                        ) { Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = "") }
                     } else {
                         Text(
                             it.toString(),
                             fontSize = 18.sp,
                             fontFamily = FontFamily.Monospace,
+                            color = if (itemValid) Color.Unspecified else MaterialTheme.colorScheme.error,
                             modifier = Modifier.weight(1f, fill = true),
                         )
-                        IconButton(onClick = { editIndex = index }) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "") }
                         IconButton(onClick = {
-                            val newItems = items.removeAt(index)
-                            data = data.copy(rawValue = newItems)
-                            onUpdate(items)
+                            valueBeforeEdit = it
+                            editIndex = index
+                        }) { Icon(imageVector = Icons.Filled.Edit, contentDescription = "") }
+                        IconButton(onClick = {
+                            applyItems(items.removeAt(index))
+                            if (editIndex > index) editIndex -= 1
                         }) { Icon(imageVector = Icons.Filled.Delete, contentDescription = "") }
                     }
                 }
@@ -258,8 +318,8 @@ fun MultiValueEditor(
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.weight(1f, fill = true))
             IconButton(onClick = {
-                val newItems = items.append(null)
-                data = data.copy(rawValue = newItems)
+                // A Bool item is shown with "false" selected, so store that instead of null.
+                applyItems(items.append(if (data.fieldType == ValueType.Bool) "false" else null))
             }) { Icon(imageVector = Icons.Filled.Add, contentDescription = "") }
         }
     }
@@ -303,7 +363,7 @@ fun fieldToDataRow(
             ValueType.LongArray ->
                 ListDataRow(
                     field,
-                    moder.getIntArrayValue(value).toList(),
+                    moder.getLongArrayValue(value).toList(),
                 )
             ValueType.Unknown -> {
                 val anyVal = moder.getValue(value)
@@ -323,6 +383,7 @@ fun fieldToDataRow(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Editor(subId: Int) {
+    val TAG = "HomeActivity:Editor"
     val context = LocalContext.current
     var sections by remember { mutableStateOf(listOf<Section>()) }
     var loading by remember { mutableStateOf(true) }
@@ -479,30 +540,42 @@ fun Editor(subId: Int) {
 
     fun updateRow(data: BaseDataRow) {
         if (data.rawValue == null) return
-        when (data) {
-            is DataRow -> {
-                when (data.fieldType) {
-                    ValueType.Int -> moder.updateCarrierConfig(data.key, data.typedValue as Int)
-                    ValueType.Long -> moder.updateCarrierConfig(data.key, data.typedValue as Long)
-                    ValueType.Bool -> moder.updateCarrierConfig(data.key, data.typedValue as Boolean)
-                    ValueType.String -> moder.updateCarrierConfig(data.key, data.typedValue as String)
-                    else -> {}
+        try {
+            when (data) {
+                is DataRow -> {
+                    val typedValue = data.typedValue ?: return
+                    when (data.fieldType) {
+                        ValueType.Int -> moder.updateCarrierConfig(data.key, typedValue as Int)
+                        ValueType.Long -> moder.updateCarrierConfig(data.key, typedValue as Long)
+                        ValueType.Bool -> moder.updateCarrierConfig(data.key, typedValue as Boolean)
+                        ValueType.String -> moder.updateCarrierConfig(data.key, typedValue as String)
+                        else -> {}
+                    }
+                }
+                is ListDataRow -> {
+                    val typedValues = parseArrayItemsForSave(data.fieldType, data.value) ?: return
+                    when (data.fieldType) {
+                        ValueType.Int -> moder.updateCarrierConfig(data.key, typedValues.map { it as Int }.toIntArray())
+                        ValueType.Long -> moder.updateCarrierConfig(data.key, typedValues.map { it as Long }.toLongArray())
+                        ValueType.Bool -> moder.updateCarrierConfig(data.key, typedValues.map { it as Boolean }.toBooleanArray())
+                        ValueType.String -> moder.updateCarrierConfig(data.key, typedValues.map { it as String }.toTypedArray())
+                        else -> {}
+                    }
                 }
             }
-            is ListDataRow -> {
-                when (data.fieldType) {
-                    ValueType.Int -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Int>).toIntArray())
-                    ValueType.Long -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Long>).toLongArray())
-                    ValueType.Bool -> moder.updateCarrierConfig(data.key, (data.typedValue as List<Boolean>).toBooleanArray())
-                    ValueType.String -> moder.updateCarrierConfig(data.key, (data.typedValue as List<String>).toTypedArray())
-                    else -> {}
-                }
-            }
+            val updatedData = fieldToDataRow(moder, data.field)
+            val newRows = sections[sectionIndexOfEditingData].rows.replaceAt(rowIndexOfEditingData, updatedData)
+            val newSections = sections.replaceAt(sectionIndexOfEditingData, sections[sectionIndexOfEditingData].copy(rows = newRows))
+            sections = newSections
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to update ${data.key}", e)
+            Toast
+                .makeText(
+                    context,
+                    context.getString(R.string.update_value_failed, e.message ?: e.javaClass.simpleName),
+                    Toast.LENGTH_LONG,
+                ).show()
         }
-        val updatedData = fieldToDataRow(moder, data.field)
-        val newRows = sections[sectionIndexOfEditingData].rows.replaceAt(rowIndexOfEditingData, updatedData)
-        val newSections = sections.replaceAt(sectionIndexOfEditingData, sections[sectionIndexOfEditingData].copy(rows = newRows))
-        sections = newSections
     }
 
     @Composable
@@ -553,6 +626,7 @@ fun Editor(subId: Int) {
                                 ButtonDefaults.filledTonalButtonColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
                                 ),
+                            enabled = data.isSavable(),
                             onClick = {
                                 dataToEdit = null
                                 saving = true

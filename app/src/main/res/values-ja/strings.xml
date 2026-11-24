@@ -12,6 +12,8 @@
   <string name="running_latest_version">最新のバージョンで実行中</string>
   <string name="shizuku_service_running">Shizuku サービスが実行中</string>
   <string name="shizuku_permission_granted">Shizuku の権限を許可</string>
+  <string name="persist_config">再起動後も設定を維持する (設定が適用されない場合はオフにしてください)</string>
+  <string name="config_apply_failed">キャリア設定の適用に失敗しました: %1$s</string>
   <string name="enable_volte">VoLTE を有効化</string>
   <string name="enable_vonr">VoNR を有効化</string>
   <string name="enable_crosssim">バックアップ通話を有効化</string>
@@ -68,6 +70,8 @@
   <string name="loading">読み込み中…</string>
   <string name="loaded">「%2$s」の「%1$s」を読み込みました</string>
   <string name="edit_value">値を編集</string>
+  <string name="invalid_number_value">有効な %1$s 値を入力してください</string>
+  <string name="update_value_failed">値の更新に失敗しました: %1$s</string>
   <string name="search">検索</string>
   <string name="qstile">クイック設定タイル</string>
   <string name="qs_status_tile_title">IMS ステータス (SIM %1$s)</string>
