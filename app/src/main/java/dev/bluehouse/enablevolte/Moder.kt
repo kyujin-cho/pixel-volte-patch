@@ -521,8 +521,8 @@ class SubscriptionModer(
                 false
             }
 
-    val userAgentConfig: String
-        get() = this.getStringValue(KEY_IMS_USER_AGENT) ?: ""
+    val userAgentConfig: String?
+        get() = this.getStringValue(KEY_IMS_USER_AGENT)
 
     val isIMSRegistered: Boolean
         get() {

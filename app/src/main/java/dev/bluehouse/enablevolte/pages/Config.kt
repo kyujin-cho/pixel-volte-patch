@@ -111,12 +111,7 @@ fun Config(
         show4GForLteEnabled = VERSION.SDK_INT >= VERSION_CODES.R && moder.isShow4GForLteEnabled
         hideEnhancedDataIconEnabled = VERSION.SDK_INT >= VERSION_CODES.R && moder.isHideEnhancedDataIconEnabled
         is4GPlusEnabled = moder.is4GPlusEnabled
-        configuredUserAgent =
-            try {
-                moder.userAgentConfig
-            } catch (e: java.lang.NullPointerException) {
-                null
-            }
+        configuredUserAgent = moder.userAgentConfig
     }
 
     LaunchedEffect(true) {
