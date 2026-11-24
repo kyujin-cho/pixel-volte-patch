@@ -51,7 +51,10 @@ class BrokerInstrumentation : Instrumentation() {
     ) {
         Log.i(TAG, "applyConfig")
         try {
-            this.overrideConfig(subId, toPersistableBundle(arguments), persistent)
+            // Drop the broker's own control arguments so they are not written into the carrier config.
+            val overrideValues = Bundle(arguments)
+            overrideValues.keySet().filter { it.startsWith("moder_") }.forEach { overrideValues.remove(it) }
+            this.overrideConfig(subId, toPersistableBundle(overrideValues), persistent)
         } finally {
             Log.i(TAG, "applyConfig done")
         }
