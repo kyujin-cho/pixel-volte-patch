@@ -45,7 +45,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -387,8 +386,8 @@ fun Editor(subId: Int) {
     val TAG = "HomeActivity:Editor"
     val context = LocalContext.current
     var sections by remember { mutableStateOf(listOf<Section>()) }
-    var loading by rememberSaveable { mutableStateOf(true) }
-    var saving by rememberSaveable { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
+    var saving by remember { mutableStateOf(false) }
     var dataToEdit by remember { mutableStateOf<BaseDataRow?>(null) }
     var sectionIndexOfEditingData by remember { mutableIntStateOf(-1) }
     var rowIndexOfEditingData by remember { mutableIntStateOf(-1) }

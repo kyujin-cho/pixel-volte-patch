@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -39,8 +39,8 @@ fun DumpedConfig(
     subId: Int,
 ) {
     val scrollState = rememberScrollState()
-    var dumpedConfig by rememberSaveable { mutableStateOf("") }
-    var loading by rememberSaveable { mutableStateOf(true) }
+    var dumpedConfig by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(true) }
 
     val moder = SubscriptionModer(context, subId)
     val clipboardManager = LocalClipboardManager.current

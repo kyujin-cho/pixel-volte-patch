@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,10 +47,10 @@ fun Home(navController: NavController) {
 
     var shizukuEnabled by rememberSaveable { mutableStateOf(false) }
     var shizukuGranted by rememberSaveable { mutableStateOf(false) }
-    var subscriptions by rememberSaveable { mutableStateOf(listOf<SubscriptionInfo>()) }
+    var subscriptions by remember { mutableStateOf(listOf<SubscriptionInfo>()) }
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
-    var isIMSRegistered by rememberSaveable { mutableStateOf(listOf<Boolean>()) }
+    var isIMSRegistered by remember { mutableStateOf(listOf<Boolean>()) }
     var newerVersion by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
@@ -116,10 +117,7 @@ fun Home(navController: NavController) {
         BooleanPropertyView(label = stringResource(R.string.volte_supported_by_device), toggled = deviceIMSEnabled)
 
         for (idx in subscriptions.indices) {
-            var isRegistered = false
-            if (isIMSRegistered.isNotEmpty()) {
-                isRegistered = isIMSRegistered[idx]
-            }
+            val isRegistered = isIMSRegistered.getOrNull(idx) ?: false
             HeaderText(text = stringResource(R.string.ims_status_for, subscriptions[idx].uniqueName))
             BooleanPropertyView(
                 label = stringResource(R.string.ims_status),

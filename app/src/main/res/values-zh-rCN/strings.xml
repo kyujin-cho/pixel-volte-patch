@@ -84,4 +84,5 @@
     <string name="add_toggle_tile">添加 VoLTE 开关图块</string>
     <string name="sim_config">SIM 配置</string>
     <string name="config_dump_viewer">配置转储查看器</string>
+    <string name="sim_page_unavailable">此 SIM 不可用。请确认 Shizuku 正在运行并已授予权限，然后在主页刷新。</string>
 </resources>

@@ -36,6 +36,8 @@ import dev.bluehouse.enablevolte.components.HeaderText
 import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.components.RadioSelectPropertyView
 import dev.bluehouse.enablevolte.components.UserAgentPropertyView
+import dev.bluehouse.enablevolte.configDumpRoute
+import dev.bluehouse.enablevolte.configEditRoute
 import dev.bluehouse.enablevolte.isConfigPersistent
 import dev.bluehouse.enablevolte.setConfigPersistent
 import kotlinx.coroutines.Dispatchers
@@ -53,7 +55,6 @@ fun Config(
 
     val moder = SubscriptionModer(LocalContext.current, subId)
     val carrierModer = CarrierModer(LocalContext.current)
-    val carrierName = moder.carrierName
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val cannotFindKeyText = stringResource(R.string.cannot_find_key)
@@ -79,23 +80,15 @@ fun Config(
     var hideEnhancedDataIconEnabled by rememberSaveable { mutableStateOf(false) }
     var is4GPlusEnabled by rememberSaveable { mutableStateOf(false) }
     var configuredUserAgent: String? by rememberSaveable { mutableStateOf("") }
-    var configurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
-    var reversedConfigurableItems by rememberSaveable { mutableStateOf<Map<String, String>>(mapOf()) }
     var loading by rememberSaveable { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
-    val simSlotIndex = moder.simSlotIndex
+
+    // Read through Shizuku, so only after the permission check in LaunchedEffect below.
+    var carrierName: String? by rememberSaveable { mutableStateOf(null) }
+    var simSlotIndex by rememberSaveable { mutableIntStateOf(-1) }
 
     fun loadFlags() {
         Log.d(TAG, "loadFlags")
-        configurableItems =
-            listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses)
-                .map {
-                    it.declaredFields.filter { field ->
-                        field.name != "KEY_PREFIX" && field.name.startsWith("KEY_")
-                    }
-                }.flatten()
-                .associate { field -> field.name to field.get(field) as String }
-        reversedConfigurableItems = configurableItems.entries.associate { (k, v) -> v to k }
         voLTEEnabled = moder.isVoLteConfigEnabled
         voNREnabled = VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE && moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
@@ -125,6 +118,14 @@ fun Config(
 
     LaunchedEffect(true) {
         if (checkShizukuPermission(0) == ShizukuStatus.GRANTED) {
+            try {
+                withContext(Dispatchers.Default) {
+                    carrierName = moder.carrierName
+                    simSlotIndex = moder.simSlotIndex
+                }
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "Failed to read SIM info", e)
+            }
             if (carrierModer.deviceSupportsIMS && subId >= 0) {
                 configurable =
                     try {
@@ -502,7 +503,7 @@ fun Config(
                 }
             }
 
-            if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU && simSlotIndex >= 0) {
                 val statusBarManager: StatusBarManager = context.getSystemService(StatusBarManager::class.java)
 
                 HeaderText(text = stringResource(R.string.qstile))
@@ -554,13 +555,13 @@ fun Config(
                 label = stringResource(R.string.expert_mode),
                 value = "",
             ) {
-                navController.navigate("config$subId/edit")
+                navController.navigate(configEditRoute(subId))
             }
             ClickablePropertyView(
                 label = stringResource(R.string.dump_config),
                 value = "",
             ) {
-                navController.navigate("config$subId/dump")
+                navController.navigate(configDumpRoute(subId))
             }
             ClickablePropertyView(
                 label = stringResource(R.string.restart_ims_registration),
