@@ -13,6 +13,21 @@ import rikka.shizuku.SystemServiceHelper
 
 const val TAG = "BrokerInstrumentation"
 
+/**
+ * Android 17 removed [IActivityManager.stopDelegateShellPermissionIdentity]. The carrier
+ * config write has already returned by the time this runs, so a missing cleanup method must
+ * not kill the process.
+ */
+private fun stopShellPermissionDelegate(am: IActivityManager) {
+    try {
+        am.stopDelegateShellPermissionIdentity()
+    } catch (e: LinkageError) {
+        Log.i(TAG, "stopDelegateShellPermissionIdentity is unavailable on this platform: ${e.message}")
+    } catch (e: Exception) {
+        Log.w(TAG, "Failed to stop shell permission identity delegate", e)
+    }
+}
+
 class BrokerInstrumentation : Instrumentation() {
     @SuppressLint("MissingPermission")
     private fun applyConfig(
@@ -37,7 +52,7 @@ class BrokerInstrumentation : Instrumentation() {
             }
         } finally {
             Log.i(TAG, "applyConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            stopShellPermissionDelegate(am)
         }
     }
 
@@ -60,7 +75,7 @@ class BrokerInstrumentation : Instrumentation() {
             }
         } finally {
             Log.i(TAG, "clearConfig done")
-            am.stopDelegateShellPermissionIdentity()
+            stopShellPermissionDelegate(am)
         }
     }
 
