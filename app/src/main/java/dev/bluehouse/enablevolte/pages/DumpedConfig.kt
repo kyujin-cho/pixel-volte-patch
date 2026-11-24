@@ -1,5 +1,6 @@
 package dev.bluehouse.enablevolte.pages
 
+import android.content.Context
 import android.telephony.CarrierConfigManager
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -30,14 +31,18 @@ import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DumpedConfig(subId: Int) {
+fun DumpedConfig(
+    context: Context,
+    subId: Int,
+) {
     val scrollState = rememberScrollState()
     var dumpedConfig by rememberSaveable { mutableStateOf("") }
     var loading by rememberSaveable { mutableStateOf(true) }
 
-    val moder = SubscriptionModer(subId)
+    val moder = SubscriptionModer(context, subId)
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
@@ -45,40 +50,43 @@ fun DumpedConfig(subId: Int) {
 
     LaunchedEffect(true) {
         withContext(Dispatchers.Default) {
-            val fields = listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses).map {
-                it.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }
-            }.flatten()
-            val sb = fields.map {
-                try {
-                    val split = it.name.split("_")
-                    val value = it.get(it) as String
-                    when (split.last()) {
-                        "BOOL", "BOOLEAN" -> "${it.name}: ${moder.getBooleanValue(value)}"
-                        "STRING" -> "${it.name}: ${moder.getStringValue(value)}"
-                        "STRINGS" -> "${it.name}: ${moder.getStringArrayValue(value).joinToString(",")}"
-                        "INT" -> "${it.name}: ${moder.getIntValue(value)}"
-                        "LONG" -> "${it.name}: ${moder.getLongValue(value)}"
-                        "ARRAY" -> {
-                            when (split[split.size - 2]) {
-                                "INT" -> "${it.name}: [${moder.getIntArrayValue(value).joinToString(",")}]"
-                                "BOOL", "BOOLEAN" -> "${it.name}: [${moder.getBooleanArrayValue(value).joinToString(",")}]"
-                                "STRING" -> "${it.name}: [${moder.getStringArrayValue(value).joinToString(",")}]"
-                                else -> "${it.name}: Unknown (${split[split.size - 2]}Array)"
+            val fields =
+                listOf(CarrierConfigManager::class.java, *CarrierConfigManager::class.java.declaredClasses)
+                    .map {
+                        it.declaredFields.filter { field -> field.name != "KEY_PREFIX" && field.name.startsWith("KEY_") }
+                    }.flatten()
+            val sb =
+                fields.map {
+                    try {
+                        val split = it.name.split("_")
+                        val value = it.get(it) as String
+                        when (split.last()) {
+                            "BOOL", "BOOLEAN" -> "${it.name}: ${moder.getBooleanValue(value)}"
+                            "STRING" -> "${it.name}: ${moder.getStringValue(value)}"
+                            "STRINGS" -> "${it.name}: ${moder.getStringArrayValue(value).joinToString(",")}"
+                            "INT" -> "${it.name}: ${moder.getIntValue(value)}"
+                            "LONG" -> "${it.name}: ${moder.getLongValue(value)}"
+                            "ARRAY" -> {
+                                when (split[split.size - 2]) {
+                                    "INT" -> "${it.name}: [${moder.getIntArrayValue(value).joinToString(",")}]"
+                                    "BOOL", "BOOLEAN" -> "${it.name}: [${moder.getBooleanArrayValue(value).joinToString(",")}]"
+                                    "STRING" -> "${it.name}: [${moder.getStringArrayValue(value).joinToString(",")}]"
+                                    else -> "${it.name}: Unknown (${split[split.size - 2]}Array)"
+                                }
+                            }
+                            else -> {
+                                val anyVal = moder.getValue(value)
+                                if (anyVal != null) {
+                                    "${it.name}: $anyVal"
+                                } else {
+                                    "${it.name}: Unknown (${split.last()})"
+                                }
                             }
                         }
-                        else -> {
-                            val anyVal = moder.getValue(value)
-                            if (anyVal != null) {
-                                "${it.name}: $anyVal"
-                            } else {
-                                "${it.name}: Unknown (${split.last()})"
-                            }
-                        }
+                    } catch (e: NullPointerException) {
+                        "${it.name}: null"
                     }
-                } catch (e: NullPointerException) {
-                    "${it.name}: null"
                 }
-            }
             dumpedConfig = sb.joinToString("\n")
             loading = false
         }
@@ -89,13 +97,14 @@ fun DumpedConfig(subId: Int) {
     } else {
         Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
             Surface(
-                modifier = Modifier.fillMaxWidth().combinedClickable(
-                    onClick = {},
-                    onLongClick = {
-                        clipboardManager.setText(buildAnnotatedString { append(dumpedConfig) })
-                        Toast.makeText(context, dumpDoneText, Toast.LENGTH_SHORT).show()
-                    },
-                ),
+                modifier =
+                    Modifier.fillMaxWidth().combinedClickable(
+                        onClick = {},
+                        onLongClick = {
+                            clipboardManager.setText(buildAnnotatedString { append(dumpedConfig) })
+                            Toast.makeText(context, dumpDoneText, Toast.LENGTH_SHORT).show()
+                        },
+                    ),
             ) {
                 Text(text = dumpedConfig, fontFamily = FontFamily.Monospace)
             }

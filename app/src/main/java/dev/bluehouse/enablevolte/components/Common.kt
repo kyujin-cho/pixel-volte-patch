@@ -22,9 +22,10 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
 
     DisposableEffect(lifecycleOwner.value) {
         val lifecycle = lifecycleOwner.value.lifecycle
-        val observer = LifecycleEventObserver { owner, event ->
-            eventHandler.value(owner, event)
-        }
+        val observer =
+            LifecycleEventObserver { owner, event ->
+                eventHandler.value(owner, event)
+            }
 
         lifecycle.addObserver(observer)
         onDispose {
