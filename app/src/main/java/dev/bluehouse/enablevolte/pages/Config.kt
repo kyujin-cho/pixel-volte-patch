@@ -35,6 +35,8 @@ import dev.bluehouse.enablevolte.components.HeaderText
 import dev.bluehouse.enablevolte.components.InfiniteLoadingDialog
 import dev.bluehouse.enablevolte.components.RadioSelectPropertyView
 import dev.bluehouse.enablevolte.components.UserAgentPropertyView
+import dev.bluehouse.enablevolte.configDumpRoute
+import dev.bluehouse.enablevolte.configEditRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -534,13 +536,13 @@ fun Config(
                 label = stringResource(R.string.expert_mode),
                 value = "",
             ) {
-                navController.navigate("config$subId/edit")
+                navController.navigate(configEditRoute(subId))
             }
             ClickablePropertyView(
                 label = stringResource(R.string.dump_config),
                 value = "",
             ) {
-                navController.navigate("config$subId/dump")
+                navController.navigate(configDumpRoute(subId))
             }
             ClickablePropertyView(
                 label = stringResource(R.string.restart_ims_registration),

@@ -37,14 +37,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.bluehouse.enablevolte.components.OnLifecycleEvent
 import dev.bluehouse.enablevolte.pages.Config
 import dev.bluehouse.enablevolte.pages.DumpedConfig
@@ -59,9 +58,27 @@ data class Screen(
     val route: String,
     val title: String,
     val icon: ImageVector,
+    val subId: Int? = null,
 )
 
-val NavDestination.depth: Int get() = this.route?.let { route -> route.count { it == '/' } + 1 } ?: 0
+// Navigation routes are fixed so that the graph does not depend on the subscription list.
+// A back stack restored after activity recreation must find its destinations before
+// the subscriptions have been loaded again.
+const val HOME_ROUTE = "home"
+const val SUB_ID_ARG = "subId"
+const val CONFIG_ROUTE = "config/{$SUB_ID_ARG}"
+const val CONFIG_DUMP_ROUTE = "config/{$SUB_ID_ARG}/dump"
+const val CONFIG_EDIT_ROUTE = "config/{$SUB_ID_ARG}/edit"
+
+fun configRoute(subId: Int) = CONFIG_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
+
+fun configDumpRoute(subId: Int) = CONFIG_DUMP_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
+
+fun configEditRoute(subId: Int) = CONFIG_EDIT_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
+
+private val topLevelRoutes = setOf(HOME_ROUTE, CONFIG_ROUTE)
+
+val NavBackStackEntry.subIdArg: Int get() = this.arguments?.getInt(SUB_ID_ARG, -1) ?: -1
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,40 +110,6 @@ fun PixelIMSApp() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
 
     var subscriptions by remember { mutableStateOf(listOf<SubscriptionInfo>()) }
-    var navBuilder by remember {
-        mutableStateOf<NavGraphBuilder.() -> Unit>({
-            composable("home", context.resources.getString(R.string.home)) {
-                Home(navController)
-            }
-        })
-    }
-
-    fun generateInitialNavBuilder(): (NavGraphBuilder.() -> Unit) =
-        {
-            composable("home", "Home") {
-                Home(navController)
-            }
-        }
-
-    fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) =
-        {
-            composable("home", context.resources.getString(R.string.home)) {
-                Home(navController)
-            }
-            for (subscription in subscriptions) {
-                navigation(startDestination = "config${subscription.subscriptionId}", route = "config${subscription.subscriptionId}root") {
-                    composable("config${subscription.subscriptionId}", context.resources.getString(R.string.sim_config)) {
-                        Config(navController, subscription.subscriptionId)
-                    }
-                    composable("config${subscription.subscriptionId}/dump", context.resources.getString(R.string.config_dump_viewer)) {
-                        DumpedConfig(context, subscription.subscriptionId)
-                    }
-                    composable("config${subscription.subscriptionId}/edit", context.resources.getString(R.string.expert_mode)) {
-                        Editor(subscription.subscriptionId)
-                    }
-                }
-            }
-        }
 
     fun loadApplication() {
         val shizukuStatus = checkShizukuPermission(0)
@@ -135,20 +118,17 @@ fun PixelIMSApp() {
                 ShizukuStatus.GRANTED -> {
                     Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
                     subscriptions = carrierModer.subscriptions
-                    navBuilder = generateNavBuilder()
                 }
                 ShizukuStatus.NOT_GRANTED -> {
                     Shizuku.addRequestPermissionResultListener { _, grantResult ->
                         if (grantResult == PackageManager.PERMISSION_GRANTED) {
                             Log.d(dev.bluehouse.enablevolte.pages.TAG, "Shizuku granted")
                             subscriptions = carrierModer.subscriptions
-                            navBuilder = generateNavBuilder()
                         }
                     }
                 }
                 else -> {
                     subscriptions = listOf()
-                    navBuilder = generateInitialNavBuilder()
                 }
             }
         } catch (_: IllegalStateException) {
@@ -160,6 +140,9 @@ fun PixelIMSApp() {
             loadApplication()
         }
     }
+    val currentRoute = currentBackStackEntry?.destination?.route
+    val isTopLevel = currentRoute != null && currentRoute in topLevelRoutes
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -170,7 +153,7 @@ fun PixelIMSApp() {
                     )
                 },
                 navigationIcon = {
-                    if (currentBackStackEntry?.destination?.depth?.let { it > 1 } == true) {
+                    if (currentRoute != null && !isTopLevel) {
                         IconButton(onClick = {
                             navController.popBackStack()
                         }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
@@ -182,7 +165,7 @@ fun PixelIMSApp() {
                     }
                 },
                 actions = {
-                    if (currentBackStackEntry?.destination?.route == "home") {
+                    if (currentRoute == HOME_ROUTE) {
                         IconButton(onClick = {
                             loadApplication()
                         }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
@@ -197,16 +180,28 @@ fun PixelIMSApp() {
             )
         },
         bottomBar = {
-            if (currentBackStackEntry?.destination?.depth?.let { it == 1 } == true) {
+            if (isTopLevel) {
                 NavigationBar {
-                    val currentDestination = currentBackStackEntry?.destination
+                    val currentSubId = currentBackStackEntry?.subIdArg
                     val items =
                         arrayListOf(
-                            Screen("home", stringResource(R.string.home), Icons.Filled.Home),
+                            Screen(HOME_ROUTE, stringResource(R.string.home), Icons.Filled.Home),
                         )
                     for (subscription in subscriptions) {
                         items.add(
-                            Screen("config${subscription.subscriptionId}", subscription.uniqueName, Icons.Filled.Settings),
+                            Screen(
+                                configRoute(subscription.subscriptionId),
+                                subscription.uniqueName,
+                                Icons.Filled.Settings,
+                                subscription.subscriptionId,
+                            ),
+                        )
+                    }
+                    // The back stack may be restored onto a SIM page before the subscription
+                    // list is (re)loaded; keep a selectable tab for it in the meantime.
+                    if (currentRoute == CONFIG_ROUTE && currentSubId != null && items.none { it.subId == currentSubId }) {
+                        items.add(
+                            Screen(configRoute(currentSubId), stringResource(R.string.sim_config), Icons.Filled.Settings, currentSubId),
                         )
                     }
 
@@ -216,20 +211,25 @@ fun PixelIMSApp() {
                             label = {
                                 Text(screen.title)
                             },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            selected =
+                                if (screen.subId == null) {
+                                    currentRoute == screen.route
+                                } else {
+                                    currentRoute == CONFIG_ROUTE && currentSubId == screen.subId
+                                },
                             onClick = {
                                 navController.navigate(screen.route) {
                                     // Pop up to the start destination of the graph to
                                     // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
+                                    // on the back stack as users select items.
+                                    // State is not saved/restored here: every SIM page shares
+                                    // the single CONFIG_ROUTE destination, and saved state is
+                                    // keyed by destination, so restoring it could bring back
+                                    // another SIM's page.
+                                    popUpTo(navController.graph.findStartDestination().id)
                                     // Avoid multiple copies of the same destination when
                                     // reselecting the same item
                                     launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
                                 }
                             },
                         )
@@ -238,7 +238,21 @@ fun PixelIMSApp() {
             }
         },
     ) { innerPadding ->
-        NavHost(navController, startDestination = "home", Modifier.padding(innerPadding), builder = navBuilder)
+        NavHost(navController, startDestination = HOME_ROUTE, Modifier.padding(innerPadding)) {
+            val subIdArguments = listOf(navArgument(SUB_ID_ARG) { type = NavType.IntType })
+            composable(HOME_ROUTE, context.resources.getString(R.string.home)) {
+                Home(navController)
+            }
+            composable(CONFIG_ROUTE, context.resources.getString(R.string.sim_config), subIdArguments) {
+                Config(navController, it.subIdArg)
+            }
+            composable(CONFIG_DUMP_ROUTE, context.resources.getString(R.string.config_dump_viewer), subIdArguments) {
+                DumpedConfig(context, it.subIdArg)
+            }
+            composable(CONFIG_EDIT_ROUTE, context.resources.getString(R.string.expert_mode), subIdArguments) {
+                Editor(it.subIdArg)
+            }
+        }
     }
 }
 
