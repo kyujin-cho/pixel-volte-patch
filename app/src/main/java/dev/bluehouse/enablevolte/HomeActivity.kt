@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
@@ -55,8 +56,11 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
 import java.lang.IllegalStateException
 
-private const val TAG = "HomeActivity"
-data class Screen(val route: String, val title: String, val icon: ImageVector)
+data class Screen(
+    val route: String,
+    val title: String,
+    val icon: ImageVector,
+)
 
 val NavDestination.depth: Int get() = this.route?.let { route -> route.count { it == '/' } + 1 } ?: 0
 
@@ -80,6 +84,7 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PixelIMSApp() {
@@ -97,16 +102,15 @@ fun PixelIMSApp() {
         })
     }
 
-    fun generateInitialNavBuilder(): (NavGraphBuilder.() -> Unit) {
-        return {
+    fun generateInitialNavBuilder(): (NavGraphBuilder.() -> Unit) =
+        {
             composable("home", "Home") {
                 Home(navController)
             }
         }
-    }
 
-    fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) {
-        return {
+    fun generateNavBuilder(): (NavGraphBuilder.() -> Unit) =
+        {
             composable("home", context.resources.getString(R.string.home)) {
                 Home(navController)
             }
@@ -116,7 +120,7 @@ fun PixelIMSApp() {
                         Config(navController, subscription.subscriptionId)
                     }
                     composable("config${subscription.subscriptionId}/dump", context.resources.getString(R.string.config_dump_viewer)) {
-                        DumpedConfig(subscription.subscriptionId)
+                        DumpedConfig(context, subscription.subscriptionId)
                     }
                     composable("config${subscription.subscriptionId}/edit", context.resources.getString(R.string.expert_mode)) {
                         Editor(subscription.subscriptionId)
@@ -124,7 +128,6 @@ fun PixelIMSApp() {
                 }
             }
         }
-    }
 
     fun loadApplication() {
         val shizukuStatus = checkShizukuPermission(0)
@@ -162,13 +165,18 @@ fun PixelIMSApp() {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(currentBackStackEntry?.destination?.label?.toString() ?: stringResource(R.string.app_name), color = MaterialTheme.colorScheme.onPrimary)
+                    Text(
+                        currentBackStackEntry?.destination?.label?.toString() ?: stringResource(R.string.app_name),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
                 },
                 navigationIcon = {
                     if (currentBackStackEntry?.destination?.depth?.let { it > 1 } == true) {
-                        IconButton(onClick = { navController.popBackStack() }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                        }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Go back",
                             )
                         }
@@ -176,7 +184,9 @@ fun PixelIMSApp() {
                 },
                 actions = {
                     if (currentBackStackEntry?.destination?.route == "home") {
-                        IconButton(onClick = { loadApplication() }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
+                        IconButton(onClick = {
+                            loadApplication()
+                        }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = "Refresh contents",
@@ -191,9 +201,10 @@ fun PixelIMSApp() {
             if (currentBackStackEntry?.destination?.depth?.let { it == 1 } == true) {
                 NavigationBar {
                     val currentDestination = currentBackStackEntry?.destination
-                    val items = arrayListOf(
-                        Screen("home", stringResource(R.string.home), Icons.Filled.Home),
-                    )
+                    val items =
+                        arrayListOf(
+                            Screen("home", stringResource(R.string.home), Icons.Filled.Home),
+                        )
                     for (subscription in subscriptions) {
                         items.add(
                             Screen("config${subscription.subscriptionId}", subscription.uniqueName, Icons.Filled.Settings),
@@ -232,6 +243,7 @@ fun PixelIMSApp() {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Preview
 @Composable
 fun PixelIMSAppPreview() {
