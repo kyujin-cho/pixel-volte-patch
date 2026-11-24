@@ -35,7 +35,7 @@ Carriers which aren't possible for testing by developer but reported as supporte
   - Google Pixel 8 Pro
   - Google Pixel Fold
   - Google Pixel 9 Pro XL
-      
+
 #### Optional
 
 only if installing Shizuku using ADB
