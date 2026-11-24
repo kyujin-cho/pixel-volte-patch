@@ -16,9 +16,6 @@ import android.telephony.SubscriptionInfo
 import android.telephony.TelephonyFrameworkInitializer
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.android.internal.telephony.ICarrierConfigLoader
 import com.android.internal.telephony.IPhoneSubInfo
 import com.android.internal.telephony.ISub
@@ -32,7 +29,36 @@ object InterfaceCache {
     val cache = HashMap<String, IInterface>()
 }
 
-var configPersistent by mutableStateOf(true)
+private const val PREFS_NAME = "settings"
+private const val KEY_CONFIG_PERSISTENT = "config_persistent"
+
+val securityPatchDate: LocalDate?
+    get() =
+        try {
+            LocalDate.parse(Build.VERSION.SECURITY_PATCH)
+        } catch (_: DateTimeParseException) {
+            null
+        }
+
+// persistent=true crashes on Android 16 with the 2025-12 security patch or later
+private val defaultConfigPersistent: Boolean
+    get() = securityPatchDate?.isBefore(LocalDate.of(2025, 12, 1)) ?: true
+
+fun isConfigPersistent(context: Context): Boolean =
+    context
+        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        .getBoolean(KEY_CONFIG_PERSISTENT, defaultConfigPersistent)
+
+fun setConfigPersistent(
+    context: Context,
+    persistent: Boolean,
+) {
+    context
+        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        .edit()
+        .putBoolean(KEY_CONFIG_PERSISTENT, persistent)
+        .apply()
+}
 
 open class Moder {
     @Suppress("ktlint:standard:property-naming")
@@ -169,7 +195,10 @@ class SubscriptionModer(
     @Suppress("ktlint:standard:property-naming")
     private val TAG = "SubscriptionModer"
 
-    private fun overrideConfigDirectly(bundle: Bundle?) {
+    private fun overrideConfigDirectly(
+        bundle: Bundle?,
+        configPersistent: Boolean,
+    ) {
         val iCclInstance = this.loadCachedInterface { carrierConfigLoader }
         val args = bundle?.let(::toPersistableBundle)
 
@@ -189,7 +218,10 @@ class SubscriptionModer(
         }
     }
 
-    private fun overrideConfigUsingBroker(bundle: Bundle?) {
+    private fun overrideConfigUsingBroker(
+        bundle: Bundle?,
+        configPersistent: Boolean,
+    ) {
         val am =
             IActivityManager.Stub.asInterface(
                 ShizukuBinderWrapper(
@@ -204,6 +236,7 @@ class SubscriptionModer(
                 empty
             }
         arg.putInt("moder_subId", subscriptionId)
+        arg.putBoolean("moder_persistent", configPersistent)
 
         am.startInstrumentation(
             ComponentName(context, Class.forName("dev.bluehouse.enablevolte.BrokerInstrumentation")),
@@ -218,15 +251,11 @@ class SubscriptionModer(
     }
 
     private fun overrideConfig(bundle: Bundle?) {
-        val securityPatchDate =
+        val configPersistent = isConfigPersistent(context)
+        val patchDate = securityPatchDate
+        if (patchDate == null || patchDate.isBefore(LocalDate.of(2025, 10, 1))) {
             try {
-                LocalDate.parse(Build.VERSION.SECURITY_PATCH)
-            } catch (_: DateTimeParseException) {
-                null
-            }
-        if (securityPatchDate == null || securityPatchDate.isBefore(LocalDate.of(2025, 10, 1))) {
-            try {
-                return this.overrideConfigDirectly(bundle)
+                return this.overrideConfigDirectly(bundle, configPersistent)
             } catch (_: SecurityException) {
             } catch (_: NoSuchMethodError) {
             } catch (_: NoSuchMethodException) {
@@ -235,7 +264,7 @@ class SubscriptionModer(
                 return
             }
         }
-        this.overrideConfigUsingBroker(bundle)
+        this.overrideConfigUsingBroker(bundle, configPersistent)
     }
 
     private fun publishBundle(fn: (Bundle) -> Unit) {

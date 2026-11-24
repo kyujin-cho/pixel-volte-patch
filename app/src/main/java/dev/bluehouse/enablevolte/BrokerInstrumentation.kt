@@ -19,6 +19,7 @@ class BrokerInstrumentation : Instrumentation() {
     private fun overrideConfig(
         subId: Int,
         overrideValues: PersistableBundle?,
+        persistent: Boolean,
     ) {
         val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE)))
         try {
@@ -26,8 +27,16 @@ class BrokerInstrumentation : Instrumentation() {
             val configurationManager = this.context.getSystemService(CarrierConfigManager::class.java)
 
             try {
-                configurationManager.overrideConfig(subId, overrideValues, configPersistent)
-            } catch (e: NoSuchMethodError) {
+                try {
+                    configurationManager.overrideConfig(subId, overrideValues, persistent)
+                } catch (e: SecurityException) {
+                    if (!persistent) {
+                        throw e
+                    }
+                    Log.w(TAG, "overrideConfig with persistent=true failed, retrying with persistent=false", e)
+                    configurationManager.overrideConfig(subId, overrideValues, false)
+                }
+            } catch (_: NoSuchMethodError) {
                 configurationManager.overrideConfig(subId, overrideValues)
             }
         } finally {
@@ -38,19 +47,23 @@ class BrokerInstrumentation : Instrumentation() {
     private fun applyConfig(
         subId: Int,
         arguments: Bundle,
+        persistent: Boolean,
     ) {
         Log.i(TAG, "applyConfig")
         try {
-            this.overrideConfig(subId, toPersistableBundle(arguments))
+            this.overrideConfig(subId, toPersistableBundle(arguments), persistent)
         } finally {
             Log.i(TAG, "applyConfig done")
         }
     }
 
-    private fun clearConfig(subId: Int) {
+    private fun clearConfig(
+        subId: Int,
+        persistent: Boolean,
+    ) {
         Log.i(TAG, "clearConfig")
         try {
-            this.overrideConfig(subId, null)
+            this.overrideConfig(subId, null, persistent)
         } finally {
             Log.i(TAG, "clearConfig done")
         }
@@ -65,13 +78,16 @@ class BrokerInstrumentation : Instrumentation() {
 
         val clear = arguments.getBoolean("moder_clear")
         val subId = arguments.getInt("moder_subId")
+        val persistent = arguments.getBoolean("moder_persistent", true)
 
         try {
             if (clear) {
-                this.clearConfig(subId)
+                this.clearConfig(subId, persistent)
             } else {
-                this.applyConfig(subId, arguments)
+                this.applyConfig(subId, arguments, persistent)
             }
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to override carrier config", e)
         } finally {
             finish(0, Bundle())
         }
