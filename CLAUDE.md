@@ -66,6 +66,12 @@ Currently, this project does not have automated unit tests. Testing is performed
 - `checkShizukuPermission()`: Verifies Shizuku service is running and permission is granted
 - Shizuku provides ADB-level privileges without root to call hidden system APIs
 
+**2a. Carrier config override paths (`Moder.kt`, `BrokerInstrumentation.kt`, `PrivilegedService.kt`)**
+- Security patch before 2025-10 (or API < 31): direct `ICarrierConfigLoader.overrideConfig` through Shizuku
+- Otherwise the broker path: `BrokerInstrumentation` runs inside the app process (`INSTR_FLAG_NO_RESTART`, API 31+) and calls the public `CarrierConfigManager.overrideConfig` with the shell identity
+  - Preferred: the Shizuku UserService `PrivilegedService` (shell uid, bound by `PrivilegedServiceClient`) starts the instrumentation with a shell-owned `UiAutomationConnection`, and the broker uses the public `UiAutomation.adoptShellPermissionIdentity()` / `dropShellPermissionIdentity()`
+  - Fallback (UserService not connected yet, or adoption fails): the app starts the instrumentation through Shizuku and the broker uses the hidden `IActivityManager.startDelegateShellPermissionIdentity`
+
 **3. UI Layer**
 - Built with **Jetpack Compose** and Material 3
 - `HomeActivity.kt`: Main entry point with bottom navigation
@@ -77,7 +83,7 @@ Currently, this project does not have automated unit tests. Testing is performed
 
 **4. Hidden API Access**
 - Uses `HiddenApiBypass` library to bypass Android's hidden API restrictions
-- AIDL interfaces (`IPrivilegedService.aidl`) for Shizuku service binding
+- AIDL interface (`IPrivilegedService.aidl`) for the Shizuku UserService (`PrivilegedService`)
 
 ### Key Configuration Keys
 The app primarily modifies these `CarrierConfigManager` keys:
