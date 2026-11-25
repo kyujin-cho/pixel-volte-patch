@@ -488,7 +488,7 @@ fun Editor(subId: Int) {
                     trailingIcon = {
                         if (searchKeyword.isNotEmpty()) {
                             IconButton({ searchKeyword = "" }) {
-                                Icon(Icons.Filled.Clear, contentDescription = "Localized description")
+                                Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.clear_search))
                             }
                         }
                     },
