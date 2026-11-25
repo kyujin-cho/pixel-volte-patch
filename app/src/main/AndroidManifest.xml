@@ -8,6 +8,7 @@
         android:name="dev.bluehouse.enablevolte.BrokerInstrumentation"
         android:targetPackage="dev.bluehouse.enablevolte"/>
     <application
+        android:name=".PixelIMSApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

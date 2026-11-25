@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
+   Backup rules for API 31 and above.
    See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
+   Crash and ANR reports belong to this device and are never backed up or transferred.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <exclude domain="file" path="reports/" />
+        <exclude domain="file" path="crash-pending/" />
+        <exclude domain="sharedpref" path="crash_reports.xml" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <exclude domain="file" path="reports/" />
+        <exclude domain="file" path="crash-pending/" />
+        <exclude domain="sharedpref" path="crash_reports.xml" />
     </device-transfer>
-    -->
 </data-extraction-rules>

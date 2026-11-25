@@ -36,7 +36,7 @@ ktlint --reporter=checkstyle,output=build/ktlint-report.xml
 ```
 
 ### Testing
-Currently, this project does not have automated unit tests. Testing is performed manually by:
+JVM unit tests for pure logic live under `app/src/test` and run with `./gradlew testDebugUnitTest` (CI runs them). Device behavior is tested manually by:
 - Installing the APK on a Tensor Pixel device
 - Verifying Shizuku permission grant
 - Toggling VoLTE settings
@@ -86,6 +86,15 @@ Currently, this project does not have automated unit tests. Testing is performed
 **4. Hidden API Access**
 - Uses `HiddenApiBypass` library to bypass Android's hidden API restrictions
 - AIDL interface (`IPrivilegedService.aidl`) for the Shizuku UserService (`PrivilegedService`)
+
+**5. Crash/ANR diagnostics (`diagnostics/`, `PixelIMSApplication.kt`)**
+- `PixelIMSApplication` installs `JavaCrashRecorder` in `attachBaseContext` and starts `CrashReports.collectPreviousExits` in `onCreate` (both API 30+ only)
+- `JavaCrashRecorder` is the default uncaught exception handler: it writes the stack trace synchronously to `filesDir/crash-pending/java-crash-<timestamp>-<pid>.txt` (no Binder calls) and chains to the previous handler
+- On the next launch, a background thread reads `ActivityManager.getHistoricalProcessExitReasons` (`ExitReportCollector`) and `ExitReportProcessor` turns `REASON_ANR` (system ANR trace), `REASON_CRASH` (matched with the crash file by pid, else nearest timestamp within 60 s) and `REASON_CRASH_NATIVE` (raw tombstone protobuf, API 31+) exits into reports. A `SharedPreferences` cursor (`crash_reports.xml`) plus deterministic report ids (`<kind>-<timestamp>-<pid>`) make each exit produce at most one report; exits older than 7 days are skipped
+- `CrashReportStore` keeps reports in `filesDir/reports/<id>/` (`report.properties` + gzip `payload.gz`), at most 5 reports and 4 MiB on disk, oldest evicted first; payloads are cut at 4 MiB (text payloads get a marker). Reports and the cursor are excluded from backup
+- API for the UI (`CrashReports`): `store(context)` → `list()`, `get(id)`, `openPayload(id)`, `acknowledge(id)`, `unacknowledged()`, `hasUnacknowledged()`, `delete(id)`, `deleteAll()` (file I/O: call off the main thread); `revision` / `collected` are Compose states for refreshing
+- Not covered: the `PrivilegedService` process (shell uid) and crashes before `attachBaseContext`
+- Debug builds only: `DebugCrashTriggerActivity` (`app/src/debug`) forces an ANR, Java crash or native crash: `adb shell am start -n dev.bluehouse.enablevolte/.diagnostics.DebugCrashTriggerActivity`
 
 ### Key Configuration Keys
 The app primarily modifies these `CarrierConfigManager` keys:
