@@ -1,16 +1,21 @@
 // IPrivilegedService.aidl
 package dev.bluehouse.enablevolte;
 
-// Declare any non-default types here with import statements
+import android.content.ComponentName;
+import android.os.Bundle;
 
+// Shizuku UserService. Runs in a separate process as the shell (or root) uid.
 interface IPrivilegedService {
-    /**
-     * Demonstrates some basic types that you can use as parameters
-     * and return values in AIDL.
-     */
     void destroy() = 16777114; // Destroy method defined by Shizuku server
 
     void exit() = 1; // Exit method defined by user
 
-    void blah() = 2;
+    /**
+     * Starts the broker instrumentation from this (shell) process together with a
+     * UiAutomationConnection owned by shell, so the broker can adopt the shell permission
+     * identity through the public UiAutomation API.
+     *
+     * Returns null when the instrumentation was started, or a description of the failure.
+     */
+    String startBrokerInstrumentation(in ComponentName component, in Bundle arguments, int userId) = 2;
 }

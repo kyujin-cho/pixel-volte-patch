@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.IInterface
 import android.os.Looper
 import android.os.PersistableBundle
+import android.os.Process
 import android.os.ServiceManager
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionInfo
@@ -50,6 +51,25 @@ private val defaultConfigPersistent: Boolean
         val patchDate = securityPatchDate ?: return true
         return !(Build.VERSION.SDK_INT >= 36 && !patchDate.isBefore(LocalDate.of(2025, 12, 1)))
     }
+
+// The broker relies on INSTR_FLAG_NO_RESTART (API 31+); before that, startInstrumentation force-stops the app.
+private val canUseBroker: Boolean
+    get() = Build.VERSION.SDK_INT >= VERSION_CODES.S
+
+// Security patches from 2025-10 reject the direct ICarrierConfigLoader.overrideConfig call from shell.
+private val isBrokerPrimaryPath: Boolean
+    get() {
+        val patchDate = securityPatchDate ?: return false
+        return canUseBroker && !patchDate.isBefore(LocalDate.of(2025, 10, 1))
+    }
+
+// UserHandle.PER_USER_RANGE
+private const val PER_USER_RANGE = 100000
+
+const val BROKER_ARG_CLEAR = "moder_clear"
+const val BROKER_ARG_SUB_ID = "moder_subId"
+const val BROKER_ARG_PERSISTENT = "moder_persistent"
+const val BROKER_ARG_UI_AUTOMATION = "moder_ui_automation"
 
 fun isConfigPersistent(context: Context): Boolean =
     context
@@ -202,6 +222,14 @@ class SubscriptionModer(
     @Suppress("ktlint:standard:property-naming")
     private val TAG = "SubscriptionModer"
 
+    init {
+        // Bind the UserService ahead of the first toggle when the broker is the primary path:
+        // binding is asynchronous and toggles run on the main thread, so they cannot wait for it.
+        if (isBrokerPrimaryPath) {
+            PrivilegedServiceClient.ensureBound()
+        }
+    }
+
     private fun overrideConfigDirectly(
         bundle: Bundle?,
         configPersistent: Boolean,
@@ -232,32 +260,46 @@ class SubscriptionModer(
         bundle: Bundle?,
         configPersistent: Boolean,
     ) {
+        val arg =
+            bundle ?: run {
+                val empty = Bundle()
+                empty.putBoolean(BROKER_ARG_CLEAR, true)
+                empty
+            }
+        arg.putInt(BROKER_ARG_SUB_ID, subscriptionId)
+        arg.putBoolean(BROKER_ARG_PERSISTENT, configPersistent)
+
+        val component = ComponentName(context, BROKER_INSTRUMENTATION_CLASS)
+        val userId = Process.myUid() / PER_USER_RANGE
+
+        // Preferred: start the instrumentation from the shell-uid UserService, so the broker can
+        // adopt the shell identity through the public UiAutomation API.
+        val service = PrivilegedServiceClient.service
+        if (service != null) {
+            arg.putBoolean(BROKER_ARG_UI_AUTOMATION, true)
+            val error =
+                try {
+                    service.startBrokerInstrumentation(component, arg, userId)
+                } catch (e: Exception) {
+                    e.toString()
+                }
+            if (error == null) return
+            Log.w(TAG, "Starting the broker from the UserService failed, falling back: $error")
+        } else {
+            Log.i(TAG, "UserService is not connected yet, using the legacy broker start")
+            PrivilegedServiceClient.ensureBound()
+        }
+
+        // Fallback: start it from the app process through Shizuku. The connection is then owned by
+        // the app, so the broker has to use the hidden shell permission delegate instead.
+        arg.putBoolean(BROKER_ARG_UI_AUTOMATION, false)
         val am =
             IActivityManager.Stub.asInterface(
                 ShizukuBinderWrapper(
                     SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE),
                 ),
             )
-
-        val arg =
-            bundle ?: run {
-                val empty = Bundle()
-                empty.putBoolean("moder_clear", true)
-                empty
-            }
-        arg.putInt("moder_subId", subscriptionId)
-        arg.putBoolean("moder_persistent", configPersistent)
-
-        am.startInstrumentation(
-            ComponentName(context, Class.forName("dev.bluehouse.enablevolte.BrokerInstrumentation")),
-            null,
-            8,
-            arg,
-            null,
-            UiAutomationConnection(),
-            0,
-            null,
-        )
+        startInstrumentationCompat(am, component, INSTR_FLAG_NO_RESTART, arg, null, UiAutomationConnection(), userId)
     }
 
     private fun reportOverrideFailure(failure: Throwable) {
@@ -275,10 +317,7 @@ class SubscriptionModer(
             return
         }
         val configPersistent = isConfigPersistent(context)
-        val patchDate = securityPatchDate
-        // The broker relies on INSTR_FLAG_NO_RESTART (API 31+); before that, startInstrumentation force-stops the app.
-        val canUseBroker = Build.VERSION.SDK_INT >= VERSION_CODES.S
-        if (!canUseBroker || patchDate == null || patchDate.isBefore(LocalDate.of(2025, 10, 1))) {
+        if (!isBrokerPrimaryPath) {
             val failure: Throwable =
                 try {
                     return this.overrideConfigDirectly(bundle, configPersistent)
