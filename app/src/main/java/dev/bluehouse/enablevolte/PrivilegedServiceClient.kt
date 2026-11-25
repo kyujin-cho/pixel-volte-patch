@@ -19,6 +19,13 @@ import rikka.shizuku.Shizuku
 object PrivilegedServiceClient {
     private const val TAG = "PrivilegedServiceClient"
 
+    /**
+     * Version of the [IPrivilegedService] contract. Bump it whenever the AIDL changes: it is part
+     * of the UserService version, and Shizuku replaces a running UserService whose version
+     * differs, so a stale service from an older build (same versionCode) is not kept bound.
+     */
+    private const val INTERFACE_VERSION = 2
+
     @Volatile
     var service: IPrivilegedService? = null
         private set
@@ -32,7 +39,7 @@ object PrivilegedServiceClient {
             .daemon(false)
             .processNameSuffix("privileged")
             .debuggable(BuildConfig.DEBUG)
-            .version(BuildConfig.VERSION_CODE)
+            .version(BuildConfig.VERSION_CODE * 100 + INTERFACE_VERSION)
     }
 
     private val connection =

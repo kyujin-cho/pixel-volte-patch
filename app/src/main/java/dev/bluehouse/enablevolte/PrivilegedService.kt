@@ -7,8 +7,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
 import android.os.ServiceManager
 import android.util.Log
+import dev.bluehouse.enablevolte.diagnostics.DiagnosticsProtocol
+import dev.bluehouse.enablevolte.diagnostics.ShellDiagnostics
 import kotlin.system.exitProcess
 
 /**
@@ -47,4 +50,36 @@ class PrivilegedService : IPrivilegedService.Stub() {
             Log.e(TAG, "Failed to start the broker instrumentation", e)
             e.toString()
         }
+
+    override fun collectDiagnostics(
+        source: Int,
+        output: ParcelFileDescriptor?,
+    ): Bundle {
+        val status = Bundle()
+        try {
+            if (output == null) {
+                status.putString(DiagnosticsProtocol.KEY_ERROR, "No output file descriptor")
+                return status
+            }
+            val spec = ShellDiagnostics.specFor(source)
+            if (spec == null) {
+                status.putString(DiagnosticsProtocol.KEY_ERROR, "Unknown diagnostics source $source")
+                return status
+            }
+            val result = ShellDiagnostics.collect(spec, BuildConfig.APPLICATION_ID)
+            status.putAll(result.status)
+            ParcelFileDescriptor.AutoCloseOutputStream(output).use { it.write(result.bytes) }
+        } catch (e: Throwable) {
+            // Never let a failing command kill the service process; the report proceeds without it.
+            Log.e(TAG, "Failed to collect diagnostics source $source", e)
+            status.putString(DiagnosticsProtocol.KEY_ERROR, e.toString())
+        } finally {
+            // Closing the write end is what signals end-of-stream to the caller.
+            try {
+                output?.close()
+            } catch (_: Exception) {
+            }
+        }
+        return status
+    }
 }

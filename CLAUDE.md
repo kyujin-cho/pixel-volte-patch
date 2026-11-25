@@ -74,6 +74,12 @@ JVM unit tests for pure logic live under `app/src/test` and run with `./gradlew 
   - `BrokerRunner` runs one broker instrumentation at a time (consecutive changes of the same SIM are merged) and passes an `IInstrumentationWatcher`, so AMS reports each run's result back to the app
 - `ApplyResultTracker` keeps the per-SIM outcome (applying / applied / failed with reason) and, after each change, polls IMS registration for up to 30 s on a background thread; `restartIMSRegistration()` defers its IMS reset until a pending broker apply finishes. The Config page shows the result in `ApplyResultView`, a constant-height bar pinned below the scrolling toggle list (never inside it, so status updates do not shift the toggles); failures also show a Toast
 
+**2b. System diagnostics (`diagnostics/`, `PrivilegedService.kt`)**
+- `IPrivilegedService.collectDiagnostics(source, fd)` runs one fixed command as shell (`ShellDiagnostics`: `logcat -d -b main,system,radio`, `dumpsys dropbox --print data_app_anr|data_app_crash`), each bounded by a 15 s timeout and a tail size cap (logcat 2 MiB, dropbox 1 MiB after keeping only this app's entries). Output streams through a pipe the app passes in, never as one Binder parcel (#488)
+- `SystemDiagnostics` is the app-side API: `availability()` (main-thread safe) and suspend `collect(context)`, which returns `Unavailable(reason)` without Shizuku/permission/UserService, else masked per-source files under `cacheDir/system-diagnostics/`. Call it only after explicit user opt-in
+- `IdentifierMasker` (pure, unit tested) masks IMSI/ICCID/IMEI/phone numbers by pattern plus the device's own identifiers looked up best effort by `SubscriberIdentifiers`; masking is best effort, so users must preview before sharing
+- Changing the AIDL requires bumping `PrivilegedServiceClient.INTERFACE_VERSION` so Shizuku replaces a stale UserService
+
 **3. UI Layer**
 - Built with **Jetpack Compose** and Material 3
 - `HomeActivity.kt`: Main entry point with bottom navigation
