@@ -151,7 +151,11 @@ object ApplyResultTracker {
             while (isCurrent(subId, generation)) {
                 lastState =
                     try {
-                        if (moder.isIMSRegistered) ImsCheckState.REGISTERED else ImsCheckState.NOT_REGISTERED
+                        when (moder.isIMSRegistered) {
+                            true -> ImsCheckState.REGISTERED
+                            false -> ImsCheckState.NOT_REGISTERED
+                            null -> ImsCheckState.UNKNOWN
+                        }
                     } catch (e: Exception) {
                         Log.w(TAG, "IMS registration check failed for subId $subId", e)
                         ImsCheckState.UNKNOWN
