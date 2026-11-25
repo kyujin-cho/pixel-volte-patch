@@ -48,6 +48,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dev.bluehouse.enablevolte.components.OnLifecycleEvent
 import dev.bluehouse.enablevolte.pages.Config
+import dev.bluehouse.enablevolte.pages.CrashReportDetail
+import dev.bluehouse.enablevolte.pages.CrashReportList
 import dev.bluehouse.enablevolte.pages.DumpedConfig
 import dev.bluehouse.enablevolte.pages.Editor
 import dev.bluehouse.enablevolte.pages.Home
@@ -72,11 +74,18 @@ const val CONFIG_ROUTE = "config/{$SUB_ID_ARG}"
 const val CONFIG_DUMP_ROUTE = "config/{$SUB_ID_ARG}/dump"
 const val CONFIG_EDIT_ROUTE = "config/{$SUB_ID_ARG}/edit"
 
+const val REPORTS_ROUTE = "reports"
+const val REPORT_ID_ARG = "reportId"
+const val REPORT_ROUTE = "reports/{$REPORT_ID_ARG}"
+
 fun configRoute(subId: Int) = CONFIG_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
 
 fun configDumpRoute(subId: Int) = CONFIG_DUMP_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
 
 fun configEditRoute(subId: Int) = CONFIG_EDIT_ROUTE.replace("{$SUB_ID_ARG}", subId.toString())
+
+// Report ids are restricted to [A-Za-z0-9_-] by CrashReportStore, so they are safe in a route.
+fun reportRoute(reportId: String) = REPORT_ROUTE.replace("{$REPORT_ID_ARG}", reportId)
 
 private val topLevelRoutes = setOf(HOME_ROUTE, CONFIG_ROUTE)
 private val simRoutes = setOf(CONFIG_ROUTE, CONFIG_DUMP_ROUTE, CONFIG_EDIT_ROUTE)
@@ -312,6 +321,16 @@ fun PixelIMSApp() {
             composable(CONFIG_EDIT_ROUTE, context.resources.getString(R.string.expert_mode), subIdArguments) {
                 val subId = it.subIdArg
                 SimPage(subId) { Editor(subId) }
+            }
+            composable(REPORTS_ROUTE, context.resources.getString(R.string.crash_reports)) {
+                CrashReportList(navController)
+            }
+            composable(
+                REPORT_ROUTE,
+                context.resources.getString(R.string.crash_report),
+                listOf(navArgument(REPORT_ID_ARG) { type = NavType.StringType }),
+            ) {
+                CrashReportDetail(navController, it.arguments?.getString(REPORT_ID_ARG).orEmpty())
             }
         }
     }

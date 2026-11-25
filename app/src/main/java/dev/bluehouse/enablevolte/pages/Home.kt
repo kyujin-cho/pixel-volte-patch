@@ -24,17 +24,25 @@ import androidx.navigation.NavController
 import dev.bluehouse.enablevolte.BuildConfig
 import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.R
+import dev.bluehouse.enablevolte.REPORTS_ROUTE
 import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import dev.bluehouse.enablevolte.components.BooleanPropertyView
 import dev.bluehouse.enablevolte.components.ClickablePropertyView
+import dev.bluehouse.enablevolte.components.CrashReportCard
 import dev.bluehouse.enablevolte.components.HeaderText
 import dev.bluehouse.enablevolte.components.StringPropertyView
+import dev.bluehouse.enablevolte.diagnostics.CrashReport
+import dev.bluehouse.enablevolte.diagnostics.CrashReports
 import dev.bluehouse.enablevolte.getLatestAppVersion
 import dev.bluehouse.enablevolte.isNewerVersion
+import dev.bluehouse.enablevolte.reportRoute
 import dev.bluehouse.enablevolte.uniqueName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
+import kotlin.concurrent.thread
 
 const val TAG = "HomeActivity:Home"
 
@@ -52,6 +60,27 @@ fun Home(navController: NavController) {
 
     var isIMSRegistered by remember { mutableStateOf(listOf<Boolean?>()) }
     var newerVersion by rememberSaveable { mutableStateOf("") }
+
+    // Crash/ANR reports: checked once this launch's collection of previous exits has finished.
+    val reportsCollected by CrashReports.collected
+    val reportsRevision by CrashReports.revision
+    var storedReports by remember { mutableStateOf<List<CrashReport>?>(null) }
+    val unsentReports = storedReports.orEmpty().filter { !it.acknowledged }
+
+    LaunchedEffect(reportsCollected, reportsRevision) {
+        if (reportsCollected) {
+            storedReports = withContext(Dispatchers.IO) { CrashReports.store(context).list() }
+        }
+    }
+
+    // A plain thread, not a composition scope: "Send report" navigates away right after this.
+    fun acknowledge(reports: List<CrashReport>) {
+        val appContext = context.applicationContext
+        thread(name = "CrashReportAcknowledge") {
+            val store = CrashReports.store(appContext)
+            reports.forEach { store.acknowledge(it.id) }
+        }
+    }
 
     fun loadFlags() {
         shizukuGranted = true
@@ -94,6 +123,17 @@ fun Home(navController: NavController) {
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
+        unsentReports.firstOrNull()?.let { newest ->
+            CrashReportCard(
+                newest = newest,
+                unsentCount = unsentReports.size,
+                onSend = {
+                    acknowledge(unsentReports)
+                    navController.navigate(if (unsentReports.size > 1) REPORTS_ROUTE else reportRoute(newest.id))
+                },
+                onDismiss = { acknowledge(unsentReports) },
+            )
+        }
         HeaderText(text = stringResource(R.string.version))
         if (newerVersion.isNotEmpty()) {
             ClickablePropertyView(
@@ -124,6 +164,14 @@ fun Home(navController: NavController) {
                 trueLabel = stringResource(R.string.registered),
                 falseLabel = stringResource(R.string.unregistered),
             )
+        }
+
+        HeaderText(text = stringResource(R.string.diagnostics))
+        ClickablePropertyView(
+            label = stringResource(R.string.crash_reports),
+            value = storedReports?.let { stringResource(R.string.crash_reports_stored, it.size) } ?: stringResource(R.string.loading),
+        ) {
+            navController.navigate(REPORTS_ROUTE)
         }
     }
 }

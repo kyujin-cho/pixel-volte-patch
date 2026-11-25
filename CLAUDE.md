@@ -88,6 +88,8 @@ JVM unit tests for pure logic live under `app/src/test` and run with `./gradlew 
   - `/config{subscriptionId}`: Per-SIM configuration page
   - `/config{subscriptionId}/dump`: Raw config dump viewer
   - `/config{subscriptionId}/edit`: Expert mode editor
+  - `/reports`: Stored crash/ANR reports (`CrashReportList`)
+  - `/reports/{reportId}`: One report: preview, save, share, GitHub issue (`CrashReportDetail`)
 
 **4. Hidden API Access**
 - Uses `HiddenApiBypass` library to bypass Android's hidden API restrictions
@@ -100,6 +102,9 @@ JVM unit tests for pure logic live under `app/src/test` and run with `./gradlew 
 - `CrashReportStore` keeps reports in `filesDir/reports/<id>/` (`report.properties` + gzip `payload.gz`), at most 5 reports and 4 MiB on disk, oldest evicted first; payloads are cut at 4 MiB (text payloads get a marker). Reports and the cursor are excluded from backup
 - API for the UI (`CrashReports`): `store(context)` → `list()`, `get(id)`, `openPayload(id)`, `acknowledge(id)`, `unacknowledged()`, `hasUnacknowledged()`, `delete(id)`, `deleteAll()` (file I/O: call off the main thread); `revision` / `collected` are Compose states for refreshing
 - Not covered: the `PrivilegedService` process (shell uid) and crashes before `attachBaseContext`
+- Reporting UI: the home page shows `CrashReportCard` for unacknowledged reports once `CrashReports.collected` is true ("Send report" / "Dismiss" both acknowledge them) and a "Crash Reports" entry under Diagnostics. `CrashReportDetail` acknowledges the report on open, offers an opt-in "Include system logs" switch (disabled with an explanation without Shizuku/permission), and "Prepare preview" builds the export; changing the switch discards it
+- Export (`ReportSharing` → `ReportExporter`, off the main thread): stages `environment.txt` (exit details + `ReportEnvironment`: device, Android version, security patch, build, baseband, app version, install source, carrier name/MCC-MNC/country per SIM; never subscription ids, ICCIDs, numbers or SIM display names), the exit payload, and `system/*.txt`, masks every text file with `IdentifierMasker` (plus the device's own identifiers from `SubscriberIdentifiers` when Shizuku is granted), and zips them to `cacheDir/report-export/pixel-ims-report-<id>.zip`. The preview reads the staged files, so it is byte-identical to the zip; the binary tombstone cannot be masked or previewed, so it is added (unchanged) only when the user turns on "Include native crash dump". Only one export exists at a time; it is cleared on the next prepare, on report deletion, and at app start (`PixelIMSApplication`)
+- Sharing: "Save" (`ACTION_CREATE_DOCUMENT`), "Share" (`ACTION_SEND` chooser through the `${applicationId}.reports` `FileProvider`, paths limited to `cache/report-export/` in `res/xml/report_export_paths.xml`, read grant only via the intent's ClipData), and "GitHub issue" (`GitHubIssueLink`: `issues/new?template=bug_report.yml` with the title and form fields `device-model`, `android-version`, `security-patch`, `app-version`, `carrier`, `logs` prefilled; no traces or identifiers in the URL). These field ids are a contract with `.github/ISSUE_TEMPLATE/bug_report.yml`: do not rename them
 - Debug builds only: `DebugCrashTriggerActivity` (`app/src/debug`) forces an ANR, Java crash or native crash: `adb shell am start -n dev.bluehouse.enablevolte/.diagnostics.DebugCrashTriggerActivity`
 
 ### Key Configuration Keys
@@ -153,7 +158,7 @@ getLatestAppVersion { latestVersion ->
 - **build-debug-apk.yml**: Standalone debug build workflow
 
 ### Linting
-The project uses **ktlint 0.48.2**. Lint violations will fail CI checks on PRs affecting `app/src/**`.
+The project uses **ktlint 1.7.1** (the version CI downloads in `default.yml`). Lint violations fail the `lint` job, which gates the unit tests. Run `ktlint -F "app/src/**/*.kt"` to auto-format.
 
 ## Distribution
 
