@@ -1,10 +1,12 @@
 package dev.bluehouse.enablevolte
 
 import android.app.IActivityManager
+import android.app.IInstrumentationWatcher
 import android.app.UiAutomationConnection
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.os.IBinder
 import android.os.ServiceManager
 import android.util.Log
 import kotlin.system.exitProcess
@@ -29,14 +31,16 @@ class PrivilegedService : IPrivilegedService.Stub() {
         component: ComponentName,
         arguments: Bundle,
         userId: Int,
+        watcher: IBinder?,
     ): String? =
         try {
             val am = IActivityManager.Stub.asInterface(ServiceManager.getService(Context.ACTIVITY_SERVICE))
             // The connection lives in this process, so it is owned by shell. AMS only lets a
             // shell-owned connection delegate the shell permission identity to the instrumented app.
             val connection = UiAutomationConnection()
+            val watcherInterface = watcher?.let { IInstrumentationWatcher.Stub.asInterface(it) }
             val started =
-                startInstrumentationCompat(am, component, INSTR_FLAG_NO_RESTART, arguments, null, connection, userId)
+                startInstrumentationCompat(am, component, INSTR_FLAG_NO_RESTART, arguments, watcherInterface, connection, userId)
             if (started) null else "startInstrumentation returned false"
         } catch (e: Throwable) {
             // Never let a hidden-API mismatch kill the service process; the caller falls back.

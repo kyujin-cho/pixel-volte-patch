@@ -8,13 +8,10 @@ import android.app.UiAutomation
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.PersistableBundle
 import android.system.Os
 import android.telephony.CarrierConfigManager
 import android.util.Log
-import android.widget.Toast
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
 
@@ -218,24 +215,10 @@ class BrokerInstrumentation : Instrumentation() {
             return
         }
 
+        // The app learns the outcome through the IInstrumentationWatcher it passed to
+        // startInstrumentation (see BrokerRunner) and reports it to the user.
         Log.e(TAG, "Failed to override carrier config", failure)
-        results.putString("moder_error", failure.toString())
-        try {
-            reportFailure(failure)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to report the carrier config failure", e)
-        } finally {
-            finish(Activity.RESULT_CANCELED, results)
-        }
-    }
-
-    private fun reportFailure(failure: Throwable) {
-        // The caller only schedules the instrumentation and cannot observe the outcome, so surface
-        // the error to the user here. This runs on the instrumentation thread, hence the main-thread post.
-        val appContext = this.targetContext
-        val message = appContext.getString(R.string.config_apply_failed, failure.message ?: failure.javaClass.simpleName)
-        Handler(Looper.getMainLooper()).post {
-            Toast.makeText(appContext, message, Toast.LENGTH_LONG).show()
-        }
+        results.putString(BROKER_RESULT_ERROR, failure.message ?: failure.javaClass.simpleName)
+        finish(Activity.RESULT_CANCELED, results)
     }
 }

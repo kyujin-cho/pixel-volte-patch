@@ -14,6 +14,14 @@
   <string name="shizuku_permission_granted">Shizuku の権限を許可</string>
   <string name="persist_config">再起動後も設定を維持する (設定が適用されない場合はオフにしてください)</string>
   <string name="config_apply_failed">キャリア設定の適用に失敗しました: %1$s</string>
+  <string name="apply_result">直近の変更</string>
+  <string name="apply_result_state">キャリア設定</string>
+  <string name="apply_result_applying">適用中…</string>
+  <string name="apply_result_applied">適用済み</string>
+  <string name="apply_result_failed">失敗: %1$s</string>
+  <string name="apply_result_ims">変更後の IMS 登録</string>
+  <string name="apply_result_ims_checking">確認中… (最大 %1$d 秒)</string>
+  <string name="apply_result_ims_not_registered">%1$d 秒以内に登録されませんでした</string>
   <string name="enable_volte">VoLTE を有効化</string>
   <string name="enable_vonr">VoNR を有効化</string>
   <string name="enable_crosssim">バックアップ通話を有効化</string>

@@ -25,11 +25,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
+import dev.bluehouse.enablevolte.ApplyResultTracker
 import dev.bluehouse.enablevolte.CarrierModer
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
 import dev.bluehouse.enablevolte.checkShizukuPermission
+import dev.bluehouse.enablevolte.components.ApplyResultView
 import dev.bluehouse.enablevolte.components.BooleanPropertyView
 import dev.bluehouse.enablevolte.components.ClickablePropertyView
 import dev.bluehouse.enablevolte.components.HeaderText
@@ -184,6 +186,8 @@ fun Config(
                 configPersistent = !configPersistent
                 setConfigPersistent(context, configPersistent)
             }
+
+            ApplyResultView(ApplyResultTracker.statuses[subId])
 
             HeaderText(text = stringResource(R.string.feature_toggles))
             BooleanPropertyView(label = stringResource(R.string.enable_volte), toggled = voLTEEnabled) {

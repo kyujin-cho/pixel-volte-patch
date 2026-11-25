@@ -13,9 +13,10 @@ interface IPrivilegedService {
     /**
      * Starts the broker instrumentation from this (shell) process together with a
      * UiAutomationConnection owned by shell, so the broker can adopt the shell permission
-     * identity through the public UiAutomation API.
+     * identity through the public UiAutomation API. The optional watcher is an
+     * IInstrumentationWatcher binder that AMS notifies when the instrumentation finishes.
      *
      * Returns null when the instrumentation was started, or a description of the failure.
      */
-    String startBrokerInstrumentation(in ComponentName component, in Bundle arguments, int userId) = 2;
+    String startBrokerInstrumentation(in ComponentName component, in Bundle arguments, int userId, IBinder watcher) = 2;
 }
