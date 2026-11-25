@@ -73,15 +73,27 @@ class ReportExporterTest {
     }
 
     @Test
-    fun `binary tombstone is copied unchanged`() {
+    fun `binary tombstone is copied unchanged when included`() {
         val tombstone = ByteArray(4096) { (it % 251).toByte() }
         val report = save(ExitKind.NATIVE_CRASH, tombstone)
 
-        val export = exporter.prepare(report, environmentText, emptySet(), ReportExporter.SystemPart.NotRequested)
+        val export =
+            exporter.prepare(report, environmentText, emptySet(), ReportExporter.SystemPart.NotRequested, includeBinaryPayload = true)
 
         val file = export.files.single { it.name == "tombstone.pb" }
         assertFalse(file.text)
         assertTrue(tombstone.contentEquals(zipEntries(export.zip).getValue("tombstone.pb")))
+    }
+
+    @Test
+    fun `binary tombstone is left out by default`() {
+        val report = save(ExitKind.NATIVE_CRASH, ByteArray(16))
+
+        val export = exporter.prepare(report, environmentText, emptySet(), ReportExporter.SystemPart.NotRequested)
+        val entries = zipEntries(export.zip)
+
+        assertEquals(setOf("environment.txt"), entries.keys)
+        assertTrue(entries.getValue("environment.txt").decodeToString().contains("Payload: tombstone.pb (not included)"))
     }
 
     @Test

@@ -43,24 +43,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.components.ConfirmDialog
+import dev.bluehouse.enablevolte.components.OnLifecycleEvent
 import dev.bluehouse.enablevolte.components.exitKindLabel
 import dev.bluehouse.enablevolte.components.reportSummary
 import dev.bluehouse.enablevolte.diagnostics.CrashReport
 import dev.bluehouse.enablevolte.diagnostics.CrashReports
+import dev.bluehouse.enablevolte.diagnostics.ExitKind
 import dev.bluehouse.enablevolte.diagnostics.ReportExporter
 import dev.bluehouse.enablevolte.diagnostics.ReportSharing
 import dev.bluehouse.enablevolte.diagnostics.SystemDiagnostics
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
 private const val DETAIL_TAG = "CrashReportDetail"
+
+/** Outlives the page, for work that must finish after the user navigates away. */
+private val detachedScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
 /** Lines per preview item, so a multi-megabyte log is laid out lazily. */
 private const val PREVIEW_CHUNK_LINES = 100
@@ -87,12 +95,19 @@ fun CrashReportDetail(
     var report by remember { mutableStateOf<CrashReport?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var includeSystem by rememberSaveable { mutableStateOf(false) }
+    var includeTombstone by rememberSaveable { mutableStateOf(false) }
     var preparing by remember { mutableStateOf(false) }
     var prepared by remember { mutableStateOf<ReportSharing.Prepared?>(null) }
     var preview by remember { mutableStateOf<List<PreviewFile>>(emptyList()) }
     var error by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
-    val availability = remember { SystemDiagnostics.availability() }
+    var availability by remember { mutableStateOf(SystemDiagnostics.availability()) }
+    val systemUsable = isUsable(availability)
+
+    // Shizuku may have been started or granted while the user was away.
+    OnLifecycleEvent { _, event ->
+        if (event == Lifecycle.Event.ON_RESUME) availability = SystemDiagnostics.availability()
+    }
 
     LaunchedEffect(reportId) {
         report =
@@ -105,7 +120,8 @@ fun CrashReportDetail(
     val saveLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
             val zip = prepared?.export?.zip
-            if (uri != null && zip != null) scope.launch { saveZip(context, zip, uri) }
+            // Not the composition scope: leaving the page must not cut the copy short.
+            if (uri != null && zip != null) detachedScope.launch { saveZip(context.applicationContext, zip, uri) }
         }
 
     fun prepare() {
@@ -113,7 +129,7 @@ fun CrashReportDetail(
         error = null
         scope.launch {
             try {
-                val result = ReportSharing.prepare(context, reportId, includeSystem)
+                val result = ReportSharing.prepare(context, reportId, includeSystem && systemUsable, includeTombstone)
                 if (result == null) {
                     report = null
                 } else {
@@ -148,7 +164,7 @@ fun CrashReportDetail(
                         Text(stringResource(R.string.report_app_version, it), color = MaterialTheme.colorScheme.outline)
                     }
                     current.details.description?.let { Text(it, color = MaterialTheme.colorScheme.outline) }
-                    TextButton(onClick = { confirmDelete = true }, contentPadding = TextButtonPadding) {
+                    TextButton(onClick = { confirmDelete = true }, enabled = !preparing, contentPadding = TextButtonPadding) {
                         Text(stringResource(R.string.delete))
                     }
                 }
@@ -164,6 +180,19 @@ fun CrashReportDetail(
                         preview = emptyList()
                     },
                 )
+                if (current.kind == ExitKind.NATIVE_CRASH && current.hasPayload) {
+                    OptionSwitch(
+                        title = stringResource(R.string.include_tombstone),
+                        description = stringResource(R.string.include_tombstone_description),
+                        checked = includeTombstone,
+                        enabled = !preparing,
+                        onCheckedChange = {
+                            includeTombstone = it
+                            prepared = null
+                            preview = emptyList()
+                        },
+                    )
+                }
                 Text(
                     text = stringResource(R.string.report_preview_warning),
                     style = MaterialTheme.typography.bodyMedium,
@@ -242,6 +271,12 @@ fun CrashReportDetail(
 
 private val TextButtonPadding = PaddingValues(0.dp)
 
+/** Whether system diagnostics can be requested; a UserService that is still connecting is fine. */
+private fun isUsable(availability: SystemDiagnostics.Availability): Boolean {
+    val reason = (availability as? SystemDiagnostics.Availability.Unavailable)?.reason
+    return reason == null || reason == SystemDiagnostics.UnavailableReason.SERVICE_NOT_CONNECTED
+}
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 private fun SystemDiagnosticsOption(
@@ -250,28 +285,38 @@ private fun SystemDiagnosticsOption(
     enabled: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    val unavailableReason = (availability as? SystemDiagnostics.Availability.Unavailable)?.reason
-    // A UserService that is still connecting is not a reason to refuse: collection waits for it.
-    val usable = unavailableReason == null || unavailableReason == SystemDiagnostics.UnavailableReason.SERVICE_NOT_CONNECTED
+    val usable = isUsable(availability)
+    OptionSwitch(
+        title = stringResource(R.string.include_system_diagnostics),
+        description =
+            when ((availability as? SystemDiagnostics.Availability.Unavailable)?.reason) {
+                SystemDiagnostics.UnavailableReason.SHIZUKU_NOT_RUNNING ->
+                    stringResource(R.string.system_diagnostics_unavailable_not_running)
+                SystemDiagnostics.UnavailableReason.PERMISSION_NOT_GRANTED ->
+                    stringResource(R.string.system_diagnostics_unavailable_no_permission)
+                else -> stringResource(R.string.include_system_diagnostics_description)
+            },
+        checked = checked && usable,
+        enabled = enabled && usable,
+        onCheckedChange = onCheckedChange,
+    )
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+private fun OptionSwitch(
+    title: String,
+    description: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 12.dp)) {
         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-            Text(stringResource(R.string.include_system_diagnostics), style = MaterialTheme.typography.titleMedium)
-            Text(
-                text =
-                    when (unavailableReason) {
-                        null -> stringResource(R.string.include_system_diagnostics_description)
-                        SystemDiagnostics.UnavailableReason.SHIZUKU_NOT_RUNNING ->
-                            stringResource(R.string.system_diagnostics_unavailable_not_running)
-                        SystemDiagnostics.UnavailableReason.PERMISSION_NOT_GRANTED ->
-                            stringResource(R.string.system_diagnostics_unavailable_no_permission)
-                        SystemDiagnostics.UnavailableReason.SERVICE_NOT_CONNECTED ->
-                            stringResource(R.string.include_system_diagnostics_description)
-                    },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline,
-            )
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(text = description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
         }
-        Switch(checked = checked && usable, enabled = enabled && usable, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, enabled = enabled, onCheckedChange = onCheckedChange)
     }
 }
 

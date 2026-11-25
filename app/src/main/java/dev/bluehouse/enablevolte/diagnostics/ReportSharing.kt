@@ -33,13 +33,15 @@ object ReportSharing {
 
     /**
      * Builds the export of report [reportId]; collects system diagnostics only when
-     * [includeSystemDiagnostics] is true. Returns null if the report no longer exists. Runs on
+     * [includeSystemDiagnostics] is true, and the unmaskable native tombstone only when
+     * [includeBinaryPayload] is true. Returns null if the report no longer exists. Runs on
      * [Dispatchers.IO]; throws [java.io.IOException] when the zip cannot be written.
      */
     suspend fun prepare(
         context: Context,
         reportId: String,
         includeSystemDiagnostics: Boolean,
+        includeBinaryPayload: Boolean,
     ): Prepared? =
         withContext(Dispatchers.IO) {
             val appContext = context.applicationContext
@@ -66,7 +68,10 @@ object ReportSharing {
                     }
                 }
             try {
-                Prepared(exporter(appContext).prepare(report, environment.format(), knownIdentifiers, system), environment)
+                Prepared(
+                    exporter(appContext).prepare(report, environment.format(), knownIdentifiers, system, includeBinaryPayload),
+                    environment,
+                )
             } finally {
                 // The masked files were copied into the export; do not keep a second copy around.
                 if (includeSystemDiagnostics) SystemDiagnostics.clear(appContext)

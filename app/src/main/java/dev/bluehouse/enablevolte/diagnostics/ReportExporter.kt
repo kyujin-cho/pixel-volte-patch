@@ -49,23 +49,27 @@ class ReportExporter(
     /**
      * Stages and zips [report]: `environment.txt` ([environmentText] plus the exit details and the
      * system diagnostics status), the masked exit payload, and the already masked system
-     * diagnostics files under `system/`. Throws [IOException] when a file cannot be written.
+     * diagnostics files under `system/`. A binary payload (native tombstone) cannot be masked or
+     * previewed, so it is only added when [includeBinaryPayload] is true. Throws [IOException] when
+     * a file cannot be written.
      */
     fun prepare(
         report: CrashReport,
         environmentText: String,
         knownIdentifiers: Set<String>,
         system: SystemPart,
+        includeBinaryPayload: Boolean = false,
     ): Export {
         clear()
         val staging = File(exportRoot, STAGING_DIR)
         if (!staging.mkdirs()) throw IOException("cannot create $staging")
 
         val files = mutableListOf<ExportedFile>()
-        val environment = buildEnvironment(report, environmentText, system)
+        val includePayload = report.hasPayload && (report.kind.textPayload || includeBinaryPayload)
+        val environment = buildEnvironment(report, environmentText, system, includePayload)
         files += writeMasked(staging, ENVIRONMENT_FILE, environment, knownIdentifiers)
 
-        if (report.hasPayload) {
+        if (includePayload) {
             val input = store.openPayload(report.id) ?: throw IOException("cannot read the payload of ${report.id}")
             if (report.kind.textPayload) {
                 val text = input.use { it.readBytes().toString(Charsets.UTF_8) }
@@ -136,6 +140,7 @@ class ReportExporter(
             report: CrashReport,
             environmentText: String,
             system: SystemPart,
+            payloadIncluded: Boolean,
         ): String =
             buildString {
                 appendLine("# Pixel IMS crash/ANR report")
@@ -155,6 +160,7 @@ class ReportExporter(
                 val payload =
                     when {
                         !report.hasPayload -> "none"
+                        !payloadIncluded -> "${report.payloadName} (not included)"
                         report.payloadTruncated -> "${report.payloadName} (truncated)"
                         else -> report.payloadName
                     }

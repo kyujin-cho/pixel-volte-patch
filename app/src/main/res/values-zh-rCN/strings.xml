@@ -121,6 +121,8 @@
     <string name="system_diagnostics_unavailable_not_running">不可用：Shizuku 未运行。</string>
     <string name="system_diagnostics_unavailable_no_permission">不可用：未授予 Shizuku 权限。</string>
     <string name="report_preview_warning">IMSI、ICCID、IMEI 和电话号码会尽可能被遮盖。分享前请检查预览：预览内容与 zip 中的内容完全一致。</string>
+    <string name="include_tombstone">包含原生崩溃转储</string>
+    <string name="include_tombstone_description">tombstone.pb 是二进制文件：无法预览或遮盖，并且可能包含应用的内存和日志内容。默认关闭。</string>
     <string name="prepare_report">生成预览</string>
     <string name="report_prepare_failed">无法生成报告：%1$s</string>
     <string name="report_preview_binary">%1$s（二进制，%2$s；无法预览或遮盖）</string>

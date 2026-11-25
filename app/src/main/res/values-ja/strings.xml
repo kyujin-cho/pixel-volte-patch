@@ -121,6 +121,8 @@
   <string name="system_diagnostics_unavailable_not_running">利用不可: Shizuku が実行されていません。</string>
   <string name="system_diagnostics_unavailable_no_permission">利用不可: Shizuku の権限が付与されていません。</string>
   <string name="report_preview_warning">IMSI、ICCID、IMEI、電話番号は可能な範囲でマスクされます。共有する前にプレビューを確認してください。プレビューは zip の内容そのものです。</string>
+  <string name="include_tombstone">ネイティブクラッシュダンプを含める</string>
+  <string name="include_tombstone_description">tombstone.pb はバイナリファイルのため、プレビューやマスクができず、アプリのメモリやログが含まれる可能性があります。初期設定はオフです。</string>
   <string name="prepare_report">プレビューを作成</string>
   <string name="report_prepare_failed">レポートを作成できませんでした: %1$s</string>
   <string name="report_preview_binary">%1$s (バイナリ、%2$s。プレビューおよびマスクはできません)</string>

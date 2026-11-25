@@ -120,6 +120,8 @@
     <string name="system_diagnostics_unavailable_not_running">Unavailable: Shizuku is not running.</string>
     <string name="system_diagnostics_unavailable_no_permission">Unavailable: Shizuku permission is not granted.</string>
     <string name="report_preview_warning">IMSI, ICCID, IMEI and phone numbers are masked on a best-effort basis. Review the preview before sharing: it is exactly what the zip contains.</string>
+    <string name="include_tombstone">Include native crash dump</string>
+    <string name="include_tombstone_description">tombstone.pb is binary: it cannot be previewed or masked and may contain memory and log lines of the app. Off by default.</string>
     <string name="prepare_report">Prepare preview</string>
     <string name="report_prepare_failed">Could not prepare the report: %1$s</string>
     <string name="report_preview_binary">%1$s (binary, %2$s; cannot be previewed or masked)</string>
