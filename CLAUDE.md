@@ -122,9 +122,12 @@ VoLTE status is verified via:
 The app checks GitHub Releases API for updates:
 ```kotlin
 getLatestAppVersion { latestVersion ->
-    // Compare with BuildConfig.VERSION_NAME
+    if (isNewerVersion(latestVersion, BuildConfig.VERSION_NAME)) { /* show update */ }
 }
 ```
+- `getLatestAppVersion` returns the newest release that is neither a draft nor a pre-release (`latestStableTag` in `AppVersion.kt`), so beta releases never prompt stable users.
+- `parseAppVersion` accepts SemVer plus short beta tags such as `1.5.0b1` (read as `1.5.0-b1`, which sorts below `1.5.0`) and returns null instead of throwing; unparseable versions never count as newer.
+- Beta releases: tag `X.Y.ZbN` with the same `versionName`, then mark the GitHub release as a pre-release.
 
 ## CI/CD
 

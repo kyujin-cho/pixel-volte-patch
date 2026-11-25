@@ -56,24 +56,28 @@ fun getLatestAppVersion(handler: (String) -> Unit) {
         .httpGet()
         .header("X-GitHub-Api-Version", "2022-11-28")
         .responseJson { _, _, result ->
-            when (result) {
-                is Result.Failure -> {
-                    handler("0.0.0")
+            val tag =
+                when (result) {
+                    is Result.Failure -> null
+                    is Result.Success ->
+                        try {
+                            val array = result.get().array()
+                            val releases =
+                                (0 until array.length()).map { index ->
+                                    val release = array.getJSONObject(index)
+                                    ReleaseInfo(
+                                        tagName = release.getString("tag_name"),
+                                        prerelease = release.optBoolean("prerelease", false),
+                                        draft = release.optBoolean("draft", false),
+                                    )
+                                }
+                            latestStableTag(releases)
+                        } catch (e: java.lang.Exception) {
+                            null
+                        }
                 }
-                is Result.Success -> {
-                    try {
-                        handler(
-                            result
-                                .get()
-                                .array()
-                                .getJSONObject(0)
-                                .getString("tag_name"),
-                        )
-                    } catch (e: java.lang.Exception) {
-                        handler("0.0.0")
-                    }
-                }
-            }
+            // Called once, outside the try, so a failure in the handler is not retried with a fallback value.
+            handler(tag ?: "0.0.0")
         }
 }
 
