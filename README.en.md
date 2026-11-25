@@ -7,6 +7,10 @@ Due to security measures applied on Android on behalf of Google, you may have to
 
 Refer [here](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/troubleshooting.en.md).
 
+## Reporting bugs
+
+To report a crash, an ANR or another bug, follow the [bug reporting guide](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/bug-reporting.en.md) and use the [bug report form](https://github.com/kyujin-cho/pixel-volte-patch/issues/new?template=bug_report.yml). Logs can contain your IMSI, ICCID, IMEI and phone numbers: remove them before posting.
+
 ## Introduction
 
 This document describes enabling VoLTE support on select Google Pixel devices by using Android's internal `telephony.ICarrierConfigLoader.overrideConfig()`. This patch can be considered as a rootless method of [voenabler](https://github.com/cigarzh/voenabler).
