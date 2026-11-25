@@ -224,7 +224,7 @@ fun PixelIMSApp() {
                         }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Go back",
+                                contentDescription = stringResource(R.string.navigate_back),
                             )
                         }
                     }
@@ -236,7 +236,7 @@ fun PixelIMSApp() {
                         }, colors = IconButtonDefaults.filledIconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)) {
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
-                                contentDescription = "Refresh contents",
+                                contentDescription = stringResource(R.string.refresh),
                             )
                         }
                     }

@@ -21,7 +21,7 @@ The bug report form asks for these; have them ready:
 - **Android version** and **security patch level**: Settings > About phone > Android version
 - **Pixel IMS version**: shown at the top of the app's home page, and whether you installed it from **Google Play or a GitHub Releases APK**
 - **Carrier and country** for each SIM involved, and the **SIM slot** (SIM 1 / SIM 2, physical SIM or eSIM)
-- **Which toggles you changed** in Pixel IMS (for example Enable VoLTE, Enable VoNR, values changed in Expert Mode)
+- **Which toggles you changed** in Pixel IMS (for example Enable VoLTE, Enable VoNR, values changed in Expert mode)
 - **Steps to reproduce**, the **expected** behavior and what **actually** happened
 - **Logs**: the report zip exported from the app, or logs collected manually (see below)
 
@@ -29,7 +29,7 @@ The bug report form asks for these; have them ready:
 
 When Pixel IMS crashed or stopped responding, the next launch shows a card on the home page: "The app crashed last time. Send a report?" or "The app stopped responding last time. Send a report?".
 
-1. Tap **Send report**. (Stored reports are also available any time under **Home > Diagnostics > Crash Reports**.)
+1. Tap **Send report**. (Stored reports are also available any time under **Home > Diagnostics > Crash reports**.)
 2. Optional: turn on **Include system logs** to add logcat (main, system and radio buffers) and the system's ANR and crash entries for Pixel IMS. This needs Shizuku to be running with permission granted; otherwise the switch is disabled. It is off by default because radio logs are the most likely place for subscriber identifiers.
 3. Tap **Prepare preview**. The page shows every file that goes into the zip, after masking. Read it: masking is best effort.
 4. Tap **Save** and store the zip (for example in Downloads). **Share** sends the zip to another app instead.
@@ -43,7 +43,7 @@ The zip contains:
 
 IMSI, ICCID, IMEI and phone numbers are masked as `[IMSI]`, `[ICCID]`, `[IMEI]`, `[PHONE]`, `[ID]` or `[NUMBER]`. `tombstone.pb` is a binary file that cannot be masked or previewed, which is why it is off by default.
 
-Reports can be deleted one by one or all at once from **Crash Reports**.
+Reports can be deleted one by one or all at once from **Crash reports**.
 
 ## Collecting logs manually with adb
 

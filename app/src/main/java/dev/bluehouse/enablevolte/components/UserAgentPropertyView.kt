@@ -73,7 +73,7 @@ fun UserAgentUpdateDialog(
                                 .menuAnchor()
                                 .wrapContentWidth(),
                         readOnly = true,
-                        value = if (values[selectedIndex] == typedText) labels[selectedIndex] else "Custom",
+                        value = if (values[selectedIndex] == typedText) labels[selectedIndex] else stringResource(R.string.custom),
                         onValueChange = {},
                         label = { Text(stringResource(R.string.presets)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },

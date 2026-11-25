@@ -29,23 +29,23 @@ English version available [here](https://github.com/kyujin-cho/pixel-volte-patch
 
 Pixel IMS가 크래시되었거나 응답하지 않았다면, 다음 실행 시 홈 화면에 카드가 표시됩니다.
 
-1. **Send report**를 누릅니다. (저장된 보고서는 언제든 **홈 > Diagnostics > Crash Reports**에서도 볼 수 있습니다.)
-2. 선택 사항: **Include system logs**를 켜면 logcat (main, system, radio 버퍼)과 Pixel IMS에 대한 시스템의 ANR 및 크래시 기록이 추가됩니다. Shizuku가 실행 중이고 권한이 허용되어 있어야 하며, 그렇지 않으면 스위치가 비활성화됩니다. radio 로그에 가입자 식별자가 들어 있을 가능성이 가장 높기 때문에 기본값은 꺼져 있습니다.
-3. **Prepare preview**를 누릅니다. 마스킹이 적용된 뒤 zip에 들어갈 모든 파일이 화면에 표시됩니다. 마스킹은 완벽하지 않으므로 직접 읽어 확인해 주세요.
-4. **Save**를 눌러 zip을 저장합니다 (예: 다운로드 폴더). **Share**를 누르면 다른 앱으로 zip을 보낼 수 있습니다.
-5. **GitHub issue**를 누릅니다. 제목, 기기 모델, Android 버전, 보안 패치, 앱 버전, 통신사가 미리 채워진 버그 신고 양식이 열립니다. 나머지 항목을 채우고 저장한 zip을 **Logs and attachments** 칸에 끌어다 놓아 첨부합니다.
+1. **보고서 보내기**를 누릅니다. (저장된 보고서는 언제든 **홈 > 진단 > 크래시 보고서**에서도 볼 수 있습니다.)
+2. 선택 사항: **시스템 로그 포함**을 켜면 logcat (main, system, radio 버퍼)과 Pixel IMS에 대한 시스템의 ANR 및 크래시 기록이 추가됩니다. Shizuku가 실행 중이고 권한이 허용되어 있어야 하며, 그렇지 않으면 스위치가 비활성화됩니다. radio 로그에 가입자 식별자가 들어 있을 가능성이 가장 높기 때문에 기본값은 꺼져 있습니다.
+3. **미리보기 생성**을 누릅니다. 마스킹이 적용된 뒤 zip에 들어갈 모든 파일이 화면에 표시됩니다. 마스킹은 완벽하지 않으므로 직접 읽어 확인해 주세요.
+4. **저장**을 눌러 zip을 저장합니다 (예: 다운로드 폴더). **공유**를 누르면 다른 앱으로 zip을 보낼 수 있습니다.
+5. **GitHub 이슈**를 누릅니다. 제목, 기기 모델, Android 버전, 보안 패치, 앱 버전, 통신사가 미리 채워진 버그 신고 양식이 열립니다. 나머지 항목을 채우고 저장한 zip을 **Logs and attachments** 칸에 끌어다 놓아 첨부합니다.
 
 앱의 언어 설정에 따라 버튼 이름은 다르게 표시될 수 있습니다.
 
 zip에는 다음 파일이 들어 있습니다.
 
 - `environment.txt`: 종료 정보 (종류, 시각, 앱 버전), 기기 모델, Android 버전, 보안 패치, 빌드, 베이스밴드, 앱 버전, 설치 경로, SIM별 통신사 이름 / MCC-MNC / 국가. 구독 ID, ICCID, 전화번호는 포함되지 않습니다.
-- 종료 추적 정보: `anr-trace.txt` (ANR) 또는 `java-crash.txt` (크래시). 네이티브 크래시의 `tombstone.pb`는 **Include native crash dump**를 켠 경우에만 추가됩니다.
-- **Include system logs**를 켠 경우 `system/*.txt`
+- 종료 추적 정보: `anr-trace.txt` (ANR) 또는 `java-crash.txt` (크래시). 네이티브 크래시의 `tombstone.pb`는 **네이티브 크래시 덤프 포함**을 켠 경우에만 추가됩니다.
+- **시스템 로그 포함**을 켠 경우 `system/*.txt`
 
 IMSI, ICCID, IMEI, 전화번호는 `[IMSI]`, `[ICCID]`, `[IMEI]`, `[PHONE]`, `[ID]`, `[NUMBER]`로 가려집니다. `tombstone.pb`는 바이너리 파일이라 마스킹하거나 미리 볼 수 없으므로 기본값은 꺼져 있습니다.
 
-보고서는 **Crash Reports** 화면에서 하나씩 또는 한꺼번에 삭제할 수 있습니다.
+보고서는 **크래시 보고서** 화면에서 하나씩 또는 한꺼번에 삭제할 수 있습니다.
 
 ## adb로 로그 직접 수집하기
 
