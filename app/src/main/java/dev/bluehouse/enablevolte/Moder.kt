@@ -566,16 +566,11 @@ class SubscriptionModer(
                     ImsRegistrationCheck.Step("isImsRegisteredForSubscriber(subId)") {
                         ImsRegistrationCheck.invokeIntToBoolean(telephony, "isImsRegisteredForSubscriber", this.subscriptionId)
                     },
+                    // No isImsRegistered(slotIndex) step: it resolves to the same isImsRegistered(int) method,
+                    // so it could only run after the subId call failed at runtime, and would then pass a
+                    // slot index where a subId is expected and report another SIM's state.
                     ImsRegistrationCheck.Step("isImsRegistered(subId)") {
                         telephony.isImsRegistered(this.subscriptionId)
-                    },
-                    ImsRegistrationCheck.Step("isImsRegistered(slotIndex)") {
-                        val slotIndex = this.simSlotIndex
-                        if (slotIndex < 0 || slotIndex == this.subscriptionId) {
-                            null
-                        } else {
-                            ImsRegistrationCheck.invokeIntToBoolean(telephony, "isImsRegistered", slotIndex)
-                        }
                     },
                 ),
             ) { step, e -> Log.w(TAG, "IMS registration check via $step failed", e) }
