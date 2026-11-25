@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   Files the "dev.bluehouse.enablevolte.reports" FileProvider may serve: only the exported crash/ANR
+   report zip under cacheDir/report-export/ (see diagnostics/ReportSharing.kt).
+-->
+<paths>
+    <cache-path name="report_export" path="report-export/" />
+</paths>
