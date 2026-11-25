@@ -14,6 +14,14 @@
     <string name="shizuku_permission_granted">Shizuku 已授权</string>
     <string name="persist_config">重启后保留设置 (若设置无法生效请关闭)</string>
     <string name="config_apply_failed">应用运营商配置失败：%1$s</string>
+    <string name="apply_result">最近的更改</string>
+    <string name="apply_result_state">运营商配置</string>
+    <string name="apply_result_applying">正在应用…</string>
+    <string name="apply_result_applied">已应用</string>
+    <string name="apply_result_failed">失败：%1$s</string>
+    <string name="apply_result_ims">更改后的 IMS 注册</string>
+    <string name="apply_result_ims_checking">正在检查…（最长 %1$d 秒）</string>
+    <string name="apply_result_ims_not_registered">%1$d 秒内未注册</string>
     <string name="enable_volte">启用 VoLTE</string>
     <string name="enable_vonr">启用 VoNR</string>
     <string name="enable_crosssim">启用备用通话</string>

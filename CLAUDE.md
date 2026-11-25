@@ -71,6 +71,8 @@ Currently, this project does not have automated unit tests. Testing is performed
 - Otherwise the broker path: `BrokerInstrumentation` runs inside the app process (`INSTR_FLAG_NO_RESTART`, API 31+) and calls the public `CarrierConfigManager.overrideConfig` with the shell identity
   - Preferred: the Shizuku UserService `PrivilegedService` (shell uid, bound by `PrivilegedServiceClient`) starts the instrumentation with a shell-owned `UiAutomationConnection`, and the broker uses the public `UiAutomation.adoptShellPermissionIdentity()` / `dropShellPermissionIdentity()`
   - Fallback (UserService not connected yet, or adoption fails): the app starts the instrumentation through Shizuku and the broker uses the hidden `IActivityManager.startDelegateShellPermissionIdentity`
+  - `BrokerRunner` runs one broker instrumentation at a time (consecutive changes of the same SIM are merged) and passes an `IInstrumentationWatcher`, so AMS reports each run's result back to the app
+- `ApplyResultTracker` keeps the per-SIM outcome (applying / applied / failed with reason) and, after each change, polls IMS registration for up to 30 s on a background thread; `restartIMSRegistration()` defers its IMS reset until a pending broker apply finishes. The Config page shows the result in `ApplyResultView`, a constant-height bar pinned below the scrolling toggle list (never inside it, so status updates do not shift the toggles); failures also show a Toast
 
 **3. UI Layer**
 - Built with **Jetpack Compose** and Material 3
@@ -113,7 +115,8 @@ The `Moder` class implements `loadCachedInterface()` to cache Binder interfaces 
 ### IMS Registration Check
 VoLTE status is verified via:
 1. `SubscriptionModer.isIMSRegistered`: Programmatic check returning `Boolean?`. `ImsRegistrationCheck` tries `ITelephony.isImsRegisteredForSubscriber(subId)`, then `isImsRegistered(subId)`, skipping variants that are missing or fail with hidden-API drift errors. `null` means "unknown" and is shown as such on the home page and IMS status QS tile instead of crashing.
-2. User can also check via dialer codes: `*#*#4636#*#*` → Phone information → IMS Service Status
+2. After a config change, `ApplyResultTracker` polls `isIMSRegistered` (bounded, 30 s; `null` is shown as unknown) and the Config page shows the result
+3. User can also check via dialer codes: `*#*#4636#*#*` → Phone information → IMS Service Status
 
 ### Version Updates
 The app checks GitHub Releases API for updates:

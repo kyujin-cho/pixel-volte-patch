@@ -1,8 +1,5 @@
 package dev.bluehouse.enablevolte
 
-import android.app.IActivityManager
-import android.app.UiAutomationConnection
-import android.content.ComponentName
 import android.content.Context
 import android.content.res.Resources
 import android.os.Build
@@ -12,7 +9,6 @@ import android.os.Handler
 import android.os.IInterface
 import android.os.Looper
 import android.os.PersistableBundle
-import android.os.Process
 import android.os.ServiceManager
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionInfo
@@ -25,7 +21,6 @@ import com.android.internal.telephony.IPhoneSubInfo
 import com.android.internal.telephony.ISub
 import com.android.internal.telephony.ITelephony
 import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.InvocationTargetException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -63,13 +58,11 @@ private val isBrokerPrimaryPath: Boolean
         return canUseBroker && !patchDate.isBefore(LocalDate.of(2025, 10, 1))
     }
 
-// UserHandle.PER_USER_RANGE
-private const val PER_USER_RANGE = 100000
-
 const val BROKER_ARG_CLEAR = "moder_clear"
 const val BROKER_ARG_SUB_ID = "moder_subId"
 const val BROKER_ARG_PERSISTENT = "moder_persistent"
 const val BROKER_ARG_UI_AUTOMATION = "moder_ui_automation"
+const val BROKER_RESULT_ERROR = "moder_error"
 
 fun isConfigPersistent(context: Context): Boolean =
     context
@@ -269,37 +262,13 @@ class SubscriptionModer(
         arg.putInt(BROKER_ARG_SUB_ID, subscriptionId)
         arg.putBoolean(BROKER_ARG_PERSISTENT, configPersistent)
 
-        val component = ComponentName(context, BROKER_INSTRUMENTATION_CLASS)
-        val userId = Process.myUid() / PER_USER_RANGE
+        BrokerRunner.enqueue(context, subscriptionId, arg)
+    }
 
-        // Preferred: start the instrumentation from the shell-uid UserService, so the broker can
-        // adopt the shell identity through the public UiAutomation API.
-        val service = PrivilegedServiceClient.service
-        if (service != null) {
-            arg.putBoolean(BROKER_ARG_UI_AUTOMATION, true)
-            val error =
-                try {
-                    service.startBrokerInstrumentation(component, arg, userId)
-                } catch (e: Exception) {
-                    e.toString()
-                }
-            if (error == null) return
-            Log.w(TAG, "Starting the broker from the UserService failed, falling back: $error")
-        } else {
-            Log.i(TAG, "UserService is not connected yet, using the legacy broker start")
-            PrivilegedServiceClient.ensureBound()
-        }
-
-        // Fallback: start it from the app process through Shizuku. The connection is then owned by
-        // the app, so the broker has to use the hidden shell permission delegate instead.
-        arg.putBoolean(BROKER_ARG_UI_AUTOMATION, false)
-        val am =
-            IActivityManager.Stub.asInterface(
-                ShizukuBinderWrapper(
-                    SystemServiceHelper.getSystemService(Context.ACTIVITY_SERVICE),
-                ),
-            )
-        startInstrumentationCompat(am, component, INSTR_FLAG_NO_RESTART, arg, null, UiAutomationConnection(), userId)
+    /** Records the outcome of a change that did not go through the broker. */
+    private fun recordDirectResult(failure: Throwable?) {
+        ApplyResultTracker.onApplyStarted(subscriptionId)
+        ApplyResultTracker.onApplyFinished(context, subscriptionId, failure?.let { it.message ?: it.javaClass.simpleName })
     }
 
     private fun reportOverrideFailure(failure: Throwable) {
@@ -313,14 +282,18 @@ class SubscriptionModer(
     private fun overrideConfig(bundle: Bundle?) {
         if (Build.VERSION.SDK_INT < VERSION_CODES.Q) {
             // ICarrierConfigLoader has no overrideConfig before Android 10.
-            reportOverrideFailure(UnsupportedOperationException("overrideConfig is not available before Android 10"))
+            val failure = UnsupportedOperationException("overrideConfig is not available before Android 10")
+            reportOverrideFailure(failure)
+            recordDirectResult(failure)
             return
         }
         val configPersistent = isConfigPersistent(context)
         if (!isBrokerPrimaryPath) {
             val failure: Throwable =
                 try {
-                    return this.overrideConfigDirectly(bundle, configPersistent)
+                    this.overrideConfigDirectly(bundle, configPersistent)
+                    recordDirectResult(null)
+                    return
                 } catch (e: SecurityException) {
                     e
                 } catch (e: NoSuchMethodError) {
@@ -330,6 +303,7 @@ class SubscriptionModer(
                 }
             if (!canUseBroker) {
                 reportOverrideFailure(failure)
+                recordDirectResult(failure)
                 return
             }
             Log.w(TAG, "Direct overrideConfig failed, falling back to the broker", failure)
@@ -411,7 +385,18 @@ class SubscriptionModer(
         this.overrideConfig(null)
     }
 
+    /**
+     * Resets IMS and then checks the registration in the background. When a change of this
+     * subscription is still being applied by the broker, the reset is deferred until it finishes,
+     * so IMS re-registers with the new config.
+     */
     fun restartIMSRegistration() {
+        if (ApplyResultTracker.deferImsResetIfApplying(subscriptionId)) return
+        resetIms()
+        ApplyResultTracker.startImsCheck(context, subscriptionId, resetIms = false, waitForReset = true)
+    }
+
+    fun resetIms() {
         val telephony = this.loadCachedInterface { telephony }
         try {
             telephony.resetIms(this.simSlotIndex)

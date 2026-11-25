@@ -13,6 +13,14 @@
     <string name="shizuku_permission_granted">Shizuku Permission Granted</string>
     <string name="persist_config">Persist settings across reboots (turn off if settings fail to apply)</string>
     <string name="config_apply_failed">Failed to apply carrier config: %1$s</string>
+    <string name="apply_result">Last Change</string>
+    <string name="apply_result_state">Carrier config</string>
+    <string name="apply_result_applying">Applying…</string>
+    <string name="apply_result_applied">Applied</string>
+    <string name="apply_result_failed">Failed: %1$s</string>
+    <string name="apply_result_ims">IMS registration after the change</string>
+    <string name="apply_result_ims_checking">Checking… (up to %1$d s)</string>
+    <string name="apply_result_ims_not_registered">Not registered within %1$d s</string>
     <string name="enable_volte">Enable VoLTE</string>
     <string name="enable_vonr">Enable VoNR</string>
     <string name="enable_crosssim">Enable Backup Calling</string>
