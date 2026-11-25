@@ -1,0 +1,134 @@
+name: Bug report
+description: Report a crash, ANR (app not responding) or another bug in Pixel IMS.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        *Please read before submitting*
+        Issues section is a place to discuss about requesting new features or discussing about critical bugs which makes it hard to use the application. Issues complaining about certain features not being enabled on devices or carriers that are not considered as "supported devices / carriers" will be transferred to discussions section without any notice.
+
+        Before filing, see the bug reporting guide ([English](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/bug-reporting.en.md) / [한국어](https://github.com/kyujin-cho/pixel-volte-patch/blob/main/docs/bug-reporting.md)) for how to export a report from the app or collect logs with `adb`.
+
+        > [!WARNING]
+        > Logs can contain your **IMSI, ICCID, IMEI and phone numbers**. Everything you post here is public. Review attachments and remove these identifiers before submitting.
+  - type: dropdown
+    id: problem-type
+    attributes:
+      label: Problem type
+      options:
+        - App crashed (closed unexpectedly)
+        - App not responding (ANR)
+        - VoLTE / VoWiFi / VoNR or IMS registration not working
+        - Settings not applied or reset
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: device-model
+    attributes:
+      label: Device model
+      placeholder: Pixel 8 Pro
+    validations:
+      required: true
+  - type: input
+    id: android-version
+    attributes:
+      label: Android version
+      description: Settings > About phone > Android version.
+      placeholder: Android 16
+    validations:
+      required: true
+  - type: input
+    id: security-patch
+    attributes:
+      label: Security patch level
+      description: Settings > About phone > Android version > Android security update.
+      placeholder: 2025-11-05
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Pixel IMS version
+      description: Shown at the top of the app's home page.
+      placeholder: 1.5.0
+    validations:
+      required: true
+  - type: dropdown
+    id: install-source
+    attributes:
+      label: Install source
+      options:
+        - Google Play
+        - GitHub Releases APK
+        - Other / built from source
+    validations:
+      required: true
+  - type: input
+    id: carrier
+    attributes:
+      label: Carrier and country
+      description: Carrier name and country for each SIM involved. Do not enter your phone number.
+      placeholder: LG U+, Republic of Korea
+    validations:
+      required: true
+  - type: dropdown
+    id: sim-slot
+    attributes:
+      label: SIM slot
+      options:
+        - SIM 1 (physical SIM)
+        - SIM 1 (eSIM)
+        - SIM 2 (physical SIM)
+        - SIM 2 (eSIM)
+        - Both SIMs (dual SIM)
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: toggles
+    attributes:
+      label: Toggles changed
+      description: Which settings did you change in Pixel IMS (for example Enable VoLTE, Enable VoWiFi, Expert Mode values)?
+      placeholder: |
+        Enable VoLTE: on
+        Enable VoNR: on
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Pixel IMS
+        2. Go to the SIM 1 tab
+        3. Turn on Enable VoLTE
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead. Include the IMS status from `*#*#4636#*#*` > Phone information if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and attachments
+      description: |
+        Attach the report zip exported from the app (Home > Crash Reports > Save), or a log file collected with `adb logcat` / `adb bugreport` (see the bug reporting guide). Drag files into this box.
+        Logs can contain your IMSI, ICCID, IMEI and phone numbers: review them and redact these identifiers before submitting.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy
+      options:
+        - label: I reviewed the attached logs and removed IMSI, ICCID, IMEI and phone numbers.
+          required: true
