@@ -44,7 +44,7 @@ body:
     attributes:
       label: Security patch level
       description: Settings > About phone > Android version > Android security update.
-      placeholder: 2025-11-05
+      placeholder: "2025-11-05"
     validations:
       required: true
   - type: input
@@ -52,7 +52,7 @@ body:
     attributes:
       label: Pixel IMS version
       description: Shown at the top of the app's home page.
-      placeholder: 1.5.0
+      placeholder: "1.5.0"
     validations:
       required: true
   - type: dropdown
