@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: triggers for testing crash and ANR report collection. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".diagnostics.DebugCrashTriggerActivity"
+            android:exported="true"
+            android:label="Pixel IMS crash triggers" />
+    </application>
+</manifest>
