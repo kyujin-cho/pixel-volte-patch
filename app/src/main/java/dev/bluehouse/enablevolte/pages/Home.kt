@@ -32,8 +32,8 @@ import dev.bluehouse.enablevolte.components.ClickablePropertyView
 import dev.bluehouse.enablevolte.components.HeaderText
 import dev.bluehouse.enablevolte.components.StringPropertyView
 import dev.bluehouse.enablevolte.getLatestAppVersion
+import dev.bluehouse.enablevolte.isNewerVersion
 import dev.bluehouse.enablevolte.uniqueName
-import net.swiftzer.semver.SemVer
 import rikka.shizuku.Shizuku
 
 const val TAG = "HomeActivity:Home"
@@ -87,9 +87,7 @@ fun Home(navController: NavController) {
         }
         getLatestAppVersion {
             Log.d(TAG, "Fetched version $it")
-            val latest = SemVer.parse(it)
-            val current = SemVer.parse(BuildConfig.VERSION_NAME)
-            if (latest > current) {
+            if (isNewerVersion(it, BuildConfig.VERSION_NAME)) {
                 newerVersion = it
             }
         }
