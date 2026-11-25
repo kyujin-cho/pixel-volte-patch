@@ -72,7 +72,7 @@ Currently, this project does not have automated unit tests. Testing is performed
   - Preferred: the Shizuku UserService `PrivilegedService` (shell uid, bound by `PrivilegedServiceClient`) starts the instrumentation with a shell-owned `UiAutomationConnection`, and the broker uses the public `UiAutomation.adoptShellPermissionIdentity()` / `dropShellPermissionIdentity()`
   - Fallback (UserService not connected yet, or adoption fails): the app starts the instrumentation through Shizuku and the broker uses the hidden `IActivityManager.startDelegateShellPermissionIdentity`
   - `BrokerRunner` runs one broker instrumentation at a time (consecutive changes of the same SIM are merged) and passes an `IInstrumentationWatcher`, so AMS reports each run's result back to the app
-- `ApplyResultTracker` keeps the per-SIM outcome (applying / applied / failed with reason) and, after each change, polls IMS registration for up to 30 s on a background thread; `restartIMSRegistration()` defers its IMS reset until a pending broker apply finishes. The Config page shows the result (`ApplyResultView`); failures also show a Toast
+- `ApplyResultTracker` keeps the per-SIM outcome (applying / applied / failed with reason) and, after each change, polls IMS registration for up to 30 s on a background thread; `restartIMSRegistration()` defers its IMS reset until a pending broker apply finishes. The Config page shows the result in `ApplyResultView`, a constant-height bar pinned below the scrolling toggle list (never inside it, so status updates do not shift the toggles); failures also show a Toast
 
 **3. UI Layer**
 - Built with **Jetpack Compose** and Material 3
