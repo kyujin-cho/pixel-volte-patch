@@ -19,6 +19,10 @@
     <string name="enable_crosssim">启用备用通话</string>
     <string name="enable_vowifi">启用 VoWiFi</string>
     <string name="enable_vowifi_while_roamed">漫游时启用 VoWiFi</string>
+    <string name="mark_volte_provisioned">将 VoLTE 标记为已开通</string>
+    <string name="skip_volte_provisioning">跳过 VoLTE 开通要求</string>
+    <string name="enable_volte_while_roaming">漫游时启用 VoLTE</string>
+    <string name="enable_vowifi_by_default">默认开启 VoWiFi</string>
     <string name="show_vowifi_preference_in_settings">显示 VoWiFi 选项</string>
     <string name="show_vowifi_roaming_preference_in_settings">显示 VoWiFi漫游 选项</string>
     <string name="wi_fi_calling_carrier_name_format">VoWiFI 网络名称格式</string>
@@ -44,6 +48,7 @@
     <string name="show_vowifi_icon">显示 VoWiFI 图标</string>
     <string name="always_show_data_icon">始终显示数据速率图标</string>
     <string name="hide_enhanced_data_icon">隐藏增强4G(LTE+)图标</string>
+    <string name="show_lte_plus_for_any_ca">载波聚合时始终显示 LTE+ 图标</string>
     <string name="enable_enhanced_4g_lte_plus">启用增强4G(LTE+)</string>
     <string name="string_values">字符串值</string>
     <string name="miscellaneous">其他</string>

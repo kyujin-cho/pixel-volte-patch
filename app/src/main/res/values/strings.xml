@@ -18,6 +18,10 @@
     <string name="enable_crosssim">Enable Backup Calling</string>
     <string name="enable_vowifi">Enable VoWiFi</string>
     <string name="enable_vowifi_while_roamed">Enable VoWiFi while roaming</string>
+    <string name="mark_volte_provisioned">Mark VoLTE as provisioned</string>
+    <string name="skip_volte_provisioning">Skip VoLTE provisioning requirement</string>
+    <string name="enable_volte_while_roaming">Enable VoLTE while roaming</string>
+    <string name="enable_vowifi_by_default">Turn on VoWiFi by default</string>
     <string name="show_vowifi_preference_in_settings">Show VoWiFi preference in Settings</string>
     <string name="show_vowifi_roaming_preference_in_settings">Show VoWiFi Roaming preference in Settings</string>
     <string name="show_ims_status_in_sim_status">Show IMS Status in SIM Info</string>
@@ -43,6 +47,7 @@
     <string name="show_vowifi_icon">Show VoWiFI Icon</string>
     <string name="always_show_data_icon">Always Show Data RAT Icon</string>
     <string name="hide_enhanced_data_icon">Hide Enhanced Data Icon</string>
+    <string name="show_lte_plus_for_any_ca">Show LTE+ icon for any carrier aggregation</string>
     <string name="enable_enhanced_4g_lte_plus">Enable Enhanced 4G LTE (LTE+)</string>
     <string name="string_values">String Values</string>
     <string name="miscellaneous">Miscellaneous</string>

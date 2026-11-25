@@ -45,6 +45,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
 
+// Deprecated since API 33 in favor of per-capability MMTEL provisioning bundles, but the
+// IMS stack still reads them, so they remain useful for carriers that gate VoLTE on provisioning.
+@Suppress("DEPRECATION")
+private const val KEY_VOLTE_PROVISIONED = CarrierConfigManager.KEY_CARRIER_VOLTE_PROVISIONED_BOOL
+
+@Suppress("DEPRECATION")
+private const val KEY_VOLTE_PROVISIONING_REQUIRED = CarrierConfigManager.KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL
+
+// AOSP default for lte_plus_threshold_bandwidth_khz_int; 0 shows LTE+ for any carrier aggregation.
+private const val DEFAULT_LTE_PLUS_THRESHOLD_BANDWIDTH_KHZ = 20000
+
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun Config(
@@ -61,6 +72,11 @@ fun Config(
     var configurable by rememberSaveable { mutableStateOf(false) }
     var configPersistent by remember { mutableStateOf(isConfigPersistent(context)) }
     var voLTEEnabled by rememberSaveable { mutableStateOf(false) }
+    var voLTEProvisioned by rememberSaveable { mutableStateOf(false) }
+    var voLTEProvisioningSkipped by rememberSaveable { mutableStateOf(false) }
+    var voLTEEnabledWhileRoaming by rememberSaveable { mutableStateOf(false) }
+    var voWiFiEnabledByDefault by rememberSaveable { mutableStateOf(false) }
+    var ltePlusForAnyCA by rememberSaveable { mutableStateOf(false) }
     var voNREnabled by rememberSaveable { mutableStateOf(false) }
     var crossSIMEnabled by rememberSaveable { mutableStateOf(false) }
     var voWiFiEnabled by rememberSaveable { mutableStateOf(false) }
@@ -90,6 +106,18 @@ fun Config(
     fun loadFlags() {
         Log.d(TAG, "loadFlags")
         voLTEEnabled = moder.isVoLteConfigEnabled
+        voLTEProvisioned = moder.getBooleanValue(KEY_VOLTE_PROVISIONED)
+        // Inverted: the switch is on when provisioning is NOT required.
+        voLTEProvisioningSkipped = !moder.getBooleanValue(KEY_VOLTE_PROVISIONING_REQUIRED)
+        voLTEEnabledWhileRoaming =
+            VERSION.SDK_INT >= VERSION_CODES.TIRAMISU &&
+            moder.getBooleanValue(CarrierConfigManager.ImsVoice.KEY_CARRIER_VOLTE_ROAMING_AVAILABLE_BOOL)
+        voWiFiEnabledByDefault =
+            VERSION.SDK_INT >= VERSION_CODES.R &&
+            moder.getBooleanValue(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL)
+        ltePlusForAnyCA =
+            VERSION.SDK_INT >= VERSION_CODES.R &&
+            moder.getIntValue(CarrierConfigManager.KEY_LTE_PLUS_THRESHOLD_BANDWIDTH_KHZ_INT) == 0
         voNREnabled = VERSION.SDK_INT >= VERSION_CODES.UPSIDE_DOWN_CAKE && moder.isVoNrConfigEnabled
         crossSIMEnabled = moder.isCrossSIMConfigEnabled
         voWiFiEnabled = moder.isVoWifiConfigEnabled
@@ -169,6 +197,46 @@ fun Config(
                         true
                     }
             }
+            BooleanPropertyView(label = stringResource(R.string.mark_volte_provisioned), toggled = voLTEProvisioned) {
+                voLTEProvisioned =
+                    if (voLTEProvisioned) {
+                        moder.updateCarrierConfig(KEY_VOLTE_PROVISIONED, false)
+                        false
+                    } else {
+                        moder.updateCarrierConfig(KEY_VOLTE_PROVISIONED, true)
+                        moder.restartIMSRegistration()
+                        true
+                    }
+            }
+            BooleanPropertyView(label = stringResource(R.string.skip_volte_provisioning), toggled = voLTEProvisioningSkipped) {
+                // Inverted: turning the switch on sets carrier_volte_provisioning_required_bool to false.
+                voLTEProvisioningSkipped =
+                    if (voLTEProvisioningSkipped) {
+                        moder.updateCarrierConfig(KEY_VOLTE_PROVISIONING_REQUIRED, true)
+                        false
+                    } else {
+                        moder.updateCarrierConfig(KEY_VOLTE_PROVISIONING_REQUIRED, false)
+                        moder.restartIMSRegistration()
+                        true
+                    }
+            }
+            BooleanPropertyView(
+                label = stringResource(R.string.enable_volte_while_roaming),
+                toggled = voLTEEnabledWhileRoaming,
+                minSdk = VERSION_CODES.TIRAMISU,
+            ) {
+                if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+                    voLTEEnabledWhileRoaming =
+                        if (voLTEEnabledWhileRoaming) {
+                            moder.updateCarrierConfig(CarrierConfigManager.ImsVoice.KEY_CARRIER_VOLTE_ROAMING_AVAILABLE_BOOL, false)
+                            false
+                        } else {
+                            moder.updateCarrierConfig(CarrierConfigManager.ImsVoice.KEY_CARRIER_VOLTE_ROAMING_AVAILABLE_BOOL, true)
+                            moder.restartIMSRegistration()
+                            true
+                        }
+                }
+            }
 
             BooleanPropertyView(
                 label = stringResource(R.string.enable_vonr),
@@ -230,6 +298,23 @@ fun Config(
                         moder.restartIMSRegistration()
                         true
                     }
+            }
+            BooleanPropertyView(
+                label = stringResource(R.string.enable_vowifi_by_default),
+                toggled = voWiFiEnabledByDefault,
+                minSdk = VERSION_CODES.R,
+            ) {
+                if (VERSION.SDK_INT >= VERSION_CODES.R) {
+                    voWiFiEnabledByDefault =
+                        if (voWiFiEnabledByDefault) {
+                            moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, false)
+                            false
+                        } else {
+                            moder.updateCarrierConfig(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, true)
+                            moder.restartIMSRegistration()
+                            true
+                        }
+                }
             }
             if (VERSION.SDK_INT >= VERSION_CODES.Q) {
                 BooleanPropertyView(
@@ -478,6 +563,23 @@ fun Config(
                                 CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL,
                                 true,
                             )
+                            true
+                        }
+                }
+                BooleanPropertyView(
+                    label = stringResource(R.string.show_lte_plus_for_any_ca),
+                    toggled = ltePlusForAnyCA,
+                    minSdk = VERSION_CODES.R,
+                ) {
+                    ltePlusForAnyCA =
+                        if (ltePlusForAnyCA) {
+                            moder.updateCarrierConfig(
+                                CarrierConfigManager.KEY_LTE_PLUS_THRESHOLD_BANDWIDTH_KHZ_INT,
+                                DEFAULT_LTE_PLUS_THRESHOLD_BANDWIDTH_KHZ,
+                            )
+                            false
+                        } else {
+                            moder.updateCarrierConfig(CarrierConfigManager.KEY_LTE_PLUS_THRESHOLD_BANDWIDTH_KHZ_INT, 0)
                             true
                         }
                 }

@@ -19,6 +19,10 @@
   <string name="enable_crosssim">バックアップ通話を有効化</string>
   <string name="enable_vowifi">Wi-Fi 通話を有効化</string>
   <string name="enable_vowifi_while_roamed">ローミング中に Wi-Fi 通話を有効化</string>
+  <string name="mark_volte_provisioned">VoLTE をプロビジョニング済みとして扱う</string>
+  <string name="skip_volte_provisioning">VoLTE のプロビジョニング要求をスキップ</string>
+  <string name="enable_volte_while_roaming">ローミング中に VoLTE を有効化</string>
+  <string name="enable_vowifi_by_default">Wi-Fi 通話をデフォルトでオンにする</string>
   <string name="show_vowifi_preference_in_settings">設定で Wi-Fi 通話の環境設定を表示</string>
   <string name="show_vowifi_roaming_preference_in_settings">設定で Wi-Fi 通話のローミング設定を表示</string>
   <string name="show_ims_status_in_sim_status">SIM 情報に IMS ステータスを表示</string>
@@ -44,6 +48,7 @@
   <string name="show_vowifi_icon">VoWiFi アイコンを表示</string>
   <string name="always_show_data_icon">常にデータ RAT アイコンを表示</string>
   <string name="hide_enhanced_data_icon">拡張されたデータアイコンを非表示にする</string>
+  <string name="show_lte_plus_for_any_ca">キャリアアグリゲーション時に常に LTE+ アイコンを表示</string>
   <string name="enable_enhanced_4g_lte_plus">拡張された 4G LTE を有効化 (LTE+)</string>
   <string name="string_values">文字列の値</string>
   <string name="miscellaneous">その他</string>
