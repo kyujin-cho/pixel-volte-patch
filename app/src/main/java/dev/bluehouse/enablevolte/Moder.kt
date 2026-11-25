@@ -554,9 +554,30 @@ class SubscriptionModer(
     val userAgentConfig: String
         get() = this.getStringValue(KEY_IMS_USER_AGENT) ?: ""
 
-    val isIMSRegistered: Boolean
+    /**
+     * true / false when the IMS registration state could be read, or null ("unknown") when no
+     * hidden `ITelephony` variant worked on this build (signature drift, missing method, ...).
+     */
+    val isIMSRegistered: Boolean?
         get() {
             val telephony = this.loadCachedInterface { telephony }
-            return telephony.isImsRegistered(this.subscriptionId)
+            return ImsRegistrationCheck.resolve(
+                listOf(
+                    ImsRegistrationCheck.Step("isImsRegisteredForSubscriber(subId)") {
+                        ImsRegistrationCheck.invokeIntToBoolean(telephony, "isImsRegisteredForSubscriber", this.subscriptionId)
+                    },
+                    ImsRegistrationCheck.Step("isImsRegistered(subId)") {
+                        telephony.isImsRegistered(this.subscriptionId)
+                    },
+                    ImsRegistrationCheck.Step("isImsRegistered(slotIndex)") {
+                        val slotIndex = this.simSlotIndex
+                        if (slotIndex < 0 || slotIndex == this.subscriptionId) {
+                            null
+                        } else {
+                            ImsRegistrationCheck.invokeIntToBoolean(telephony, "isImsRegistered", slotIndex)
+                        }
+                    },
+                ),
+            ) { step, e -> Log.w(TAG, "IMS registration check via $step failed", e) }
         }
 }
