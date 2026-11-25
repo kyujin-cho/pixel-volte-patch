@@ -106,7 +106,7 @@ The `Moder` class implements `loadCachedInterface()` to cache Binder interfaces 
 
 ### IMS Registration Check
 VoLTE status is verified via:
-1. `SubscriptionModer.isIMSRegistered`: Programmatic check using `ITelephony.isImsRegistered()`
+1. `SubscriptionModer.isIMSRegistered`: Programmatic check returning `Boolean?`. `ImsRegistrationCheck` tries `ITelephony.isImsRegisteredForSubscriber(subId)`, then `isImsRegistered(subId)`, skipping variants that are missing or fail with hidden-API drift errors. `null` means "unknown" and is shown as such on the home page and IMS status QS tile instead of crashing.
 2. User can also check via dialer codes: `*#*#4636#*#*` → Phone information → IMS Service Status
 
 ### Version Updates

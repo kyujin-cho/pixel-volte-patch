@@ -50,7 +50,7 @@ fun Home(navController: NavController) {
     var subscriptions by remember { mutableStateOf(listOf<SubscriptionInfo>()) }
     var deviceIMSEnabled by rememberSaveable { mutableStateOf(false) }
 
-    var isIMSRegistered by remember { mutableStateOf(listOf<Boolean>()) }
+    var isIMSRegistered by remember { mutableStateOf(listOf<Boolean?>()) }
     var newerVersion by rememberSaveable { mutableStateOf("") }
 
     fun loadFlags() {
@@ -117,7 +117,8 @@ fun Home(navController: NavController) {
         BooleanPropertyView(label = stringResource(R.string.volte_supported_by_device), toggled = deviceIMSEnabled)
 
         for (idx in subscriptions.indices) {
-            val isRegistered = isIMSRegistered.getOrNull(idx) ?: false
+            // null (not loaded yet, or no IMS check variant works on this build) renders as "Unknown"
+            val isRegistered = isIMSRegistered.getOrNull(idx)
             HeaderText(text = stringResource(R.string.ims_status_for, subscriptions[idx].uniqueName))
             BooleanPropertyView(
                 label = stringResource(R.string.ims_status),

@@ -35,7 +35,8 @@ open class IMSStatusQSTileService(
         /*
          * true: VoLTE enabled
          * false: VoLTE disabled
-         * null: cannot determine status (Shizuku not running or permission not granted, SIM slot not active, ...)
+         * null: cannot determine status (Shizuku not running or permission not granted, SIM slot not active,
+         *       no IMS registration check variant available on this build, ...)
          */
         val moder = this.moder ?: return null
         try {
