@@ -27,7 +27,7 @@ private const val PER_USER_RANGE = 100000
  * are merged into one run, and the next run starts only after the previous one reported back
  * through its [IInstrumentationWatcher] (or timed out).
  *
- * Must be used from the main thread.
+ * Calls made off the main thread are posted to it.
  */
 object BrokerRunner {
     private const val TAG = "BrokerRunner"
@@ -92,6 +92,11 @@ object BrokerRunner {
         subId: Int,
         arguments: Bundle,
     ) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            // The queue is confined to the main thread.
+            mainHandler.post { enqueue(context, subId, arguments) }
+            return
+        }
         ApplyResultTracker.onApplyStarted(subId)
         queue.addLast(Request(context.applicationContext, subId, arguments))
         scheduleDispatch()
