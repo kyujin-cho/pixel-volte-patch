@@ -115,4 +115,15 @@ class AppVersionTest {
         assertEquals(UpdateChannel.BETA, resolveUpdateChannel(null, "1.5.0b2"))
         assertEquals(UpdateChannel.STABLE, resolveUpdateChannel("unknown-value", "1.4.0"))
     }
+
+    @Test
+    fun `returned tags are trimmed so the link matches the parsed version`() {
+        val releases =
+            listOf(
+                ReleaseInfo(" 1.5.0b3 ", prerelease = true, draft = false),
+                ReleaseInfo("1.4.0\n", prerelease = false, draft = false),
+            )
+        assertEquals("1.5.0b3", latestTag(releases, UpdateChannel.BETA))
+        assertEquals("1.4.0", latestTag(releases, UpdateChannel.STABLE))
+    }
 }

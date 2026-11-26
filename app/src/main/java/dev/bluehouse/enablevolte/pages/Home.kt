@@ -2,8 +2,10 @@ package dev.bluehouse.enablevolte.pages
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.telephony.SubscriptionInfo
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -56,6 +58,14 @@ import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 
 const val TAG = "HomeActivity:Home"
+
+// Exhaustive on purpose: adding a channel without a label fails to compile instead of shifting the labels.
+@StringRes
+private fun UpdateChannel.labelRes(): Int =
+    when (this) {
+        UpdateChannel.STABLE -> R.string.update_channel_stable
+        UpdateChannel.BETA -> R.string.update_channel_beta
+    }
 
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -167,7 +177,7 @@ fun Home(navController: NavController) {
                         newerVersion,
                     ),
             ) {
-                val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/$newerVersion"
+                val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/${Uri.encode(newerVersion)}"
                 val i = Intent(Intent.ACTION_VIEW)
                 i.data = url.toUri()
                 context.startActivity(i, null)
@@ -178,7 +188,7 @@ fun Home(navController: NavController) {
         if (showUpdateChannel) {
             RadioSelectPropertyView(
                 label = stringResource(R.string.update_channel),
-                values = arrayOf(stringResource(R.string.update_channel_stable), stringResource(R.string.update_channel_beta)),
+                values = UpdateChannel.entries.map { stringResource(it.labelRes()) }.toTypedArray(),
                 selectedIndex = UpdateChannel.entries.indexOf(updateChannel),
                 onUpdate = {
                     val selected = UpdateChannel.entries[it]
