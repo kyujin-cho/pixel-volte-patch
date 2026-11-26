@@ -34,7 +34,9 @@ fun latestStableTag(releases: List<ReleaseInfo>): String? = releases.firstOrNull
 /**
  * Which GitHub releases the update check offers.
  */
-enum class UpdateChannel(val prefValue: String) {
+enum class UpdateChannel(
+    val prefValue: String,
+) {
     /** Published, non-pre-release entries only. */
     STABLE("stable"),
 
