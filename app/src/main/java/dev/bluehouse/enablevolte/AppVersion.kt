@@ -50,7 +50,11 @@ enum class UpdateChannel(
 }
 
 /**
- * Returns the tag of the newest release the [channel] offers, ignoring drafts. GitHub lists releases newest first.
+ * Returns the tag of the newest release the [channel] offers, ignoring drafts.
+ *
+ * The beta channel picks the highest version rather than the first entry: GitHub orders releases by creation
+ * date, so a stable hotfix on an older line (e.g. 1.4.1 published after 1.5.0b3) must not hide a newer beta.
+ * Tags that are not versions are skipped.
  */
 fun latestTag(
     releases: List<ReleaseInfo>,
@@ -58,7 +62,12 @@ fun latestTag(
 ): String? =
     when (channel) {
         UpdateChannel.STABLE -> latestStableTag(releases)
-        UpdateChannel.BETA -> releases.firstOrNull { !it.draft }?.tagName
+        UpdateChannel.BETA ->
+            releases
+                .filter { !it.draft }
+                .mapNotNull { release -> parseAppVersion(release.tagName)?.let { release.tagName to it } }
+                .maxByOrNull { it.second }
+                ?.first
     }
 
 /**

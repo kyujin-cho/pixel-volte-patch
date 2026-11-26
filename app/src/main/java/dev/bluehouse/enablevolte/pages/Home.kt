@@ -49,9 +49,11 @@ import dev.bluehouse.enablevolte.reportRoute
 import dev.bluehouse.enablevolte.setUpdateChannel
 import dev.bluehouse.enablevolte.uniqueName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
 import kotlin.concurrent.thread
+import kotlin.coroutines.resume
 
 const val TAG = "HomeActivity:Home"
 
@@ -127,15 +129,16 @@ fun Home(navController: NavController) {
         }
     }
 
-    // Re-runs the update check whenever the channel changes.
+    // Re-runs the update check whenever the channel changes. Changing the channel cancels this effect, so a
+    // response for the previous channel that arrives late is dropped instead of overwriting the newer result.
     LaunchedEffect(updateChannel) {
-        newerVersion = ""
-        getLatestAppVersion(updateChannel) {
-            Log.d(TAG, "Fetched version $it for channel $updateChannel")
-            if (isNewerVersion(it, BuildConfig.VERSION_NAME)) {
-                newerVersion = it
+        val channel = updateChannel
+        val latest =
+            suspendCancellableCoroutine { continuation ->
+                getLatestAppVersion(channel) { if (continuation.isActive) continuation.resume(it) }
             }
-        }
+        Log.d(TAG, "Fetched version $latest for channel $channel")
+        newerVersion = if (isNewerVersion(latest, BuildConfig.VERSION_NAME)) latest else ""
     }
 
     Column(modifier = Modifier.padding(Dp(16f)).verticalScroll(scrollState)) {
@@ -178,8 +181,13 @@ fun Home(navController: NavController) {
                 values = arrayOf(stringResource(R.string.update_channel_stable), stringResource(R.string.update_channel_beta)),
                 selectedIndex = UpdateChannel.entries.indexOf(updateChannel),
                 onUpdate = {
-                    updateChannel = UpdateChannel.entries[it]
-                    setUpdateChannel(context, updateChannel)
+                    val selected = UpdateChannel.entries[it]
+                    if (selected != updateChannel) {
+                        // Hide the previous channel's prompt until the new check finishes.
+                        newerVersion = ""
+                        updateChannel = selected
+                    }
+                    setUpdateChannel(context, selected)
                 },
             )
             Text(

@@ -88,6 +88,19 @@ class AppVersionTest {
     }
 
     @Test
+    fun `beta channel picks the highest version, not the newest created release`() {
+        // A stable hotfix on the old line, published after the beta, is listed first by GitHub.
+        val releases =
+            listOf(
+                ReleaseInfo("1.4.1", prerelease = false, draft = false),
+                ReleaseInfo("not-a-version", prerelease = true, draft = false),
+            ) + mixedReleases
+        assertEquals("1.5.0b3", latestTag(releases, UpdateChannel.BETA))
+        assertTrue(isNewerVersion(latestTag(releases, UpdateChannel.BETA)!!, "1.5.0b2"))
+        assertNull(latestTag(listOf(ReleaseInfo("not-a-version", prerelease = true, draft = false)), UpdateChannel.BETA))
+    }
+
+    @Test
     fun `default channel follows the installed version`() {
         assertEquals(UpdateChannel.STABLE, defaultUpdateChannel("1.4.0"))
         assertEquals(UpdateChannel.BETA, defaultUpdateChannel("1.5.0b2"))
