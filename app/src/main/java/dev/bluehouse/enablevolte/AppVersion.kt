@@ -32,6 +32,50 @@ fun parseAppVersion(version: String): SemVer? {
 fun latestStableTag(releases: List<ReleaseInfo>): String? = releases.firstOrNull { !it.prerelease && !it.draft }?.tagName
 
 /**
+ * Which GitHub releases the update check offers.
+ */
+enum class UpdateChannel(val prefValue: String) {
+    /** Published, non-pre-release entries only. */
+    STABLE("stable"),
+
+    /** Pre-releases as well; a newer stable release is still offered because it sorts above its betas. */
+    BETA("beta"),
+    ;
+
+    companion object {
+        fun fromPrefValue(value: String?): UpdateChannel? = entries.firstOrNull { it.prefValue == value }
+    }
+}
+
+/**
+ * Returns the tag of the newest release the [channel] offers, ignoring drafts. GitHub lists releases newest first.
+ */
+fun latestTag(
+    releases: List<ReleaseInfo>,
+    channel: UpdateChannel,
+): String? =
+    when (channel) {
+        UpdateChannel.STABLE -> latestStableTag(releases)
+        UpdateChannel.BETA -> releases.firstOrNull { !it.draft }?.tagName
+    }
+
+/**
+ * Channel used until the user picks one: beta for a beta build (so existing testers keep getting beta
+ * prompts), stable otherwise.
+ */
+fun defaultUpdateChannel(versionName: String): UpdateChannel =
+    if (parseAppVersion(versionName)?.preRelease != null) UpdateChannel.BETA else UpdateChannel.STABLE
+
+/**
+ * The channel to use given the persisted value (null or unknown when never chosen) and the installed version.
+ * An explicit choice always wins over the default.
+ */
+fun resolveUpdateChannel(
+    stored: String?,
+    versionName: String,
+): UpdateChannel = UpdateChannel.fromPrefValue(stored) ?: defaultUpdateChannel(versionName)
+
+/**
  * True when [latest] is a newer version than [current]. Unparseable input never counts as newer.
  */
 fun isNewerVersion(

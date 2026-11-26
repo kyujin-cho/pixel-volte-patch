@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,17 +29,24 @@ import dev.bluehouse.enablevolte.R
 import dev.bluehouse.enablevolte.REPORTS_ROUTE
 import dev.bluehouse.enablevolte.ShizukuStatus
 import dev.bluehouse.enablevolte.SubscriptionModer
+import dev.bluehouse.enablevolte.UpdateChannel
 import dev.bluehouse.enablevolte.checkShizukuPermission
 import dev.bluehouse.enablevolte.components.BooleanPropertyView
 import dev.bluehouse.enablevolte.components.ClickablePropertyView
 import dev.bluehouse.enablevolte.components.CrashReportCard
 import dev.bluehouse.enablevolte.components.HeaderText
+import dev.bluehouse.enablevolte.components.RadioSelectPropertyView
 import dev.bluehouse.enablevolte.components.StringPropertyView
 import dev.bluehouse.enablevolte.diagnostics.CrashReport
 import dev.bluehouse.enablevolte.diagnostics.CrashReports
+import dev.bluehouse.enablevolte.diagnostics.ReportEnvironment
+import dev.bluehouse.enablevolte.diagnostics.ReportEnvironmentReader
 import dev.bluehouse.enablevolte.getLatestAppVersion
+import dev.bluehouse.enablevolte.getUpdateChannel
 import dev.bluehouse.enablevolte.isNewerVersion
+import dev.bluehouse.enablevolte.parseAppVersion
 import dev.bluehouse.enablevolte.reportRoute
+import dev.bluehouse.enablevolte.setUpdateChannel
 import dev.bluehouse.enablevolte.uniqueName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,6 +69,8 @@ fun Home(navController: NavController) {
 
     var isIMSRegistered by remember { mutableStateOf(listOf<Boolean?>()) }
     var newerVersion by rememberSaveable { mutableStateOf("") }
+    var updateChannel by remember { mutableStateOf(getUpdateChannel(context)) }
+    val showUpdateChannel = remember { !ReportEnvironment.isPlayStoreInstaller(ReportEnvironmentReader.installerPackage(context)) }
 
     // Crash/ANR reports: checked once this launch's collection of previous exits has finished.
     val reportsCollected by CrashReports.collected
@@ -114,8 +125,13 @@ fun Home(navController: NavController) {
         } catch (e: IllegalStateException) {
             shizukuEnabled = false
         }
-        getLatestAppVersion {
-            Log.d(TAG, "Fetched version $it")
+    }
+
+    // Re-runs the update check whenever the channel changes.
+    LaunchedEffect(updateChannel) {
+        newerVersion = ""
+        getLatestAppVersion(updateChannel) {
+            Log.d(TAG, "Fetched version $it for channel $updateChannel")
             if (isNewerVersion(it, BuildConfig.VERSION_NAME)) {
                 newerVersion = it
             }
@@ -138,7 +154,15 @@ fun Home(navController: NavController) {
         if (newerVersion.isNotEmpty()) {
             ClickablePropertyView(
                 label = BuildConfig.VERSION_NAME,
-                value = stringResource(R.string.newer_version_available, newerVersion),
+                value =
+                    stringResource(
+                        if (parseAppVersion(newerVersion)?.preRelease != null) {
+                            R.string.newer_beta_version_available
+                        } else {
+                            R.string.newer_version_available
+                        },
+                        newerVersion,
+                    ),
             ) {
                 val url = "https://github.com/kyujin-cho/pixel-volte-patch/releases/tag/$newerVersion"
                 val i = Intent(Intent.ACTION_VIEW)
@@ -147,6 +171,22 @@ fun Home(navController: NavController) {
             }
         } else {
             StringPropertyView(label = BuildConfig.VERSION_NAME, value = stringResource(R.string.running_latest_version))
+        }
+        if (showUpdateChannel) {
+            RadioSelectPropertyView(
+                label = stringResource(R.string.update_channel),
+                values = arrayOf(stringResource(R.string.update_channel_stable), stringResource(R.string.update_channel_beta)),
+                selectedIndex = UpdateChannel.entries.indexOf(updateChannel),
+                onUpdate = {
+                    updateChannel = UpdateChannel.entries[it]
+                    setUpdateChannel(context, updateChannel)
+                },
+            )
+            Text(
+                text = stringResource(R.string.update_channel_description),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = Dp(8f)),
+            )
         }
         HeaderText(text = stringResource(R.string.permissions_capabilities))
         BooleanPropertyView(label = stringResource(R.string.shizuku_service_running), toggled = shizukuEnabled)

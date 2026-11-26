@@ -51,4 +51,55 @@ class AppVersionTest {
         assertEquals("1.4.0", latestStableTag(releases))
         assertNull(latestStableTag(listOf(ReleaseInfo("1.5.0b1", prerelease = true, draft = false))))
     }
+
+    private val mixedReleases =
+        listOf(
+            ReleaseInfo("1.5.1b1", prerelease = true, draft = true),
+            ReleaseInfo("1.5.0b3", prerelease = true, draft = false),
+            ReleaseInfo("1.5.0b2", prerelease = true, draft = false),
+            ReleaseInfo("1.4.0", prerelease = false, draft = false),
+        )
+
+    @Test
+    fun `stable channel matches latestStableTag`() {
+        assertEquals(latestStableTag(mixedReleases), latestTag(mixedReleases, UpdateChannel.STABLE))
+        assertEquals("1.4.0", latestTag(mixedReleases, UpdateChannel.STABLE))
+    }
+
+    @Test
+    fun `beta channel offers the newest pre-release but ignores drafts`() {
+        assertEquals("1.5.0b3", latestTag(mixedReleases, UpdateChannel.BETA))
+        assertNull(latestTag(listOf(ReleaseInfo("1.5.0b1", prerelease = true, draft = true)), UpdateChannel.BETA))
+        assertNull(latestTag(emptyList(), UpdateChannel.BETA))
+    }
+
+    @Test
+    fun `beta channel still offers a newer stable release`() {
+        val releases = listOf(ReleaseInfo("1.5.0", prerelease = false, draft = false)) + mixedReleases
+        val latest = latestTag(releases, UpdateChannel.BETA)!!
+        assertEquals("1.5.0", latest)
+        assertTrue(isNewerVersion(latest, "1.5.0b3"))
+    }
+
+    @Test
+    fun `beta tester is offered the next beta`() {
+        assertTrue(isNewerVersion(latestTag(mixedReleases, UpdateChannel.BETA)!!, "1.5.0b2"))
+        assertFalse(isNewerVersion(latestTag(mixedReleases, UpdateChannel.STABLE)!!, "1.5.0b2"))
+    }
+
+    @Test
+    fun `default channel follows the installed version`() {
+        assertEquals(UpdateChannel.STABLE, defaultUpdateChannel("1.4.0"))
+        assertEquals(UpdateChannel.BETA, defaultUpdateChannel("1.5.0b2"))
+        assertEquals(UpdateChannel.BETA, defaultUpdateChannel("1.5.0-beta.1"))
+        assertEquals(UpdateChannel.STABLE, defaultUpdateChannel("garbage"))
+    }
+
+    @Test
+    fun `explicit choice wins over the default`() {
+        assertEquals(UpdateChannel.STABLE, resolveUpdateChannel("stable", "1.5.0b2"))
+        assertEquals(UpdateChannel.BETA, resolveUpdateChannel("beta", "1.4.0"))
+        assertEquals(UpdateChannel.BETA, resolveUpdateChannel(null, "1.5.0b2"))
+        assertEquals(UpdateChannel.STABLE, resolveUpdateChannel("unknown-value", "1.4.0"))
+    }
 }

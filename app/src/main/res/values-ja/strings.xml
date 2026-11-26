@@ -48,6 +48,11 @@
   <string name="enabled">有効</string>
   <string name="disabled">無効</string>
   <string name="newer_version_available">新しいバージョン「%1$s」が利用可能です！</string>
+  <string name="newer_beta_version_available">新しいベータ版「%1$s」が利用可能です！</string>
+  <string name="update_channel">アップデートチャンネル</string>
+  <string name="update_channel_stable">安定版</string>
+  <string name="update_channel_beta">ベータ版</string>
+  <string name="update_channel_description">ベータ版は不安定な場合があります。安定版に戻してもダウングレードはされず、より新しい安定版がリリースされるまで現在のビルドが維持されます。</string>
   <string name="feature_toggles">機能の有効化と無効化</string>
   <string name="cosmetic_toggles">コスメティックトグル</string>
   <string name="show_4g_for_lte_data_icon">LTE データアイコンを 4G で表示</string>

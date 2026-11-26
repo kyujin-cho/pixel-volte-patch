@@ -31,6 +31,7 @@ object InterfaceCache {
 
 private const val PREFS_NAME = "settings"
 private const val KEY_CONFIG_PERSISTENT = "config_persistent"
+private const val KEY_UPDATE_CHANNEL = "update_channel"
 
 val securityPatchDate: LocalDate?
     get() =
@@ -77,6 +78,24 @@ fun setConfigPersistent(
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         .edit()
         .putBoolean(KEY_CONFIG_PERSISTENT, persistent)
+        .apply()
+}
+
+/** The update channel the user chose, or the default for this build until they do. */
+fun getUpdateChannel(context: Context): UpdateChannel =
+    resolveUpdateChannel(
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(KEY_UPDATE_CHANNEL, null),
+        BuildConfig.VERSION_NAME,
+    )
+
+fun setUpdateChannel(
+    context: Context,
+    channel: UpdateChannel,
+) {
+    context
+        .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        .edit()
+        .putString(KEY_UPDATE_CHANNEL, channel.prefValue)
         .apply()
 }
 

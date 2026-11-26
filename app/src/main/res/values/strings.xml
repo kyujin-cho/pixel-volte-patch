@@ -48,6 +48,11 @@
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="newer_version_available">Update available: %1$s</string>
+    <string name="newer_beta_version_available">Beta update available: %1$s</string>
+    <string name="update_channel">Update channel</string>
+    <string name="update_channel_stable">Stable</string>
+    <string name="update_channel_beta">Beta</string>
+    <string name="update_channel_description">Beta builds may be unstable. Switching back to Stable does not downgrade; you keep the current build until a newer stable release is out.</string>
     <string name="feature_toggles">Features</string>
     <string name="cosmetic_toggles">Display &amp; UI</string>
     <string name="show_4g_for_lte_data_icon">Show 4G instead of LTE icon</string>

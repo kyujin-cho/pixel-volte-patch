@@ -37,23 +37,24 @@ object ReportEnvironmentReader {
         )
     }
 
-    private fun installSource(context: Context): String? {
-        val installer =
-            try {
-                val pm = context.packageManager
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    pm.getInstallSourceInfo(context.packageName).installingPackageName
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getInstallerPackageName(context.packageName)
-                }
-            } catch (_: PackageManager.NameNotFoundException) {
-                null
-            } catch (_: RuntimeException) {
-                null
+    private fun installSource(context: Context): String? =
+        ReportEnvironment.describeInstaller(installerPackage(context)) ?: "other (not installed from a store)"
+
+    /** The package that installed this app, or null when unknown. */
+    fun installerPackage(context: Context): String? =
+        try {
+            val pm = context.packageManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                pm.getInstallSourceInfo(context.packageName).installingPackageName
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getInstallerPackageName(context.packageName)
             }
-        return ReportEnvironment.describeInstaller(installer) ?: "other (not installed from a store)"
-    }
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        } catch (_: RuntimeException) {
+            null
+        }
 
     private fun carriers(context: Context): List<ReportEnvironment.Carrier>? =
         try {
