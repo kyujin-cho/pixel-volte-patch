@@ -48,6 +48,11 @@
     <string name="enabled">启用</string>
     <string name="disabled">禁用</string>
     <string name="newer_version_available">有新版本 %1$s 可用!</string>
+    <string name="newer_beta_version_available">有新的测试版 %1$s 可用!</string>
+    <string name="update_channel">更新通道</string>
+    <string name="update_channel_stable">稳定版</string>
+    <string name="update_channel_beta">测试版</string>
+    <string name="update_channel_description">测试版可能不稳定。切回稳定版不会降级,在发布更新的稳定版之前会保留当前版本。</string>
     <string name="feature_toggles">启用/禁用功能</string>
     <string name="cosmetic_toggles">显示设置</string>
     <string name="show_4g_for_lte_data_icon">使用 4G 替换 LTE 图标</string>

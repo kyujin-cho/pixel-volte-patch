@@ -91,6 +91,9 @@ data class ReportEnvironment(
         private const val UNKNOWN = "unknown"
         private const val PLAY_STORE = "com.android.vending"
 
+        /** True when [installer] is the Google Play Store. */
+        fun isPlayStoreInstaller(installer: String?): Boolean = installer == PLAY_STORE
+
         /** "Google Play" for the Play Store, the installer package otherwise, null if unknown. */
         internal fun describeInstaller(installer: String?): String? =
             when {

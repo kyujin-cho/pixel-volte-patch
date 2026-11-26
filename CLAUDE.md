@@ -141,11 +141,12 @@ VoLTE status is verified via:
 ### Version Updates
 The app checks GitHub Releases API for updates:
 ```kotlin
-getLatestAppVersion { latestVersion ->
+getLatestAppVersion(updateChannel) { latestVersion ->
     if (isNewerVersion(latestVersion, BuildConfig.VERSION_NAME)) { /* show update */ }
 }
 ```
-- `getLatestAppVersion` returns the newest release that is neither a draft nor a pre-release (`latestStableTag` in `AppVersion.kt`), so beta releases never prompt stable users.
+- `getLatestAppVersion(channel)` picks the release with `latestTag(releases, channel)` (`AppVersion.kt`). `UpdateChannel.STABLE` returns the newest release that is neither a draft nor a pre-release (`latestStableTag`), so beta releases never prompt stable users. `UpdateChannel.BETA` returns the highest-versioned non-draft release including pre-releases (by version, not list order, because GitHub orders releases by creation date); a newer stable release is still offered because it sorts above its betas.
+- The channel is stored in the `settings` SharedPreferences (`getUpdateChannel` / `setUpdateChannel` in `Moder.kt`). Until the user picks one, `defaultUpdateChannel` gives beta for a beta `versionName` and stable otherwise; an explicit choice always wins. The selector sits in the Version section of the home page, is hidden for Google Play installs (updated through Play), and changing it re-runs the check. Switching back to stable never downgrades.
 - `parseAppVersion` accepts SemVer plus short beta tags such as `1.5.0b1` (read as `1.5.0-b1`, which sorts below `1.5.0`) and returns null instead of throwing; unparseable versions never count as newer.
 - Beta releases: tag `X.Y.ZbN` with the same `versionName`, then mark the GitHub release as a pre-release.
 

@@ -48,6 +48,11 @@
     <string name="enabled">활성화</string>
     <string name="disabled">비활성화</string>
     <string name="newer_version_available">새 버전 사용 가능: %1$s</string>
+    <string name="newer_beta_version_available">베타 업데이트 사용 가능: %1$s</string>
+    <string name="update_channel">업데이트 채널</string>
+    <string name="update_channel_stable">안정</string>
+    <string name="update_channel_beta">베타</string>
+    <string name="update_channel_description">베타 빌드는 불안정할 수 있습니다. 안정 채널로 되돌려도 다운그레이드되지 않으며, 더 새로운 안정 버전이 나올 때까지 현재 빌드가 유지됩니다.</string>
     <string name="feature_toggles">기능</string>
     <string name="cosmetic_toggles">표시 설정</string>
     <string name="show_4g_for_lte_data_icon">LTE 대신 4G 아이콘 표시</string>

@@ -51,7 +51,10 @@ fun isShizukuPermissionGranted(): Boolean =
 val SubscriptionInfo.uniqueName: String
     get() = "${this.displayName} (SIM ${this.simSlotIndex + 1})"
 
-fun getLatestAppVersion(handler: (String) -> Unit) {
+fun getLatestAppVersion(
+    channel: UpdateChannel,
+    handler: (String) -> Unit,
+) {
     "https://api.github.com/repos/kyujin-cho/pixel-volte-patch/releases"
         .httpGet()
         .header("X-GitHub-Api-Version", "2022-11-28")
@@ -71,7 +74,7 @@ fun getLatestAppVersion(handler: (String) -> Unit) {
                                         draft = release.optBoolean("draft", false),
                                     )
                                 }
-                            latestStableTag(releases)
+                            latestTag(releases, channel)
                         } catch (e: java.lang.Exception) {
                             null
                         }
